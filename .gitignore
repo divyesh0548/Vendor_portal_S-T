@@ -1,0 +1,90 @@
+# Secrets / local env
+.env
+**/.env
+*.env.local
+**/Mail App Password.txt
+*credentials*
+*.pem
+*.key
+
+# Excel / PDF (all variants)
+*.xlsx
+*.xls
+*.xlsm
+*.xlsb
+*.xltx
+*.xltm
+*.XLSX
+*.XLS
+*.pdf
+*.PDF
+
+# Uploads / generated user documents (~tens of MB locally)
+py_back/app/uploaded_files/
+**/uploaded_files/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+.env/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg
+
+# ML / OCR caches (torch, huggingface, easyocr can be huge)
+.cache/
+**/huggingface/
+**/.huggingface/
+**/torch_cache/
+**/easyocr_model/
+*.pt
+*.pth
+*.onnx
+*.safetensors
+*.bin
+*.ckpt
+*.h5
+*.pkl
+*.joblib
+
+# Local DB / dumps / archives
+*.sqlite
+*.sqlite3
+*.db
+*.bak
+*.dump
+*.sql.gz
+*.zip
+*.7z
+*.rar
+*.tar
+*.tar.gz
+*.tgz
+
+# Temp / IDE / OS
+*.log
+*.tmp
+*.temp
+*~
+Thumbs.db
+Desktop.ini
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Nested tooling / agent scratch
+py_back/.agents/
+.agents/
+**/chrome_profile/
+**/selenium_profile/

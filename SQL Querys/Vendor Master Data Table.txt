@@ -1,0 +1,170 @@
+USE [Vendor Protal Data];
+GO
+
+-- Record ID generator (A-Z / a-z / 0-9)
+CREATE OR ALTER FUNCTION dbo.fn_GenerateRecordId (@len INT = 24)
+RETURNS VARCHAR(100)
+AS
+BEGIN
+    DECLARE @chars VARCHAR(62) = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    DECLARE @out   VARCHAR(100) = '';
+    DECLARE @i     INT = 0;
+
+    WHILE (@i < @len)
+    BEGIN
+        SET @out += SUBSTRING(@chars, (ABS(CHECKSUM(NEWID())) % 62) + 1, 1);
+        SET @i += 1;
+    END
+    RETURN @out;
+END;
+GO
+
+IF OBJECT_ID('dbo.VendorMasterData', 'U') IS NOT NULL
+    DROP TABLE dbo.VendorMasterData;
+GO
+
+CREATE TABLE dbo.VendorMasterData
+(
+    Id BIGINT IDENTITY(1,1) PRIMARY KEY,
+    RecordID VARCHAR(24) NOT NULL
+        CONSTRAINT DF_VendorMasterData_RecordID DEFAULT (dbo.fn_GenerateRecordId(24)),
+    CONSTRAINT UQ_VendorMasterData_RecordID UNIQUE (RecordID),
+
+    -- Basic/vendor fields
+    companyName NVARCHAR(255) NULL,
+    vendorName NVARCHAR(255) NULL,
+    vendorCategory NVARCHAR(100) NULL,
+    gstRegistrationStatus NVARCHAR(50) NULL,
+    gstNumber NVARCHAR(50) NULL,
+    tradeNameGst NVARCHAR(255) NULL,
+    addressLane1 NVARCHAR(255) NULL,
+    addressLane2 NVARCHAR(255) NULL,
+    addressLane3 NVARCHAR(255) NULL,
+    pincode NVARCHAR(20) NULL,
+    country NVARCHAR(100) NULL,
+    state NVARCHAR(100) NULL,
+    district NVARCHAR(100) NULL,
+    company NVARCHAR(10) NULL,
+    cinNumber NVARCHAR(50) NULL,
+    panStatus NVARCHAR(10) NULL,
+    panNumber NVARCHAR(50) NULL,
+    businessEntityType NVARCHAR(100) NULL,
+    tradeNamePan NVARCHAR(255) NULL,
+    msmeStatus NVARCHAR(10) NULL,
+    udyamNumber NVARCHAR(100) NULL,
+    msmeCategory NVARCHAR(100) NULL,
+    msmeIndustry NVARCHAR(100) NULL,
+    pfStatus NVARCHAR(10) NULL,
+    pfNumber NVARCHAR(50) NULL,
+    esiStatus NVARCHAR(10) NULL,
+    esiNumber NVARCHAR(50) NULL,
+    department NVARCHAR(100) NULL,
+    buyerId INT NULL,
+    bankPaymentMethod BIT NULL,
+    ifscCode NVARCHAR(50) NULL,
+    bankName NVARCHAR(255) NULL,
+    branchName NVARCHAR(255) NULL,
+    bankAccountNumber NVARCHAR(100) NULL,
+    statutoryDetails NVARCHAR(MAX) NULL,
+    totalEmployees NVARCHAR(50) NULL,
+    inhouseMachineries NVARCHAR(255) NULL,
+    numberOfPlants NVARCHAR(50) NULL,
+    yearOfIncorporation NVARCHAR(20) NULL,
+    selectedPreviousYear NVARCHAR(20) NULL,
+    previousYearTurnover NVARCHAR(100) NULL,
+    headOfficeLocation NVARCHAR(255) NULL,
+    materialDealingsIn NVARCHAR(MAX) NULL,
+    serviceProvideFor NVARCHAR(MAX) NULL,
+    isoCertificates NVARCHAR(500) NULL,
+    ecoVadisScore NVARCHAR(100) NULL,
+    ohsasCertificate NVARCHAR(100) NULL,
+    relevantCertificate NVARCHAR(255) NULL,
+    contactPersonName NVARCHAR(255) NULL,
+    contactPersonDesignation NVARCHAR(100) NULL,
+    contactPersonEmail NVARCHAR(255) NULL,
+    contactPersonMobile NVARCHAR(50) NULL,
+    alternativePersonName NVARCHAR(255) NULL,
+    alternativePersonDesignation NVARCHAR(100) NULL,
+    alternativePersonEmail NVARCHAR(255) NULL,
+    alternativePersonMobile NVARCHAR(50) NULL,
+    alternativePersonDate DATE NULL,
+    alternativePersonPlace NVARCHAR(255) NULL,
+    agreeCodeOfConduct BIT NULL,
+    agreeInformationAccuracy BIT NULL,
+    q1 NVARCHAR(10) NULL, q2 NVARCHAR(10) NULL, q3 NVARCHAR(10) NULL,
+    q4 NVARCHAR(10) NULL, q5 NVARCHAR(10) NULL, q6 NVARCHAR(10) NULL,
+    q7 NVARCHAR(10) NULL, q8 NVARCHAR(10) NULL, q9 NVARCHAR(10) NULL,
+
+    -- File uploads: each file has name + mime + content
+    gstDocument_FileName NVARCHAR(260) NULL,
+    gstDocument_ContentType NVARCHAR(100) NULL,
+    gstDocument_Data VARBINARY(MAX) NULL,
+
+    panDocument_FileName NVARCHAR(260) NULL,
+    panDocument_ContentType NVARCHAR(100) NULL,
+    panDocument_Data VARBINARY(MAX) NULL,
+
+    cinDocument_FileName NVARCHAR(260) NULL,
+    cinDocument_ContentType NVARCHAR(100) NULL,
+    cinDocument_Data VARBINARY(MAX) NULL,
+
+    msmeDocument_FileName NVARCHAR(260) NULL,
+    msmeDocument_ContentType NVARCHAR(100) NULL,
+    msmeDocument_Data VARBINARY(MAX) NULL,
+
+    pfDocument_FileName NVARCHAR(260) NULL,
+    pfDocument_ContentType NVARCHAR(100) NULL,
+    pfDocument_Data VARBINARY(MAX) NULL,
+
+    esiDocument_FileName NVARCHAR(260) NULL,
+    esiDocument_ContentType NVARCHAR(100) NULL,
+    esiDocument_Data VARBINARY(MAX) NULL,
+
+    cancelledCheque_FileName NVARCHAR(260) NULL,
+    cancelledCheque_ContentType NVARCHAR(100) NULL,
+    cancelledCheque_Data VARBINARY(MAX) NULL,
+
+    inhouseMachineriesDoc_FileName NVARCHAR(260) NULL,
+    inhouseMachineriesDoc_ContentType NVARCHAR(100) NULL,
+    inhouseMachineriesDoc_Data VARBINARY(MAX) NULL,
+
+    numberOfPlantsDoc_FileName NVARCHAR(260) NULL,
+    numberOfPlantsDoc_ContentType NVARCHAR(100) NULL,
+    numberOfPlantsDoc_Data VARBINARY(MAX) NULL,
+
+    iso1_FileName NVARCHAR(260) NULL,
+    iso1_ContentType NVARCHAR(100) NULL,
+    iso1_Data VARBINARY(MAX) NULL,
+
+    iso2_FileName NVARCHAR(260) NULL,
+    iso2_ContentType NVARCHAR(100) NULL,
+    iso2_Data VARBINARY(MAX) NULL,
+
+    iso3_FileName NVARCHAR(260) NULL,
+    iso3_ContentType NVARCHAR(100) NULL,
+    iso3_Data VARBINARY(MAX) NULL,
+
+    iso4_FileName NVARCHAR(260) NULL,
+    iso4_ContentType NVARCHAR(100) NULL,
+    iso4_Data VARBINARY(MAX) NULL,
+
+    iso5_FileName NVARCHAR(260) NULL,
+    iso5_ContentType NVARCHAR(100) NULL,
+    iso5_Data VARBINARY(MAX) NULL,
+
+    ecoVadisDoc_FileName NVARCHAR(260) NULL,
+    ecoVadisDoc_ContentType NVARCHAR(100) NULL,
+    ecoVadisDoc_Data VARBINARY(MAX) NULL,
+
+    ohsasDoc_FileName NVARCHAR(260) NULL,
+    ohsasDoc_ContentType NVARCHAR(100) NULL,
+    ohsasDoc_Data VARBINARY(MAX) NULL,
+
+    relevantCertificateDoc_FileName NVARCHAR(260) NULL,
+    relevantCertificateDoc_ContentType NVARCHAR(100) NULL,
+    relevantCertificateDoc_Data VARBINARY(MAX) NULL,
+
+    createdAt DATETIME2(0) NOT NULL CONSTRAINT DF_VendorMasterData_createdAt DEFAULT (SYSDATETIME()),
+    updatedAt DATETIME2(0) NOT NULL CONSTRAINT DF_VendorMasterData_updatedAt DEFAULT (SYSDATETIME())
+);
+GO

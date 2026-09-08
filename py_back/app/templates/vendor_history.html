@@ -1,0 +1,993 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>History</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #eef2ff; margin: 0; padding: 20px; color: #1f2937; }
+    .wrap { max-width: 1200px; margin: 0 auto; }
+    .page-header { background: #fff; border-radius: 12px; padding: 14px 18px; box-shadow: 0 8px 20px rgba(2, 6, 23, .08); margin-bottom: 12px; display: grid; grid-template-columns: 180px 1fr auto; gap: 14px; align-items: center; }
+    .brand-left { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+    .brand-art { width: 160px; max-width: 100%; height: auto; display: block; }
+    .brand-text { text-align: center; font-size: 20px; line-height: 1.4; color: #475569; font-weight: 700; }
+    .toolbar { margin-bottom: 12px; display: flex; gap: 8px; justify-content: flex-end; }
+    .toolbar button { width: auto; padding: 10px 14px; }
+    .card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 10px 24px rgba(2, 6, 23, .08); }
+    h2 { margin: 0 0 10px; font-size: 32px; color: #1e3a8a; text-align: center; text-decoration: underline; }
+
+    .table-wrap {
+      border: 2px solid #1e3a8a;
+      border-radius: 4px;
+      overflow: hidden;
+      width: 100%;
+      max-width: 100%;
+    }
+    .table-toolbar { display: grid; grid-template-columns: 1fr 310px; border-bottom: 1px solid #cbd5e1; }
+    .field { padding: 10px 12px; border-right: 1px solid #cbd5e1; }
+    .field:last-child { border-right: none; }
+    .field input, .field select { width: 100%; border: none; outline: none; font-size: 16px; color: #334155; background: transparent; }
+    .table-box {
+      position: relative;
+      width: 100%;
+      max-width: 100%;
+      height: 360px;
+      overflow-x: auto;
+      overflow-y: auto;
+    }
+    table {
+      width: max-content;
+      min-width: 100%;
+      border-collapse: collapse;
+      table-layout: auto;
+      font-size: 16px;
+    }
+    thead { background: #2db8ac; }
+    th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid #dbe3f1; white-space: nowrap; }
+    th { color: #0f3768; position: relative; user-select: none; }
+    .history-row { touch-action: pan-y; }
+    .history-row td.data-cell {
+      transition: transform .22s ease, background-color .2s ease, color .2s ease;
+      position: relative;
+      z-index: 1;
+      background: #fff;
+    }
+    .history-row.selected-row td.data-cell {
+      background: #dbeafe;
+      color: #0f172a;
+      font-weight: 700;
+    }
+    .row-actions-float {
+      position: absolute;
+      left: 0;
+      top: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px;
+      border-radius: 10px;
+      border: 1px solid #bfdbfe;
+      background: rgba(239, 246, 255, 0.95);
+      box-shadow: 0 8px 16px rgba(15, 23, 42, 0.12);
+      z-index: 8;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transform: translateY(4px);
+      transition: opacity .18s ease, visibility .18s ease, transform .18s ease;
+    }
+    .row-actions-float.show {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
+    .row-action-btn {
+      width: auto;
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 13px;
+      line-height: 1.2;
+      white-space: nowrap;
+      background: #93c5fd;
+      color: #0f172a;
+    }
+    .history-row.swiped td.data-cell {
+      transform: translateX(0);
+    }
+    .col-resizer {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 10px;
+      height: 100%;
+      cursor: col-resize;
+      touch-action: none;
+    }
+    th:last-child .col-resizer { display: none; }
+    .col-resize-active { cursor: col-resize; }
+    .pager { display: flex; justify-content: flex-end; align-items: center; gap: 16px; padding: 10px 14px; color: #64748b; font-size: 14px; }
+    .pager button { border: none; background: transparent; color: #94a3b8; font-size: 22px; cursor: pointer; }
+    .table-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-top: 1px solid #cbd5e1;
+      border-bottom: 1px solid #dbe3f1;
+      flex-wrap: wrap;
+    }
+    .table-actions button { width: auto; padding: 10px 14px; }
+    #downloadAllRecordsBtn:disabled { opacity: 0.65; cursor: not-allowed; }
+    .inline-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      visibility: hidden;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .16s ease, visibility .16s ease;
+      min-height: 32px;
+    }
+    .history-row.selected-row .inline-actions {
+      visibility: visible;
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .inline-action-btn {
+      width: auto;
+      padding: 7px 10px;
+      border-radius: 7px;
+      font-size: 12px;
+      line-height: 1.2;
+      white-space: nowrap;
+      background: #93c5fd;
+      color: #0f172a;
+      font-weight: 700;
+    }
+    .download-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1200;
+    }
+    .download-modal-backdrop.open { display: flex; }
+    .download-modal-card {
+      width: min(92vw, 420px);
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 16px 42px rgba(15, 23, 42, 0.28);
+      padding: 16px;
+      border: 1px solid #cbd5e1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .download-modal-title {
+      margin: 0;
+      font-size: 18px;
+      color: #1e3a8a;
+    }
+    .download-modal-note {
+      margin: 0;
+      font-size: 13px;
+      color: #475569;
+    }
+    .download-modal-card label {
+      font-size: 13px;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 6px;
+    }
+    .download-modal-card select {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 14px;
+      color: #0f172a;
+      background: #f8fafc;
+    }
+    .download-modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 2px;
+    }
+    .download-modal-actions button {
+      width: auto;
+      padding: 9px 14px;
+      border-radius: 8px;
+    }
+    .download-cancel-btn {
+      background: #475569;
+      color: #fff;
+    }
+    #confirmRecordDownloadBtn:disabled { opacity: 0.65; cursor: not-allowed; }
+
+    button { background: #1d4ed8; color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; }
+  </style>
+  <link rel="stylesheet" href="/web/portal-liquid.css?v=20260610-light" />
+  <style>
+    .download-modal-card {
+      background: #ffffff !important;
+      border: 1px solid #d6e1ec !important;
+      box-shadow: 0 22px 58px rgba(42, 58, 78, .22) !important;
+      -webkit-backdrop-filter: none !important;
+      backdrop-filter: none !important;
+    }
+    .download-modal-card::before {
+      display: none !important;
+    }
+    .download-modal-card,
+    .download-modal-card * {
+      color: #182334;
+    }
+    .download-modal-note {
+      color: #667589 !important;
+    }
+    .download-modal-backdrop {
+      background: rgba(24, 35, 52, .38) !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="page-header">
+      <div class="brand-left">
+        <img src="/web/header-art-image" alt="Header Art" class="brand-art" />
+      </div>
+      <div class="brand-text">Sharp & Tannan Chartered Accountants</div>
+      <div></div>
+    </div>
+
+    <div class="toolbar">
+      <button type="button" id="goBackBtn">Go Back</button>
+      <button type="button" onclick="logoutAndRedirect()">Logout</button>
+    </div>
+
+    <div class="card">
+      <h2 id="historyTitle">Vendor Request History</h2>
+      <div class="table-wrap">
+        <div class="table-toolbar">
+          <div class="field"><input id="searchInput" type="text" placeholder="Search by..." /></div>
+          <div class="field">
+            <select id="filterField">
+              <option value="company">Company Dealing With</option>
+              <option value="category">Vendor Category</option>
+              <option value="approverStatus">Approver Status</option>
+              <option value="name">Vendor Name</option>
+              <option value="type">Vendor Type</option>
+              <option value="record">Record ID</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-box">
+          <table id="historyTable">
+            <colgroup>
+              <col style="width: 280px;" />
+              <col style="width: 320px;" />
+              <col style="width: 220px;" />
+              <col style="width: 240px;" />
+              <col style="width: 220px;" />
+              <col style="width: 220px;" />
+            </colgroup>
+            <thead>
+              <tr>
+                <th>Record ID<span class="col-resizer" aria-hidden="true"></span></th>
+                <th>Company Dealing With<span class="col-resizer" aria-hidden="true"></span></th>
+                <th id="thCategory">Vendor Category<span class="col-resizer" aria-hidden="true"></span></th>
+                <th>Approver Status<span class="col-resizer" aria-hidden="true"></span></th>
+                <th id="thName">Vendor Name<span class="col-resizer" aria-hidden="true"></span></th>
+                <th id="thType">Vendor Type<span class="col-resizer" aria-hidden="true"></span></th>
+              </tr>
+            </thead>
+            <tbody id="recordsBody"></tbody>
+          </table>
+          <div id="rowActionsFloat" class="row-actions-float" aria-hidden="true">
+            <button id="rowViewVendorBtn" type="button" class="row-action-btn">View Vendor</button>
+            <button id="rowDownloadBtn" type="button" class="row-action-btn">Download</button>
+          </div>
+        </div>
+
+        <div class="pager">
+          <span>Show 25</span>
+          <span id="countLabel">0 - 0 / 0</span>
+          <button type="button" aria-label="first">|&lt;</button>
+          <button type="button" aria-label="previous">&lt;</button>
+          <button type="button" aria-label="next">&gt;</button>
+          <button type="button" aria-label="last">&gt;|</button>
+        </div>
+        <div class="table-actions">
+          <button id="downloadAllRecordsBtn" type="button">Download All Records</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="downloadRecordModal" class="download-modal-backdrop" aria-hidden="true">
+    <div class="download-modal-card" role="dialog" aria-modal="true" aria-label="Download Record">
+      <h3 class="download-modal-title">Download Record</h3>
+      <p id="downloadRecordNote" class="download-modal-note">Record ID: -</p>
+      <div>
+        <label for="downloadTypeSelect">Select File Type</label>
+        <select id="downloadTypeSelect">
+          <option value="excel">Record In Excel</option>
+          <option value="pdf">Vendor Form PDF</option>
+          <option value="documents">Vendor Document</option>
+        </select>
+      </div>
+      <div class="download-modal-actions">
+        <button id="cancelRecordDownloadBtn" type="button" class="download-cancel-btn">Close</button>
+        <button id="confirmRecordDownloadBtn" type="button">Download</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function requireSessionLogin() {
+      if (sessionStorage.getItem("token")) {
+        return;
+      }
+      fetch("/api/auth/logout", { method: "POST", keepalive: true }).catch(() => {});
+      window.location.replace("/web/login");
+    }
+
+    requireSessionLogin();
+    async function logoutAndRedirect() {
+      await fetch("/api/auth/logout", { method: "POST" });
+      sessionStorage.removeItem("token");
+      sessionStorage.removeItem("role");
+      sessionStorage.removeItem("email");
+      sessionStorage.removeItem("name");
+      window.location.href = "/web/login";
+    }
+
+    const pageParams = new URLSearchParams(window.location.search);
+    const portal = String(pageParams.get("portal") || "").trim().toLowerCase();
+    const botName = String(sessionStorage.getItem("botName") || "").trim().toLowerCase();
+    const isCustomerBotContext = botName === "customer bot";
+    const isCustomerPortal = portal === "customer" || (!portal && isCustomerBotContext);
+    const historyApiBase = isCustomerPortal ? "/api/customer/history-records" : "/api/vendor/history-records";
+
+    const rows = [];
+    let selectedRecordId = "";
+    let openActionRecordId = "";
+    let downloadModalRecordId = "";
+    const swipeState = {
+      active: false,
+      pointerId: null,
+      startX: 0,
+      startY: 0,
+      recordId: "",
+    };
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    async function parseApiResponse(res) {
+      const text = await res.text();
+      if (!text) return {};
+      try {
+        return JSON.parse(text);
+      } catch (_) {
+        return { detail: text };
+      }
+    }
+
+    function getDownloadFilename(contentDisposition, fallback = "download.bin") {
+      const raw = String(contentDisposition || "");
+      if (!raw) return fallback;
+
+      const utfMatch = raw.match(/filename\*=UTF-8''([^;]+)/i);
+      if (utfMatch && utfMatch[1]) {
+        try {
+          return decodeURIComponent(utfMatch[1].trim());
+        } catch (_) {
+          return utfMatch[1].trim();
+        }
+      }
+
+      const basicMatch = raw.match(/filename="?([^\";]+)"?/i);
+      if (basicMatch && basicMatch[1]) {
+        return basicMatch[1].trim();
+      }
+
+      return fallback;
+    }
+
+    function triggerBlobDownload(blob, filename) {
+      const downloadUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.download = filename || "download.bin";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      // Delay revoke to avoid race conditions in some browsers while saving the file.
+      window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 4000);
+    }
+
+    async function loadHistoryRecords(token) {
+      const res = await fetch(historyApiBase, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await parseApiResponse(res);
+      if (!res.ok) {
+        throw new Error(data.detail || "Unable to load vendor history records");
+      }
+      const normalized = Array.isArray(data)
+        ? data.map((item) => ({
+            record: String(item.record || ""),
+            company: String(item.company || ""),
+            category: String(item.category || ""),
+            approverStatus: String(item.approverStatus || ""),
+            name: String(item.name || ""),
+            type: String(item.type || ""),
+            createdAt: String(item.createdAt || ""),
+          }))
+        : [];
+      rows.splice(0, rows.length, ...normalized);
+    }
+
+    function syncRowVisualState(tableBody) {
+      if (!tableBody) return;
+      const visibleRows = tableBody.querySelectorAll("tr.history-row[data-record]");
+      let openRowVisible = false;
+      visibleRows.forEach((rowEl) => {
+        const recordId = String(rowEl.dataset.record || "").trim();
+        const isSelected = !!recordId && recordId === selectedRecordId;
+        const isOpen = !!recordId && recordId === openActionRecordId;
+        rowEl.classList.toggle("selected-row", isSelected);
+        rowEl.classList.toggle("swiped", isOpen);
+        if (isOpen) {
+          openRowVisible = true;
+        }
+      });
+      if (!openRowVisible) {
+        openActionRecordId = "";
+      }
+    }
+
+    function getRowElementByRecordId(tableBody, recordId) {
+      if (!tableBody) return null;
+      const normalizedRecordId = String(recordId || "").trim();
+      if (!normalizedRecordId) return null;
+      const visibleRows = tableBody.querySelectorAll("tr.history-row[data-record]");
+      for (const rowEl of visibleRows) {
+        if (String(rowEl.dataset.record || "").trim() === normalizedRecordId) {
+          return rowEl;
+        }
+      }
+      return null;
+    }
+
+    function syncFloatingRowActions(tableBox, tableBody, rowActionsFloat) {
+      if (!tableBox || !tableBody || !rowActionsFloat) return;
+      const targetRecordId = String(openActionRecordId || "").trim();
+      if (!targetRecordId) {
+        rowActionsFloat.classList.remove("show");
+        rowActionsFloat.setAttribute("aria-hidden", "true");
+        rowActionsFloat.dataset.record = "";
+        return;
+      }
+
+      const targetRow = getRowElementByRecordId(tableBody, targetRecordId);
+      if (!targetRow) {
+        openActionRecordId = "";
+        syncRowVisualState(tableBody);
+        rowActionsFloat.classList.remove("show");
+        rowActionsFloat.setAttribute("aria-hidden", "true");
+        rowActionsFloat.dataset.record = "";
+        return;
+      }
+
+      const boxRect = tableBox.getBoundingClientRect();
+      const rowRect = targetRow.getBoundingClientRect();
+      const visibleHeight = Math.min(rowRect.bottom, boxRect.bottom) - Math.max(rowRect.top, boxRect.top);
+      if (visibleHeight <= 6) {
+        rowActionsFloat.classList.remove("show");
+        rowActionsFloat.setAttribute("aria-hidden", "true");
+        rowActionsFloat.dataset.record = targetRecordId;
+        return;
+      }
+
+      const panelHeight = rowActionsFloat.offsetHeight || 44;
+      const panelWidth = rowActionsFloat.offsetWidth || 220;
+      const desiredTopInViewport = (rowRect.top - boxRect.top) + ((rowRect.height - panelHeight) / 2);
+      const minTopInViewport = 6;
+      const maxTopInViewport = Math.max(minTopInViewport, tableBox.clientHeight - panelHeight - 6);
+      const clampedTopInViewport = Math.max(
+        minTopInViewport,
+        Math.min(maxTopInViewport, Math.round(desiredTopInViewport)),
+      );
+      const desiredLeftInViewport = Math.max(6, tableBox.clientWidth - panelWidth - 10);
+
+      rowActionsFloat.style.top = `${tableBox.scrollTop + clampedTopInViewport}px`;
+      rowActionsFloat.style.left = `${tableBox.scrollLeft + desiredLeftInViewport}px`;
+      rowActionsFloat.dataset.record = targetRecordId;
+      rowActionsFloat.classList.add("show");
+      rowActionsFloat.setAttribute("aria-hidden", "false");
+    }
+
+    async function downloadHistoryRecords(recordId = "") {
+      const token = sessionStorage.getItem("token");
+      if (!token) {
+        window.location.href = "/web/login";
+        return;
+      }
+
+      const normalizedRecordId = String(recordId || "").trim();
+      const isBulkDownload = !normalizedRecordId;
+      const button = isBulkDownload ? document.getElementById("downloadAllRecordsBtn") : null;
+      const originalText = button ? button.textContent : "";
+      if (button) {
+        button.disabled = true;
+        button.textContent = "Preparing...";
+      }
+
+      try {
+        const downloadBasePath = isCustomerPortal
+          ? "/api/customer/history-records/download"
+          : "/api/vendor/history-records/download";
+        const downloadPath = normalizedRecordId
+          ? `${downloadBasePath}?recordId=${encodeURIComponent(normalizedRecordId)}`
+          : downloadBasePath;
+        const res = await fetch(downloadPath, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) {
+          const data = await parseApiResponse(res);
+          throw new Error(data.detail || "Unable to download history records");
+        }
+
+        const blob = await res.blob();
+        const filename = getDownloadFilename(res.headers.get("Content-Disposition"));
+        const entityLabel = isCustomerPortal ? "Customer" : "Vendor";
+        triggerBlobDownload(
+          blob,
+          filename || (isBulkDownload ? `${entityLabel} List (DateTime).xlsx` : `${entityLabel} Record (DateTime).xlsx`),
+        );
+      } catch (err) {
+        console.error(err);
+        alert((err && err.message) || "Unable to download history records");
+      } finally {
+        if (button) {
+          button.disabled = false;
+          button.textContent = originalText;
+        }
+      }
+    }
+
+    async function downloadAllHistoryRecords() {
+      await downloadHistoryRecords("");
+    }
+
+    function openDownloadRecordModal(recordId) {
+      const normalizedRecordId = String(recordId || "").trim();
+      if (!normalizedRecordId) return;
+      const modal = document.getElementById("downloadRecordModal");
+      const note = document.getElementById("downloadRecordNote");
+      const select = document.getElementById("downloadTypeSelect");
+      downloadModalRecordId = normalizedRecordId;
+      if (note) {
+        note.textContent = `Record ID: ${normalizedRecordId}`;
+      }
+      if (select) {
+        select.value = "excel";
+      }
+      if (modal) {
+        modal.classList.add("open");
+        modal.setAttribute("aria-hidden", "false");
+      }
+    }
+
+    function closeDownloadRecordModal() {
+      const modal = document.getElementById("downloadRecordModal");
+      downloadModalRecordId = "";
+      if (modal) {
+        modal.classList.remove("open");
+        modal.setAttribute("aria-hidden", "true");
+      }
+    }
+
+    async function downloadSelectedHistoryRecord(recordId, exportType) {
+      const token = sessionStorage.getItem("token");
+      if (!token) {
+        window.location.href = "/web/login";
+        return;
+      }
+
+      const normalizedRecordId = String(recordId || "").trim();
+      const normalizedExportType = String(exportType || "").trim().toLowerCase();
+      if (!normalizedRecordId) {
+        alert("Record ID is required.");
+        return;
+      }
+      if (!["excel", "pdf", "documents"].includes(normalizedExportType)) {
+        alert("Please select a valid download option.");
+        return;
+      }
+
+      const confirmBtn = document.getElementById("confirmRecordDownloadBtn");
+      const originalText = confirmBtn ? confirmBtn.textContent : "";
+      if (confirmBtn) {
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = "Preparing...";
+      }
+
+      try {
+        const exportBasePath = isCustomerPortal
+          ? "/api/customer/history-records/export"
+          : "/api/vendor/history-records/export";
+        const exportPath = `${exportBasePath}?recordId=${encodeURIComponent(normalizedRecordId)}&exportType=${encodeURIComponent(normalizedExportType)}`;
+        const res = await fetch(exportPath, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) {
+          const data = await parseApiResponse(res);
+          throw new Error(data.detail || "Unable to download selected record");
+        }
+
+        const extensionMap = {
+          excel: "xlsx",
+          pdf: "pdf",
+          documents: "zip",
+        };
+        const blob = await res.blob();
+        const fallbackName = `${normalizedRecordId}.${extensionMap[normalizedExportType] || "bin"}`;
+        const filename = getDownloadFilename(res.headers.get("Content-Disposition"), fallbackName);
+        triggerBlobDownload(blob, filename);
+        closeDownloadRecordModal();
+      } catch (err) {
+        console.error(err);
+        alert((err && err.message) || "Unable to download selected record");
+      } finally {
+        if (confirmBtn) {
+          confirmBtn.disabled = false;
+          confirmBtn.textContent = originalText || "Download";
+        }
+      }
+    }
+
+    function openHistoryVendorPopup(recordId) {
+      const normalizedRecordId = String(recordId || "").trim();
+      if (!normalizedRecordId) return;
+      const targetUrl = isCustomerPortal
+        ? `/web/view-customer?recordId=${encodeURIComponent(normalizedRecordId)}&mode=history&portal=customer`
+        : `/web/view-vendor?recordId=${encodeURIComponent(normalizedRecordId)}&mode=history&portal=vendor`;
+      const popup = window.open(
+        targetUrl,
+        "vendorHistoryPopup",
+        "width=1280,height=860,left=80,top=50,resizable=yes,scrollbars=yes"
+      );
+      if (popup) {
+        popup.focus();
+      } else {
+        window.location.href = targetUrl;
+      }
+    }
+
+    function autoSizeColumns(table, data) {
+      if (!table || !Array.isArray(data)) return;
+      const cols = Array.from(table.querySelectorAll("colgroup col"));
+      if (!cols.length) return;
+
+      const keys = ["record", "company", "category", "approverStatus", "name", "type"];
+      const minWidths = [220, 240, 180, 220, 180, 180];
+      const maxWidths = [520, 560, 360, 420, 360, 300];
+
+      keys.forEach((key, idx) => {
+        if (!cols[idx]) return;
+        let longest = 0;
+        for (const item of data) {
+          const valueLength = String(item?.[key] || "").length;
+          if (valueLength > longest) longest = valueLength;
+        }
+        const estimated = Math.round(longest * 8 + 44);
+        const width = Math.max(minWidths[idx], Math.min(maxWidths[idx], estimated));
+        cols[idx].style.width = `${width}px`;
+      });
+    }
+
+    function enableTableColumnResize(table) {
+      if (!table) return;
+      const headers = Array.from(table.querySelectorAll("thead th"));
+      const cols = Array.from(table.querySelectorAll("colgroup col"));
+      if (!headers.length || headers.length !== cols.length) return;
+
+      headers.forEach((header, colIndex) => {
+        const handle = header.querySelector(".col-resizer");
+        if (!handle) return;
+
+        handle.addEventListener("mousedown", (event) => {
+          event.preventDefault();
+          const startX = event.clientX;
+          const startWidth = cols[colIndex].getBoundingClientRect().width;
+          const minWidth = 140;
+          document.body.classList.add("col-resize-active");
+
+          const onMouseMove = (moveEvent) => {
+            const deltaX = moveEvent.clientX - startX;
+            const nextWidth = Math.max(minWidth, startWidth + deltaX);
+            cols[colIndex].style.width = `${nextWidth}px`;
+          };
+
+          const onMouseUp = () => {
+            document.body.classList.remove("col-resize-active");
+            document.removeEventListener("mousemove", onMouseMove);
+            document.removeEventListener("mouseup", onMouseUp);
+          };
+
+          document.addEventListener("mousemove", onMouseMove);
+          document.addEventListener("mouseup", onMouseUp);
+        });
+      });
+    }
+
+    function render(data, tableBody, countLabel, historyTable, tableBox, rowActionsFloat) {
+      const total = data.length;
+      if (!total) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="6" style="text-align:center;color:#64748b;font-style:italic;">No records found</td>
+          </tr>
+        `;
+        countLabel.textContent = "0 - 0 / 0";
+        autoSizeColumns(historyTable, []);
+        syncRowVisualState(tableBody);
+        syncFloatingRowActions(tableBox, tableBody, rowActionsFloat);
+        return;
+      }
+      tableBody.innerHTML = data.map((item) => {
+        const recordId = String(item.record || "").trim();
+        const selectedClass = recordId && recordId === selectedRecordId ? " selected-row" : "";
+        const swipedClass = recordId && recordId === openActionRecordId ? " swiped" : "";
+        return `
+          <tr class="history-row${selectedClass}${swipedClass}" data-record="${escapeHtml(recordId)}">
+            <td class="data-cell">${escapeHtml(item.record)}</td>
+            <td class="data-cell">${escapeHtml(item.company)}</td>
+            <td class="data-cell">${escapeHtml(item.category)}</td>
+            <td class="data-cell">${escapeHtml(item.approverStatus || "")}</td>
+            <td class="data-cell">${escapeHtml(item.name)}</td>
+            <td class="data-cell">${escapeHtml(item.type)}</td>
+          </tr>
+        `;
+      }).join("");
+      countLabel.textContent = total ? `1 - ${total} / ${total}` : "0 - 0 / 0";
+      autoSizeColumns(historyTable, data);
+      syncRowVisualState(tableBody);
+      syncFloatingRowActions(tableBox, tableBody, rowActionsFloat);
+    }
+
+    function applyFilter(searchInput, filterField, tableBody, countLabel, historyTable, tableBox, rowActionsFloat) {
+      const term = (searchInput.value || "").trim().toLowerCase();
+      const field = filterField.value;
+      if (!term) {
+        render(rows, tableBody, countLabel, historyTable, tableBox, rowActionsFloat);
+        return;
+      }
+      render(
+        rows.filter((item) => String(item[field] || "").toLowerCase().includes(term)),
+        tableBody,
+        countLabel,
+        historyTable,
+        tableBox,
+        rowActionsFloat
+      );
+    }
+
+    window.addEventListener("DOMContentLoaded", async () => {
+      const goBackBtn = document.getElementById("goBackBtn");
+      const historyTitle = document.getElementById("historyTitle");
+      const thCategory = document.getElementById("thCategory");
+      const thName = document.getElementById("thName");
+      const thType = document.getElementById("thType");
+      const tableBody = document.getElementById("recordsBody");
+      const searchInput = document.getElementById("searchInput");
+      const filterField = document.getElementById("filterField");
+      const countLabel = document.getElementById("countLabel");
+      const historyTable = document.getElementById("historyTable");
+      const tableBox = document.querySelector(".table-box");
+      const rowActionsFloat = document.getElementById("rowActionsFloat");
+      const rowViewVendorBtn = document.getElementById("rowViewVendorBtn");
+      const rowDownloadBtn = document.getElementById("rowDownloadBtn");
+      const downloadButton = document.getElementById("downloadAllRecordsBtn");
+      const downloadRecordModal = document.getElementById("downloadRecordModal");
+      const cancelRecordDownloadBtn = document.getElementById("cancelRecordDownloadBtn");
+      const confirmRecordDownloadBtn = document.getElementById("confirmRecordDownloadBtn");
+      const downloadTypeSelect = document.getElementById("downloadTypeSelect");
+      const token = sessionStorage.getItem("token");
+      if (!token) {
+        window.location.href = "/web/login";
+        return;
+      }
+
+      if (goBackBtn) {
+        goBackBtn.addEventListener("click", () => {
+          window.location.href = isCustomerPortal ? "/web/customer-dashboard" : "/web/vendor-dashboard";
+        });
+      }
+
+      if (isCustomerPortal) {
+        document.title = "Customer History";
+        if (historyTitle) historyTitle.textContent = "Customer Request History";
+        if (thCategory) thCategory.childNodes[0].nodeValue = "Customer Category";
+        if (thName) thName.childNodes[0].nodeValue = "Customer Name";
+        if (thType) thType.childNodes[0].nodeValue = "Customer Type";
+        if (rowViewVendorBtn) rowViewVendorBtn.textContent = "View Customer";
+        const downloadTypeOptions = Array.from(document.querySelectorAll("#downloadTypeSelect option"));
+        downloadTypeOptions.forEach((option) => {
+          const optionValue = String(option.value || "").trim().toLowerCase();
+          if (optionValue === "pdf") option.textContent = "Customer Form PDF";
+          if (optionValue === "documents") option.textContent = "Customer Document";
+        });
+      }
+
+      const syncRowsAndActions = () => {
+        syncRowVisualState(tableBody);
+        syncFloatingRowActions(tableBox, tableBody, rowActionsFloat);
+      };
+
+      enableTableColumnResize(historyTable);
+      searchInput.addEventListener(
+        "input",
+        () => applyFilter(searchInput, filterField, tableBody, countLabel, historyTable, tableBox, rowActionsFloat),
+      );
+      filterField.addEventListener(
+        "change",
+        () => applyFilter(searchInput, filterField, tableBody, countLabel, historyTable, tableBox, rowActionsFloat),
+      );
+      if (downloadButton) {
+        downloadButton.addEventListener("click", downloadAllHistoryRecords);
+      }
+
+      if (tableBox) {
+        tableBox.addEventListener("scroll", () => syncFloatingRowActions(tableBox, tableBody, rowActionsFloat));
+      }
+      window.addEventListener("resize", () => syncFloatingRowActions(tableBox, tableBody, rowActionsFloat));
+
+      if (rowViewVendorBtn) {
+        rowViewVendorBtn.addEventListener("click", () => {
+          const recordId = String(rowActionsFloat?.dataset.record || openActionRecordId || selectedRecordId || "").trim();
+          if (!recordId) return;
+          openHistoryVendorPopup(recordId);
+        });
+      }
+
+      if (rowDownloadBtn) {
+        rowDownloadBtn.addEventListener("click", () => {
+          const recordId = String(rowActionsFloat?.dataset.record || openActionRecordId || selectedRecordId || "").trim();
+          if (!recordId) return;
+          openDownloadRecordModal(recordId);
+        });
+      }
+
+      if (cancelRecordDownloadBtn) {
+        cancelRecordDownloadBtn.addEventListener("click", closeDownloadRecordModal);
+      }
+
+      if (confirmRecordDownloadBtn) {
+        confirmRecordDownloadBtn.addEventListener("click", async () => {
+          const selectedType = String(downloadTypeSelect?.value || "excel").trim().toLowerCase();
+          await downloadSelectedHistoryRecord(downloadModalRecordId, selectedType);
+        });
+      }
+
+      if (downloadRecordModal) {
+        downloadRecordModal.addEventListener("click", (event) => {
+          if (event.target === downloadRecordModal) {
+            closeDownloadRecordModal();
+          }
+        });
+      }
+
+      tableBody.addEventListener("click", (event) => {
+        const actionBtn = event.target.closest("button[data-row-action][data-record-id]");
+        if (actionBtn) {
+          const action = String(actionBtn.dataset.rowAction || "").trim().toLowerCase();
+          const recordIdFromAction = String(actionBtn.dataset.recordId || "").trim();
+          if (!recordIdFromAction) return;
+          selectedRecordId = recordIdFromAction;
+          openActionRecordId = recordIdFromAction;
+          syncRowsAndActions();
+          if (action === "view") {
+            openHistoryVendorPopup(recordIdFromAction);
+          } else if (action === "download") {
+            openDownloadRecordModal(recordIdFromAction);
+          }
+          return;
+        }
+
+        const row = event.target.closest("tr.history-row[data-record]");
+        if (!row) return;
+        const recordId = String(row.dataset.record || "").trim();
+        if (!recordId) return;
+        selectedRecordId = recordId;
+        openActionRecordId = recordId;
+        syncRowsAndActions();
+      });
+
+      const resetSwipeState = () => {
+        swipeState.active = false;
+        swipeState.pointerId = null;
+        swipeState.startX = 0;
+        swipeState.startY = 0;
+        swipeState.recordId = "";
+      };
+
+      tableBody.addEventListener("pointerdown", (event) => {
+        if (event.pointerType === "mouse" && event.button !== 0) {
+          return;
+        }
+        const row = event.target.closest("tr.history-row[data-record]");
+        if (!row) {
+          return;
+        }
+        const recordId = String(row.dataset.record || "").trim();
+        if (!recordId) {
+          return;
+        }
+        selectedRecordId = recordId;
+        swipeState.active = true;
+        swipeState.pointerId = event.pointerId;
+        swipeState.startX = event.clientX;
+        swipeState.startY = event.clientY;
+        swipeState.recordId = recordId;
+      });
+
+      tableBody.addEventListener("pointerup", (event) => {
+        if (!swipeState.active || swipeState.pointerId !== event.pointerId) {
+          return;
+        }
+        const deltaX = event.clientX - swipeState.startX;
+        const deltaY = event.clientY - swipeState.startY;
+        const absX = Math.abs(deltaX);
+        const absY = Math.abs(deltaY);
+        const targetRecordId = swipeState.recordId;
+
+        if (targetRecordId && absX > absY && absX >= 45) {
+          if (deltaX < 0) {
+            openActionRecordId = targetRecordId;
+            selectedRecordId = targetRecordId;
+          } else if (openActionRecordId === targetRecordId) {
+            openActionRecordId = "";
+          }
+          syncRowsAndActions();
+          event.preventDefault();
+        }
+
+        resetSwipeState();
+      });
+
+      tableBody.addEventListener("pointercancel", resetSwipeState);
+
+      document.addEventListener("click", (event) => {
+        if (!openActionRecordId) return;
+        const insideHistoryTable = !!event.target.closest("#historyTable");
+        const insideFloatingActions = !!event.target.closest("#rowActionsFloat");
+        if (insideHistoryTable || insideFloatingActions) return;
+        openActionRecordId = "";
+        syncRowsAndActions();
+      });
+      try {
+        await loadHistoryRecords(token);
+      } catch (err) {
+        console.error(err);
+      }
+      render(rows, tableBody, countLabel, historyTable, tableBox, rowActionsFloat);
+    });
+  </script>
+</body>
+</html>

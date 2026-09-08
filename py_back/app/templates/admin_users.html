@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin User Management</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 24px; background: #eef2ff; color: #1f2937; }
+    .page { max-width: 1080px; margin: 0 auto; }
+    .card { background: #fff; border-radius: 12px; box-shadow: 0 10px 24px rgba(2, 6, 23, .08); padding: 20px; }
+    h1 { margin: 0; color: #1e3a8a; }
+    .toolbar { display: flex; gap: 10px; margin-bottom: 14px; }
+    .form-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 18px; }
+    .btn { border: none; border-radius: 8px; padding: 10px 14px; color: #fff; cursor: pointer; font-weight: 700; }
+    .btn-back { background: #6b7280; }
+    .btn-primary { background: #1d4ed8; }
+    .btn-secondary { background: #0f766e; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .field { display: grid; gap: 6px; }
+    .field label { font-weight: 700; }
+    .field input, .field select { width: 100%; box-sizing: border-box; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; }
+    .actions { margin-top: 12px; }
+    .msg { margin: 12px 0 0; min-height: 20px; font-size: 14px; }
+    .msg.ok { color: #0a7a2d; }
+    .msg.err { color: #b3261e; }
+    .hidden { display: none !important; }
+    table { width: 100%; border-collapse: collapse; margin-top: 22px; background: #fff; }
+    th, td { border: 1px solid #dbe3f1; padding: 10px; text-align: left; }
+    th { background: #dbeafe; color: #1e3a8a; }
+    @media (max-width: 820px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+  <link rel="stylesheet" href="/web/portal-liquid.css?v=20260610-light" />
+</head>
+<body>
+  <div class="page">
+    <div class="toolbar">
+      <button type="button" class="btn btn-back" id="goBackBtn">Go Back</button>
+    </div>
+
+    <div class="card">
+      <div class="form-toolbar">
+        <h1 id="pageTitle">Admin User Management</h1>
+        <button type="button" class="btn btn-secondary" id="toggleUpdateBtn">Update User</button>
+      </div>
+
+      <form id="userForm">
+        <div class="grid">
+          <div class="field">
+            <label for="name">Name</label>
+            <input id="name" name="name" required />
+            <select id="nameSelect" name="nameSelect" class="hidden"></select>
+          </div>
+          <div class="field">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" required />
+          </div>
+          <div class="field">
+            <label for="role">Role</label>
+            <select id="role" name="role" required>
+              <option value="User">User</option>
+              <option value="HOD">HOD</option>
+              <option value="Validator">Validator</option>
+              <option value="Validator & User">Validator & User</option>
+              <option value="Validator & HOD">Validator & HOD</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="botName">Bot Name</label>
+            <select id="botName" name="botName" required>
+              <option value="Vendor Bot">Vendor Bot</option>
+              <option value="Customer Bot">Customer Bot</option>
+              <option value="Both">Both</option>
+            </select>
+          </div>
+        </div>
+        <div class="actions">
+          <button id="submitBtn" type="submit" class="btn btn-primary">Add User</button>
+        </div>
+      </form>
+
+      <div id="message" class="msg"></div>
+
+    </div>
+  </div>
+
+  <script>
+    function requireSessionLogin() {
+      if (sessionStorage.getItem("token")) {
+        return;
+      }
+      fetch("/api/auth/logout", { method: "POST", keepalive: true }).catch(() => {});
+      window.location.replace("/web/login");
+    }
+
+    requireSessionLogin();
+    const form = document.getElementById("userForm");
+    const message = document.getElementById("message");
+    const nameInput = document.getElementById("name");
+    const nameSelect = document.getElementById("nameSelect");
+    const emailInput = document.getElementById("email");
+    const roleSelect = document.getElementById("role");
+    const botNameSelect = document.getElementById("botName");
+    const submitBtn = document.getElementById("submitBtn");
+    const toggleUpdateBtn = document.getElementById("toggleUpdateBtn");
+    const token = sessionStorage.getItem("token") || "";
+    const role = String(sessionStorage.getItem("role") || "").trim().toLowerCase();
+    const botName = String(sessionStorage.getItem("botName") || "Vendor Bot").trim();
+    let isUpdateMode = false;
+    let usersCache = [];
+    let selectedUserCurrentEmail = "";
+
+    function botDefaultDashboard() {
+      if (botName === "Customer Bot") return "/web/customer-dashboard";
+      if (botName === "Both") return "/web/select-role";
+      return "/web/vendor-dashboard";
+    }
+
+    const goBackBtn = document.getElementById("goBackBtn");
+    if (goBackBtn) {
+      goBackBtn.addEventListener("click", () => {
+        window.location.href = botDefaultDashboard();
+      });
+    }
+
+    function normalizeRole(value) {
+      if (value === "administrator") return "admin";
+      return value;
+    }
+
+    function setMessage(text, kind) {
+      message.textContent = text || "";
+      message.className = kind ? `msg ${kind}` : "msg";
+    }
+
+    async function parseApiResponse(res) {
+      const text = await res.text();
+      if (!text) return {};
+      try {
+        return JSON.parse(text);
+      } catch (_) {
+        return { detail: text };
+      }
+    }
+
+    if (!token) {
+      window.location.href = "/web/login";
+    } else if (normalizeRole(role) !== "admin") {
+      window.location.href = botDefaultDashboard();
+    }
+
+    function toSafeText(value) {
+      return String(value || "").trim();
+    }
+
+    function renderUserList(users) {
+      const options = ['<option value="">Select User</option>'];
+      users.forEach((user) => {
+        const name = toSafeText(user.name) || toSafeText(user.email);
+        const email = toSafeText(user.email);
+        if (!email) return;
+        options.push(`<option value="${email}">${name} (${email})</option>`);
+      });
+      nameSelect.innerHTML = options.join("");
+    }
+
+    function syncModeUi() {
+      if (isUpdateMode) {
+        nameInput.classList.add("hidden");
+        nameInput.required = false;
+        nameInput.value = "";
+        nameSelect.classList.remove("hidden");
+        nameSelect.required = true;
+        submitBtn.textContent = "Update User";
+        toggleUpdateBtn.textContent = "Switch To Add User";
+      } else {
+        nameSelect.classList.add("hidden");
+        nameSelect.required = false;
+        nameSelect.value = "";
+        nameInput.classList.remove("hidden");
+        nameInput.required = true;
+        submitBtn.textContent = "Add User";
+        toggleUpdateBtn.textContent = "Update User";
+        selectedUserCurrentEmail = "";
+      }
+    }
+
+    function resetFormForCreateMode() {
+      form.reset();
+      roleSelect.value = "User";
+      botNameSelect.value = "Vendor Bot";
+      selectedUserCurrentEmail = "";
+    }
+
+    function fillFormForSelectedUser(emailValue) {
+      const selectedEmail = toSafeText(emailValue).toLowerCase();
+      const selectedUser = usersCache.find((item) => toSafeText(item.email).toLowerCase() === selectedEmail);
+      if (!selectedUser) {
+        selectedUserCurrentEmail = "";
+        nameInput.value = "";
+        emailInput.value = "";
+        roleSelect.value = "User";
+        botNameSelect.value = "Vendor Bot";
+        return;
+      }
+
+      selectedUserCurrentEmail = toSafeText(selectedUser.email);
+      nameInput.value = toSafeText(selectedUser.name);
+      emailInput.value = toSafeText(selectedUser.email);
+      roleSelect.value = toSafeText(selectedUser.role) || "User";
+      botNameSelect.value = toSafeText(selectedUser.botName) || "Vendor Bot";
+    }
+
+    async function loadUsersForUpdateMode() {
+      setMessage("Loading users...", "");
+      const res = await fetch("/api/admin/users", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await parseApiResponse(res);
+      if (!res.ok) {
+        throw new Error(data.detail || "Unable to load users");
+      }
+      usersCache = Array.isArray(data) ? data : [];
+      renderUserList(usersCache);
+      setMessage("Select a user to update details.", "");
+    }
+
+    if (nameSelect) {
+      nameSelect.addEventListener("change", () => {
+        fillFormForSelectedUser(nameSelect.value);
+      });
+    }
+
+    if (toggleUpdateBtn) {
+      toggleUpdateBtn.addEventListener("click", async () => {
+        isUpdateMode = !isUpdateMode;
+        syncModeUi();
+        if (!isUpdateMode) {
+          resetFormForCreateMode();
+          setMessage("", "");
+          return;
+        }
+        try {
+          await loadUsersForUpdateMode();
+        } catch (err) {
+          isUpdateMode = false;
+          syncModeUi();
+          setMessage(err.message || "Unable to load users", "err");
+        }
+      });
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
+      const payload = {
+        name: nameInput.value.trim(),
+        email: emailInput.value.trim(),
+        role: roleSelect.value,
+        botName: botNameSelect.value
+      };
+
+      if (isUpdateMode) {
+        if (!selectedUserCurrentEmail) {
+          setMessage("Please select a user to update.", "err");
+          return;
+        }
+        payload.currentEmail = selectedUserCurrentEmail;
+      }
+
+      try {
+        setMessage(isUpdateMode ? "Updating user..." : "Creating user...", "");
+        const res = await fetch("/api/admin/users", {
+          method: isUpdateMode ? "PUT" : "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify(payload)
+        });
+        const data = await parseApiResponse(res);
+        if (!res.ok) {
+          throw new Error(data.detail || (isUpdateMode ? "Unable to update user" : "Unable to create user"));
+        }
+
+        if (isUpdateMode) {
+          const updatedEmail = toSafeText(data?.user?.email || payload.email);
+          await loadUsersForUpdateMode();
+          if (updatedEmail) {
+            nameSelect.value = updatedEmail;
+            fillFormForSelectedUser(updatedEmail);
+          }
+          setMessage("User updated successfully.", "ok");
+        } else {
+          form.reset();
+          roleSelect.value = "User";
+          botNameSelect.value = "Vendor Bot";
+          const emailNote = data.welcomeEmailSent
+            ? " Welcome email sent."
+            : ` Welcome email failed: ${data.welcomeEmailError || "Unknown error"}`;
+          setMessage(`User created successfully.${emailNote}`, "ok");
+        }
+      } catch (err) {
+        setMessage(err.message || (isUpdateMode ? "Unable to update user" : "Unable to create user"), "err");
+      }
+    });
+
+    syncModeUi();
+  </script>
+</body>
+</html>

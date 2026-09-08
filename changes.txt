@@ -1,0 +1,20 @@
+Provide a dropdown 1. Composition delear 2. Regular delear
+
+GST Return filing dropdown 1. Monthly 2. Quarterly 3. Half Yearly 4. Yearly
+
+Provide a yes/no option for "Invoice applicable".
+
+Provide options yes/no for each 
+E-lnvoice Applicability
+E-Way Bill Applicability
+
+
+
+
+Ask if to remove statutary details.
+
+Ask what fields to add in 7th point made in pdf.
+
+No need to add trade or manufacture.
+
+ITR filling status

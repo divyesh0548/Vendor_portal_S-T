@@ -1,0 +1,3692 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>View Customer Form</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" defer></script>
+  <style>
+    body { font-family: Arial, sans-serif; background: #eef2ff; margin: 0; padding: 20px; color: #1f2937; }
+    .wrap { max-width: 1200px; margin: 0 auto; }
+    .page-header { background: #fff; border-radius: 12px; padding: 14px 18px; box-shadow: 0 8px 20px rgba(2, 6, 23, .08); margin-bottom: 12px; display: grid; grid-template-columns: 180px 1fr auto; gap: 14px; align-items: center; }
+    .brand-left { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+    .brand-art { width: 160px; max-width: 100%; height: auto; display: block; }
+    .brand-text { text-align: center; font-size: 20px; line-height: 1.4; color: #475569; font-weight: 700; }
+    .toolbar { margin-bottom: 12px; display: flex; gap: 8px; justify-content: flex-end; }
+    .toolbar button { width: auto; padding: 10px 14px; }
+    .card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 10px 24px rgba(2, 6, 23, .08); }
+    h1 { margin-top: 0; font-size: 26px; color: #1e3a8a; }
+    h2 { margin: 20px 0 10px; font-size: 18px; color: #1e3a8a; border-bottom: 1px solid #dbeafe; padding-bottom: 6px; }
+    .subcard { background: #f8fbff; border: 1px solid #dbeafe; border-radius: 10px; padding: 14px; margin-bottom: 12px; }
+    .subcard h3 { margin: 0 0 12px; font-size: 16px; color: #1e3a8a; }
+    .group-team-card { border-color: #cbd5e1; background: #f1f5f9; }
+    .group-team-title {
+      margin: 0 0 16px;
+      text-align: center;
+      text-decoration: underline;
+      font-size: clamp(28px, 4vw, 44px);
+      color: #1f2937;
+      font-weight: 700;
+    }
+    .group-team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      align-items: end;
+    }
+    .group-team-grid .row { margin-bottom: 0; }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .row { margin-bottom: 10px; }
+    .full { grid-column: 1 / -1; }
+    label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 6px; color: #334155; }
+    input, select, textarea, button { width: 100%; box-sizing: border-box; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; }
+    input, select, textarea { background: #f8fafc; color: #1f2937; }
+    textarea { min-height: 84px; resize: vertical; }
+    [data-team-field="true"] { background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; }
+    .switch-row {
+      border: 1px solid #ea580c;
+      border-radius: 6px;
+      padding: 8px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: #fff;
+      margin-top: 6px;
+    }
+    .switch-row span { font-size: 13px; font-weight: 700; color: #1f2937; }
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 48px;
+      height: 24px;
+      flex: 0 0 auto;
+    }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background-color: #9ca3af;
+      transition: .2s;
+      border-radius: 999px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 2px;
+      bottom: 2px;
+      background-color: white;
+      transition: .2s;
+      border-radius: 50%;
+    }
+    .switch input:checked + .slider { background-color: #16a34a; }
+    .switch input:checked + .slider:before { transform: translateX(24px); }
+    .doc-preview {
+      margin-top: 10px;
+      border: 1px solid #dbe3f1;
+      border-radius: 8px;
+      padding: 10px;
+      background: #fff;
+    }
+    .doc-preview.hidden { display: none; }
+    .doc-preview iframe {
+      width: 100%;
+      min-height: 480px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: #fff;
+    }
+    .doc-preview embed {
+      width: 100%;
+      min-height: 480px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: #fff;
+    }
+    .doc-preview img {
+      max-width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: #fff;
+    }
+    .pdf-js-viewer {
+      display: grid;
+      gap: 14px;
+      max-height: 720px;
+      overflow: auto;
+      padding: 8px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: #f8fafc;
+    }
+    .pdf-js-page {
+      display: flex;
+      justify-content: center;
+      background: #e2e8f0;
+      padding: 10px;
+      border-radius: 8px;
+    }
+    .pdf-js-page canvas {
+      max-width: 100%;
+      height: auto;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.16);
+    }
+    .pdf-js-status { padding: 18px; text-align: center; color: #475569; font-weight: 700; }
+    .doc-actions { margin-bottom: 10px; display: flex; justify-content: flex-end; }
+    .doc-actions a { color: #1d4ed8; font-weight: 700; text-decoration: none; }
+    .gst-filing-note { margin-top: 8px; color: #64748b; font-size: 12px; }
+    .gst-filing-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      background: rgba(15, 23, 42, .45);
+    }
+    .gst-filing-modal.hidden { display: none !important; }
+    .gst-filing-box {
+      width: min(1100px, calc(100vw - 32px));
+      max-height: calc(100vh - 32px);
+      overflow: hidden;
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, .24);
+      display: flex;
+      flex-direction: column;
+    }
+    .gst-filing-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px 18px 12px;
+      border-bottom: 1px solid #dbeafe;
+    }
+    .gst-filing-header h3 {
+      margin: 0;
+      color: #1e3a8a;
+      font-size: 18px;
+    }
+    .gst-filing-close-btn {
+      width: auto;
+      padding: 8px 12px;
+      background: #475569;
+    }
+    .gst-filing-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 12px 18px 0;
+    }
+    .gst-filing-controls {
+      display: flex;
+      align-items: end;
+      gap: 12px;
+      padding: 12px 18px 8px;
+      border-bottom: 1px dashed #dbeafe;
+    }
+    .gst-filing-controls.hidden { display: none !important; }
+    .gst-filing-controls .field {
+      flex: 1 1 auto;
+      min-width: 220px;
+    }
+    .gst-filing-controls label {
+      margin-bottom: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #334155;
+    }
+    .gst-filing-controls select { background: #fff; }
+    .gst-filing-controls button {
+      width: auto;
+      min-width: 130px;
+      padding: 10px 14px;
+      white-space: nowrap;
+    }
+    .gst-filing-body {
+      padding: 16px 18px 18px;
+      overflow: auto;
+    }
+    .gst-filing-table-card {
+      border: 1px solid #dbeafe;
+      border-radius: 10px;
+      padding: 12px;
+      background: #f8fbff;
+      margin-bottom: 14px;
+    }
+    .gst-filing-table-card h4 {
+      margin: 0 0 10px;
+      color: #1e3a8a;
+      font-size: 15px;
+    }
+    .gst-filing-table-wrap {
+      overflow: auto;
+      border: 1px solid #dbeafe;
+      border-radius: 8px;
+      background: #fff;
+    }
+    .gst-filing-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 420px;
+    }
+    .gst-filing-table th,
+    .gst-filing-table td {
+      border-bottom: 1px solid #e2e8f0;
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+      white-space: nowrap;
+    }
+    .gst-filing-table th {
+      background: #eff6ff;
+      color: #1e3a8a;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .03em;
+    }
+    .gst-filing-empty {
+      padding: 18px 14px;
+      color: #64748b;
+      font-style: italic;
+    }
+    .validation-change-note {
+      border: 1px solid #fed7aa;
+      border-radius: 8px;
+      background: #fff7ed;
+      padding: 10px 12px;
+      margin-top: 8px;
+    }
+    .validation-change-note h4 {
+      margin: 0 0 8px;
+      color: #9a3412;
+      font-size: 14px;
+    }
+    .validation-change-table-wrap {
+      overflow: auto;
+      border: 1px solid #fed7aa;
+      border-radius: 8px;
+      background: #fff;
+    }
+    .validation-change-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 520px;
+    }
+    .validation-change-table th,
+    .validation-change-table td {
+      border-bottom: 1px solid #ffedd5;
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: top;
+      font-size: 13px;
+    }
+    .validation-change-table th {
+      background: #ffedd5;
+      color: #9a3412;
+      font-size: 12px;
+    }
+    .meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+    .badge { background: #dbeafe; color: #1e40af; border-radius: 999px; padding: 6px 12px; font-weight: 700; font-size: 13px; }
+    .msg { margin-top: 8px; font-size: 14px; }
+    .msg.ok { color: #0a7a2d; }
+    .msg.err { color: #b3261e; }
+    .muted { color: #64748b; font-style: italic; }
+    .check-row { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; margin-top: 4px; margin-bottom: 10px; }
+    .check-item { display: flex; align-items: center; gap: 8px; font-weight: 700; color: #1f2937; }
+    .check-item input { width: auto; }
+    .hidden { display: none !important; }
+    .validator-inline-checks {
+      border: 1px solid #dbeafe;
+      border-radius: 8px;
+      background: #f8fbff;
+      padding: 10px 12px;
+      margin-top: 8px;
+    }
+    .validator-inline-checks h4 { margin: 0 0 8px; color: #1e3a8a; font-size: 14px; }
+    .validation-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 8px 12px;
+    }
+    .tax-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .tax-grid .row { margin-bottom: 0; }
+    .tax-typed-input { background: #f8fafc; }
+    .reject-target-row { margin-top: 2px; margin-bottom: 10px; }
+    .decision-actions { display: flex; justify-content: flex-end; margin-top: 12px; }
+    .decision-actions button { width: auto; padding: 10px 16px; }
+    .req-star { color: #dc2626; margin-left: 4px; font-weight: 700; }
+    .req-star.hidden { display: none; }
+    .secondary-btn { background: #475569; }
+    button { background: #1d4ed8; color: #fff; border: none; font-weight: 700; cursor: pointer; }
+    button:disabled { background: #94a3b8; cursor: not-allowed; }
+
+    @media (max-width: 980px) {
+      .page-header { grid-template-columns: 1fr; text-align: center; }
+      .brand-left { align-items: center; }
+      .grid { grid-template-columns: 1fr; }
+      .tax-grid { grid-template-columns: 1fr; }
+      .gst-filing-box { width: calc(100vw - 24px); max-height: calc(100vh - 24px); }
+      .gst-filing-controls { flex-direction: column; align-items: stretch; }
+      .gst-filing-controls .field { min-width: 0; width: 100%; }
+      .gst-filing-controls button { width: 100%; }
+      .gst-filing-table { min-width: 320px; }
+    }
+  </style>
+  <link rel="stylesheet" href="/web/portal-liquid.css?v=20260610-light" />
+</head>
+<body>
+  <div class="wrap">
+    <div class="page-header">
+      <div class="brand-left">
+        <img src="/web/header-art-image" alt="Header Art" class="brand-art" />
+      </div>
+      <div class="brand-text">Sharp & Tannan Chartered Accountants</div>
+      <div></div>
+    </div>
+
+    <div id="topToolbar" class="toolbar">
+      <button type="button" id="goBackBtn">Go Back</button>
+      <button type="button" onclick="logoutAndRedirect()">Logout</button>
+    </div>
+
+    <div class="card">
+      <h1 id="pageHeading">View Customer Registration Form</h1>
+      <div id="metaBadges" class="meta"></div>
+      <div id="message" class="msg"></div>
+      <div id="sectionHost"></div>
+
+      <div id="approvalActionCard" class="subcard">
+        <h3 id="approvalActionTitle">Approval Action</h3>
+        <div id="decisionChoiceRow" class="check-row">
+          <label class="check-item"><input id="approveCheckbox" type="checkbox" />Approve</label>
+          <label class="check-item"><input id="rejectCheckbox" type="checkbox" />Reject</label>
+        </div>
+        <div id="validatorRejectToContainer" class="row full hidden">
+          <label>Reject To <span id="validatorRejectToRequired" class="req-star hidden">*</span></label>
+          <div class="check-row reject-target-row">
+            <label class="check-item"><input type="radio" name="validatorRejectTo" value="Customer" />Customer</label>
+            <label class="check-item"><input type="radio" name="validatorRejectTo" value="Buyer" />Buyer</label>
+          </div>
+        </div>
+        <div class="row full">
+          <label id="decisionRemarksLabel" for="decisionRemarks">Remarks</label>
+          <textarea id="decisionRemarks" placeholder="Write remarks here"></textarea>
+        </div>
+        <div class="decision-actions">
+          <button id="submitDecisionBtn" type="button" disabled>Submit</button>
+          <button id="closeViewBtn" type="button" class="secondary-btn hidden">Close</button>
+        </div>
+        <div id="decisionMessage" class="msg"></div>
+      </div>
+    </div>
+
+    <div id="gstFilingModal" class="gst-filing-modal hidden" aria-hidden="true">
+      <div class="gst-filing-box" role="dialog" aria-modal="true" aria-labelledby="gstFilingTitle">
+        <div class="gst-filing-header">
+          <h3 id="gstFilingTitle">GST Return Filing Details</h3>
+          <button type="button" id="gstFilingCloseBtn" class="gst-filing-close-btn">Close</button>
+        </div>
+        <div id="gstFilingMeta" class="gst-filing-meta"></div>
+        <div id="gstFilingControls" class="gst-filing-controls hidden">
+          <div class="field">
+            <label for="gstFilingFinancialYear">Financial Year</label>
+            <select id="gstFilingFinancialYear"></select>
+          </div>
+          <button type="button" id="gstFilingFetchBtn">Submit</button>
+        </div>
+        <div id="gstFilingBody" class="gst-filing-body"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function requireSessionLogin() {
+      if (sessionStorage.getItem("token")) {
+        return;
+      }
+      fetch("/api/auth/logout", { method: "POST", keepalive: true }).catch(() => {});
+      window.location.replace("/web/login");
+    }
+
+    requireSessionLogin();
+
+    async function logoutAndRedirect() {
+      await fetch("/api/auth/logout", { method: "POST" });
+      sessionStorage.removeItem("token");
+      sessionStorage.removeItem("role");
+      sessionStorage.removeItem("email");
+      sessionStorage.removeItem("name");
+      window.location.href = "/web/login";
+    }
+
+    async function parseApiResponse(res) {
+      const text = await res.text();
+      if (!text) return {};
+      try {
+        return JSON.parse(text);
+      } catch (_) {
+        return { detail: text };
+      }
+    }
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function isMeaningfulValue(value) {
+      if (value === null || value === undefined) return false;
+      if (typeof value === "string" && value.trim() === "") return false;
+      return true;
+    }
+
+    function formatValue(value) {
+      if (value === null || value === undefined) return "";
+      if (typeof value === "boolean") return value ? "Yes" : "No";
+      return String(value);
+    }
+
+    function pickWithSource(record, keys, fallback = "") {
+      for (const key of keys) {
+        if (!Object.prototype.hasOwnProperty.call(record, key)) continue;
+        const value = record[key];
+        if (isMeaningfulValue(value)) {
+          return { value, sourceKey: key };
+        }
+      }
+      for (const key of keys) {
+        if (Object.prototype.hasOwnProperty.call(record, key)) {
+          return { value: record[key], sourceKey: key };
+        }
+      }
+      return { value: fallback, sourceKey: keys[0] || "" };
+    }
+
+    function toDocumentUrl(rawValue) {
+      const value = String(rawValue || "").trim();
+      if (!value) return "";
+      if (value.startsWith("http://") || value.startsWith("https://") || value.startsWith("/")) {
+        return value;
+      }
+      return `/mock-files/${encodeURIComponent(value)}`;
+    }
+
+    function getDocumentFieldName(field, sourceKey) {
+      const keys = Array.isArray(field?.keys) ? field.keys : [];
+      const explicitName = String(field?.name || "").trim();
+      if (explicitName) return explicitName;
+      const source = String(sourceKey || "").trim();
+      const normalizedSource = source.toLowerCase();
+      if (
+        source
+        && !normalizedSource.endsWith("filename")
+        && !normalizedSource.endsWith("_filename")
+        && !normalizedSource.endsWith("_name")
+      ) {
+        return source;
+      }
+      const preferredKey = keys.find((key) => {
+        const normalized = String(key || "").trim().toLowerCase();
+        if (!normalized) return false;
+        return !(
+          normalized.endsWith("filename")
+          || normalized.endsWith("_filename")
+          || normalized.endsWith("_name")
+        );
+      });
+      return String(preferredKey || keys[0] || sourceKey || "").trim();
+    }
+
+    function buildRecordDocumentUrl(recordId, fieldName, rawValue) {
+      const resolvedRecordId = String(recordId || currentRecordId || "").trim();
+      const resolvedFieldName = String(fieldName || "").trim();
+      if (resolvedRecordId && resolvedFieldName) {
+        const endpointBase = "/api/customer/document";
+        return `${endpointBase}?recordId=${encodeURIComponent(resolvedRecordId)}&fieldName=${encodeURIComponent(resolvedFieldName)}`;
+      }
+      return toDocumentUrl(rawValue);
+    }
+
+    function fileNameFromUrl(url) {
+      const clean = String(url || "").split("?")[0];
+      if (!clean) return "";
+      const parts = clean.split("/");
+      return decodeURIComponent(parts[parts.length - 1] || "");
+    }
+
+    function hasDocumentValue(rawValue) {
+      if (rawValue === null || rawValue === undefined) return false;
+      const text = String(rawValue).trim();
+      if (!text) return false;
+      const normalized = text.toLowerCase();
+      if (["null", "none", "na", "n/a", "not available", "not uploaded", "no document"].includes(normalized)) {
+        return false;
+      }
+      return true;
+    }
+
+    function resolveDocumentStoredValue(field, rawValue, sourceKey) {
+      if (hasDocumentValue(rawValue)) {
+        return String(rawValue || "").trim();
+      }
+
+      const keyCandidates = [];
+      const seenKeys = new Set();
+      function addKeyCandidate(value) {
+        const key = String(value || "").trim();
+        if (!key) return;
+        const marker = key.toLowerCase();
+        if (seenKeys.has(marker)) return;
+        seenKeys.add(marker);
+        keyCandidates.push(key);
+      }
+
+      addKeyCandidate(field?.name);
+      addKeyCandidate(sourceKey);
+      const keys = Array.isArray(field?.keys) ? field.keys : [];
+      keys.forEach((key) => addKeyCandidate(key));
+
+      const valueCandidates = [];
+      const seenValueMarkers = new Set();
+      function addValueCandidate(value) {
+        const text = String(value || "").trim();
+        if (!text) return;
+        const marker = text.toLowerCase();
+        if (seenValueMarkers.has(marker)) return;
+        seenValueMarkers.add(marker);
+        valueCandidates.push(text);
+      }
+
+      keyCandidates.forEach((baseKey) => {
+        [
+          baseKey,
+          `${baseKey}_FileName`,
+          `${baseKey}FileName`,
+          `${baseKey}_filename`,
+          `${baseKey}filename`,
+        ].forEach((candidateKey) => {
+          if (!Object.prototype.hasOwnProperty.call(currentVendor || {}, candidateKey)) return;
+          addValueCandidate(currentVendor[candidateKey]);
+        });
+      });
+
+      return valueCandidates.find((candidate) => hasDocumentValue(candidate)) || "";
+    }
+
+    function parseOptionLines(rawText) {
+      return String(rawText || "")
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter((line) => line !== "");
+    }
+
+    const INCO_TERMS_OPTIONS = parseOptionLines(`
+CFR - Costs and freight
+CIF - Costs, insurance & freight
+CIP - Carriage and insurance paid to
+CPT - Carriage paid to
+DAP - Delivered At Place
+DAT - Delivered At Terminal
+DDP - Delivered Duty Paid
+DDU - Delivered Duty Unpaid
+DPU - Delivered at Place Unloaded
+EXW - Ex Works
+FAS - Free Alongside Ship
+FCA - Free Carrier
+FOB - Free on board
+UN - Not Free
+    `);
+
+    const PAYMENT_TERMS_OPTIONS = [
+      "001 - CREDIT - WITHIN 60 DAYS OF RECEIPT BY CUSTOMER",
+      "002 - CREDIT - WITHIN 45 DAYS OF RECEIPT BY CUSTOMER",
+      "003 - CREDIT - WITHIN 30 DAYS OF RECEIPT BY CUSTOMER",
+      "005 - CREDIT - WITHIN 15 DAYS OF RECEIPT BY CUSTOMER",
+      "006 - CREDIT - WITHIN 10 DAYS OF RECEIPT BY CUSTOMER",
+      "007 - CREDIT - WITHIN 15 DAYS OF DISPATCH",
+      "008 - 100% AGANIST DELIVERY",
+      "012 - CREDIT - WITHIN 30 DAYS OF DISPATCH",
+      "015 - CREDIT - WITHIN 50 DAYS OF RECEIPT BY CUSTOMER",
+      "024 - CREDIT - WITHIN 60 DAYS OF DISPATCH",
+      "025 - CREDIT - WITHIN 45 DAYS OF DISPATCH",
+      "039 - CREDIT - WITHIN 50 DAYS OF DESPATCH",
+      "044 - L/C - AT SIGHT",
+      "048 - 100 % AGAINST COMPLETION OF JOB-WORK",
+      "053 - 100% AGAINST LORRY RECEIPT",
+      "056 - ADV - 20%, BAL- 80% AFTER 30 DAYS OF DISPATCH",
+      "066 - 100% AGAINST DISPATCH DOCUMENTS",
+      "071 - PAYMENT - 60 DAYS HUNDI",
+      "072 - D/A 180 DAYS",
+      "073 - L/C - 45 DAYS",
+      "074 - ADVANCE - 50%, BALANCE - 50% AGAINST DELIVERY",
+      "076 - D/A 30 DAYS",
+      "080 - 100% AGAINST PROFORMA INVOICE",
+      "081 - D/A 90 DAYS",
+      "090 - 100% AGAINST REQUESTED DOCUMENTS AS PER CONTRACT",
+      "092 - D/A 60 DAYS",
+      "095 - CAD - 70% , BALANCE - 30% WITHIN 60 DAYS OF B/L",
+      "096 - D/P AT SIGHT",
+      "097 - CAD - 100%",
+      "098 - D/A 120 DAYS",
+      "099 - L/C - 90 DAYS",
+      "100 - L/C - 120 DAYS",
+      "107 - D/A 15 DAYS",
+      "109 - D/A 45 DAYS",
+      "110 - L/C - 30 DAYS",
+      "118 - Letter Of Credit - 15 Days",
+      "120 - ADVANCE - 50%, BALANCE - 50% D/P AT SIGHT",
+      "121 - ADVANCE - 50%, BALANCE - 50% ON D/A 60 DAYS",
+      "128 - L/C - 60 DAYS",
+      "132 - D/A 50 DAYS",
+      "133 - 90% IMDT AFTER AGREEMENT & BAL AGST FINAL INVOICE",
+      "135 - D/A 75 DAYS",
+      "136 - ADVANCE PAYMENT",
+      "137 - 20% Advance and Balance 80% against CAD",
+      "138 - 10% on Appointment & 90% on Completion of service",
+      "139 - 90% ag. Faxed Doc & bal. ag final weight & Assays",
+      "140 - 50% advance+50% balance ag. scan copy of document",
+      "141 - 30% Adv. & 70% within 2 wks after BL Date",
+      "142 - 100% Ag.Final doc & Residual on final Result&Assay",
+      "143 - 80% TT AGST SHIPPING DOC & 20% TT AFTER WSA.",
+      "144 - End of this month + 45 days",
+      "145 - End of this month + 75 days",
+      "146 - End of this month + 30 days",
+      "147 - End of this month + 60 days",
+      "148 - End of this month + 90 days",
+      "149 - End of this month + 120 days",
+      "LC - Payment Against LC",
+      "Z004 - CREDIT - WITHIN 21 DAYS OF RECEIPT BY CUSTOMER",
+      "Z016 - CREDIT - WITHIN 35 DAYS OF RECEIPT BY CUSTOMER",
+      "Z017 - CREDIT - WITHIN 90 DAYS OF RECEIPT BY CUSTOMER",
+      "Z027 - 30 DAYS PDC",
+      "Z028 - 45 DAYS PDC",
+      "Z029 - CREDIT - WITHIN 75 DAYS OF DISPATCH",
+      "Z030 - CREDIT - WITHIN 180 DAYS OF RECEIPT BY CUSTOMER",
+      "Z031 - Credit within 75 days of receipt of material",
+      "Z036 - CREDIT - WITHIN 120 DAYS OF RECEIPT BY CUSTOMER",
+      "Z041 - CREDIT - WITHIN 150 DAYS OF RECEIPT BY CUSTOMER",
+      "Z046 - CREDIT - WITHIN 10 DAYS OF RECEIPT BY CUSTOMER",
+      "Z050 - CREDIT - WITHIN 20 DAYS OF RECEIPT BY CUSTOMER",
+      "Z054 - CREDIT - WITHIN 7 DAYS OF RECEIPT BY CUSTOMER",
+      "Z070 - 60 DAYS PDC",
+      "Z075 - L/C - 180 DAYS",
+      "Z080 - 30 Days From Date Of Invoice",
+      "Z085 - L/C - 90 DAYS",
+      "Z088 - 7 DAYS PDC",
+      "Z113 - 15 DAYS PDC",
+      "Z116 - 90 DAYS PDC",
+      "Z117 - L/C - 75 DAYS",
+      "Z124 - 75 DAYS PDC",
+      "Z125 - TT 90 days from BL",
+      "Z126 - T/T-RECEIPT OF FAXED DOCUMETS",
+      "Z127 - TT 30 Days From B/L Date",
+      "Z128 - TT 45 Days From B/L Date",
+      "Z129 - TT 120 Days From B/L Date",
+      "Z130 - 10 Days From B/L Date",
+      "Z131 - 20 Days From B/L Date",
+      "Z132 - 30 Days From B/L Date",
+      "Z133 - 45 Days From B/L Date",
+      "Z134 - 60 Days From B/L Date",
+      "Z135 - 75 Days From B/L Date",
+      "Z136 - 90 Days From B/L Date",
+      "Z137 - 120 Days From B/L Date",
+      "Z138 - CAD THROUGH BANK",
+      "Z139 - 20% Advance & Balance Agst. Copy Doc",
+      "Z140 - T/T 30 DAYS AFTER RECEIPT OF GOODS",
+      "Z141 - T/T 60 DAYS FROM B/L DATE",
+      "Z142 - T/T-100% FAXED DOCUMETS",
+      "Z143 - 30%TT ADV & BAL 70%TT WITHIN 10 DAYS FROM BL DT",
+      "Z144 - 20%TT ADV & BAL 80%TT WITHIN 7 DAYS FROM BL DT",
+      "Z145 - 60 DAYS END OF MONTH END -1% DISCOUNT",
+      "Z146 - T/T 60 DAYS END OF MONTH END -1% DISCOUNT",
+      "Z147 - TT 90 days from BL date at month end",
+      "Z148 - 90 DAYS FROM THE DATE OF DESPATCH AS AT MONTH END",
+      "Z149 - TT 50% AG. DOCU.& REST ARRIVAL OF VESSEL",
+      "Z150 - 100% TT against copy of documents",
+      "Z151 - TT 40 DAYS AFTR REC. OF ORG. SHIPING DOCS",
+      "Z152 - TT 30% ADV., BAL 70% AG. FAX OF SHIPING DOCUMENT",
+      "Z153 - 10% ADV.& 90% ON 7 DAYS BEFORE MATERIAL ARRIVAL",
+      "Z154 - T/T 30 DAYS FRM B/L DATE AS AT MONTH END -2% DISCO",
+      "Z155 - 50% TT ag. copy of docu. & rest on arrival of mat.",
+      "Z156 - 90 Days from Invoice Date",
+      "Z157 - 150 Days from Invoice Date",
+      "Z158 - 25% Advance & 75% tt after BL copy by mail",
+      "Z159 - 30 DAYS FROM LORRY RECEIPT DATE",
+      "Z160 - TT 80 DAYS FROM BL DATE",
+      "Z161 - 80% advance, 20% balance upon receipt of material",
+      "Z162 - 90% ADVANCE & BALANCE AFTER RECEIPT OF MATERIAL",
+      "Z163 - 85% AG. DOCUMENTS & BALANCE AFTER FINAL ASSAY",
+      "Z164 - 100% ADVANCE AGAINST BANK GAURANTEE PROVIDE BY US",
+      "Z165 - T/T 70% in advance 30% before ETA",
+      "Z166 - 30% ADVANCE & REST 70% AGAINST SHIPPING DOCUMENTS",
+      "Z167 - 40% T/T ADV+60% T/T SHIPPING DOCS BY EMAIL",
+      "Z168 - 60 Days from Invoice Date",
+      "Z169 - 50% Advance and balance 50% against 30 days PDC",
+      "Z170 - 95% ADVANCE AND BALANCE 5% AFTER TESTING",
+      "Z171 - LC - 90 Days from BL Date",
+      "Z172 - 70% TT against scan copy of doc & 30% TT after WSA",
+      "Z173 - 25% Advance & balance 75% in 30 days frm Invoice",
+    ];
+
+    const CUSTOMER_GROUP_OPTIONS = parseOptionLines(`
+Manufacturer
+Trader
+Consignment Agent
+    `);
+
+    const INDUSTRY_TYPE_OPTIONS = parseOptionLines(`
+Chemical
+Pharma
+Pigments
+Others
+    `);
+
+    const CUSTOMER_TYPE_OPTIONS = parseOptionLines(`
+Customer-Domestic
+Customer-Foreign
+    `);
+
+    const SALES_ORGANIZATION_OPTIONS = parseOptionLines(`
+FES1 - Futuredge Estate LLP
+KPS1 - KEPLER Resources Pvt
+RIS1 - RUBAMIN Ltd.
+RIS2 - ZINCOLLIED (INDIA)
+RIS3 - ZINCOLLIED INDUSTRY
+TCS1 - TECHNO CHEMICALS
+VLS1 - VULCANIS LLP
+VLSD - VULCANIS DUBAI
+    `);
+
+    const ACCOUNT_ASSIGNMENT_OPTIONS = parseOptionLines(`
+CD - Domestic Consginment
+CX - Export Consginment
+DO - Domestic
+DX - Deemed Export
+EX - Exports
+HS - Highseas Sales
+OT - OTHERS
+SZ - SEZ Sales
+    `);
+
+    const CURRENCY_OPTIONS = parseOptionLines(`
+DEM
+USD
+AUD
+CAD
+CHF
+DKK
+EUR
+GBP
+HKD
+INR
+JPY
+NOK
+SEK
+SGD
+ATS
+BEF
+ESP
+FIM
+FRF
+GRD
+IEP
+ITL
+LUF
+NLG
+PTE
+AED
+ARS
+BGN
+BRL
+CLP
+CNY
+COP
+CYP
+CZK
+HRK
+HUF
+IDR
+ILS
+KRW
+MXN
+MYR
+NZD
+PEN
+PHP
+PLN
+ROL
+RUB
+SAR
+SIT
+SKK
+THB
+TRL
+TWD
+UAH
+VEB
+ZAR
+BDT
+DEM3
+TRY
+USDN
+    `);
+
+    const SCRAP_SALES_OPTIONS = parseOptionLines(`
+Yes
+No
+    `);
+
+    const TCS_RATE_OPTIONS = parseOptionLines(`
+Z1 - TCS_Base Rate_1%
+    `);
+
+    const DISTRIBUTION_CHANNEL_MAP = {
+      "FES1 - Futuredge Estate LLP": ["DO - Domestic Sales", "EX - Export Sales"],
+      "KPS1 - KEPLER Resources Pvt": ["10 - Dist channel for STO", "CX - Export Consginment", "DO - Domestic Sales", "DX - Deemed Export", "EX - Export Sales", "SZ - SEZ Sales"],
+      "RIS1 - RUBAMIN Ltd.": ["10 - Dist channel for STO", "CD - Domestic Consginment", "CX - Export Consginment", "DO - Domestic Sales", "DX - Deemed Export", "EX - Export Sales", "HS - Highseas Sales", "JW - Job Work", "SZ - SEZ Sales"],
+      "RIS2 - ZINCOLLIED (INDIA)": ["10 - Dist channel for STO", "CD - Domestic Consginment", "CX - Export Consginment", "DO - Domestic Sales", "DX - Deemed Export", "EX - Export Sales", "HS - Highseas Sales", "JW - Job Work", "SZ - SEZ Sales"],
+      "RIS3 - ZINCOLLIED INDUSTRY": ["10 - Dist channel for STO", "CD - Domestic Consginment", "CX - Export Consginment", "DO - Domestic Sales", "DX - Deemed Export", "EX - Export Sales", "JW - Job Work", "SZ - SEZ Sales"],
+      "TCS1 - TECHNO CHEMICALS": ["10 - Dist channel for STO", "DO - Domestic Sales", "EX - Export Sales"],
+      "VLS1 - VULCANIS LLP": ["10 - Dist channel for STO", "EX - Export Sales"],
+      "VLSD - VULCANIS DUBAI": ["CM - Common"],
+    };
+
+    const DIVISION_MAP = {
+      "FES1 - Futuredge Estate LLP": {
+        "DO - Domestic Sales": ["OT - Others", "SC - Scrap", "SR - Services", "TR - Trading"],
+        "EX - Export Sales": ["TR - Trading"],
+      },
+      "KPS1 - KEPLER Resources Pvt": {
+        "10 - Dist channel for STO": ["10 - Division for STO"],
+        "CX - Export Consginment": ["PY - PYRO"],
+        "DO - Domestic Sales": ["OT - Others", "PY - PYRO", "SC - Scrap", "TR - Trading"],
+        "DX - Deemed Export": ["PY - PYRO"],
+        "EX - Export Sales": ["PY - PYRO"],
+        "SZ - SEZ Sales": ["PY - PYRO"],
+      },
+      "RIS1 - RUBAMIN Ltd.": {
+        "10 - Dist channel for STO": ["10 - Division for STO"],
+        "CD - Domestic Consginment": ["ME - Metal", "ZN - Zinc"],
+        "CX - Export Consginment": ["LB - LIB (Lithium Ion BT)", "ME - Metal", "ZN - Zinc"],
+        "DO - Domestic Sales": ["LB - LIB (Lithium Ion BT)", "ME - Metal", "OT - Others", "SC - Scrap", "SR - Services", "TR - Trading", "ZN - Zinc"],
+        "DX - Deemed Export": ["LB - LIB (Lithium Ion BT)", "ME - Metal", "ZN - Zinc"],
+        "EX - Export Sales": ["LB - LIB (Lithium Ion BT)", "ME - Metal", "TR - Trading", "ZN - Zinc"],
+        "HS - Highseas Sales": ["ME - Metal", "ZN - Zinc"],
+        "JW - Job Work": ["ME - Metal", "ZN - Zinc"],
+        "SZ - SEZ Sales": ["LB - LIB (Lithium Ion BT)", "ME - Metal", "ZN - Zinc"],
+      },
+      "RIS2 - ZINCOLLIED (INDIA)": {
+        "10 - Dist channel for STO": ["10 - Division for STO"],
+        "CD - Domestic Consginment": ["ZN - Zinc"],
+        "CX - Export Consginment": ["ZN - Zinc"],
+        "DO - Domestic Sales": ["OT - Others", "SC - Scrap", "ZN - Zinc"],
+        "DX - Deemed Export": ["ZN - Zinc"],
+        "EX - Export Sales": ["ZN - Zinc"],
+        "HS - Highseas Sales": ["ZN - Zinc"],
+        "JW - Job Work": ["ZN - Zinc"],
+        "SZ - SEZ Sales": ["ZN - Zinc"],
+      },
+      "RIS3 - ZINCOLLIED INDUSTRY": {
+        "10 - Dist channel for STO": ["10 - Division for STO"],
+        "CD - Domestic Consginment": ["ZN - Zinc"],
+        "CX - Export Consginment": ["ZN - Zinc"],
+        "DO - Domestic Sales": ["OT - Others", "SC - Scrap", "ZN - Zinc"],
+        "DX - Deemed Export": ["ZN - Zinc"],
+        "EX - Export Sales": ["ZN - Zinc"],
+        "JW - Job Work": ["ZN - Zinc"],
+        "SZ - SEZ Sales": ["ZN - Zinc"],
+      },
+      "TCS1 - TECHNO CHEMICALS": {
+        "10 - Dist channel for STO": ["10 - Division for STO"],
+        "DO - Domestic Sales": ["CD - Cadmium", "OT - Others", "SC - Scrap", "TR - Trading"],
+        "EX - Export Sales": ["CD - Cadmium"],
+      },
+      "VLS1 - VULCANIS LLP": {
+        "10 - Dist channel for STO": ["10 - Division for STO"],
+        "EX - Export Sales": ["TR - Trading"],
+      },
+      "VLSD - VULCANIS DUBAI": {
+        "CM - Common": ["CO - Cobalt", "CU - Copper", "TR - Trading"],
+      },
+    };
+
+    const VENDOR_TYPE_OPTIONS = parseOptionLines(`
+Vendors-Domestic
+Vendors-Foreign
+Freight Vendors
+FI Vendors- Others
+Employee vendor
+Vendor - Domestic - RM
+Intra Company Vendors
+One Time Vendor
+Unsecured Loans
+FI Vendors - for CheK  Print
+    `);
+    const WITHHOLDING_TAX_OPTIONS = parseOptionLines(`
+CE - 194C - INV_CO Contractors-TDS_2.266%
+1E - 194C - PMT_CO Contractors-TDS_2.266%
+CA - 194C - INV_OT Contractors-TDS_2.266%
+1A - 194C - PMT_OT Contractors-TDS_2.266%
+CO - 194C - INV_OT Contractors-TDS_1 %
+1O - 194C - PMT_OT Contractors-TDS_1 %
+CM - 194C - INV_OT Contractors-TDS_20 %
+1M - 194C - PMT_OT Contractors-TDS_20 %
+JI - 194J - INV-CO Prof. Fees_TDS_10.30%
+3E - 194J- PMT_CO Prof. Fees_TDS_11.33%
+JA - 194J - INV-OT Prof. Fees_TDS_ 10.30%
+3A - 194J - PMT_OT Prof. Fees_TDS_11.33%
+LY - 94JA - INV-CO Tech. Fees_TDS_2 %
+6Y - 94JA- PMT_CO Tech. Fees_TDS_2 %
+HW - 194H - INV_CO TDS ON COMMISSION_2 %
+4W - 194H - PMT_CO TDS ON COMMISSION_2 %
+KN - 194I - INV_CO_ Rent P&M  TDS_EC_2%
+8N - 194I - PMT_CO Rent P&M_TDS_2%
+KM - 194I - INV_OT Rent P&M_TDS_2%
+8M - 194I - PMT_OT Rent P&M_TDS_2%
+LN - 194I - INV_OT_ Rent  _TDS_10%
+9N - 194I - PMT_CO Rent_TDS_10%
+LM - 194I - INV_CO Rent  _TDS_10%
+9M - 194I - PMT_OT Rent _TDS_10%
+AM - 194A - INV_CO Interest -TDS_10 %
+6M - 194A-PMT_CO Interest -TDS _10 %
+AA - 194A - INV_OT Interest TDS_11.33%
+6A - 194A - PMT_OT Interest TDS_11.33%
+XA - 194 - INV_OT Dividend TDS_7.50 %
+9X - 194 - PMT_OT Dividend TDS_7.50 %
+YA - 194 - INV_OT Dividend TDS_10 %
+9Y - 194 - PMT_OT Dividend TDS_10 %
+IY - 194IA_INV_OT on transfer Propery_1%
+5Y - 194IA_PMT_OT on transfer Property_1%
+LE - 194IA_INV_OT on transfer Propery_20 %
+8E - 194IA_PMT_OT on transfer Property_20 %
+NW - 195_ INV_CO TDS_CESS_30.90 % (NR)
+7W - 195_ PMT_CO TDS_CESS_30.90 % (NR)
+DO - 195_ INV-CO  NRI  TDS_ 10.40 %_ (NR)
+8O - 195_ PMT -CO  NRI  TDS_ 10.40%_ (NR)
+NX - 195_ INV_CO TDS_CESS_5.20 % (NR)
+8P - 195_ PMT -CO  TDS_CESS 5.20%_ (NR)
+SR - 194R : TDS on Benifits 10%
+0P - 194Q - PMT_PURCHASE OF GOODS TDS 0.1 %
+FP - 194Q - INV_PURCHASE OF GOODS TDS 0.1 %
+9C - Central GST
+9I - Integrated GST
+9S - State GST
+GC - Central GST
+GI - Integrated GST
+GS - State GST
+    `);
+    const TURNOVER_LIMIT_OPTIONS = parseOptionLines(`
+0
+5000000
+    `);
+    const PENDING_VALIDATOR_STATUS_VALUES = new Set([
+      "pending for validator approval",
+      "pending for validation approval",
+      "pendign for validator approval",
+    ]);
+    const GST_REGISTERED_STATUS_VALUES = new Set([
+      "registered",
+      "yes",
+      "y",
+      "true",
+      "1",
+      "active",
+      "valid",
+    ]);
+
+    const TEAM_REQUIRED_FIELDS = [
+      "customerGroup",
+      "industryType",
+      "incoTerms",
+      "paymentTerms",
+      "salesOrganization",
+      "distributionChannel",
+      "division",
+      "accountAssignment",
+      "currency",
+      "scrapSales",
+      "insuranceLimit",
+      "creditLimit",
+      "vendorType",
+      "rubaminApproverHod",
+    ];
+    const CUSTOMER_TEAM_MANAGED_FIELD_KEYS = new Set([
+      "customergroup",
+      "customertype",
+      "industrytype",
+      "vendortype",
+      "incoterms",
+      "paymentterms",
+      "hodemail",
+      "rubaminapproverhod",
+      "salesorganization",
+      "distributionchannel",
+      "division",
+      "accountassignment",
+      "currency",
+      "scrapsales",
+      "insurancegroup",
+      "insurancelimit",
+      "creditlimit",
+    ]);
+    const VENDOR_VALIDATOR_CHECKBOX_FIELDS = [
+      { id: "gstValidateCheckbox", payloadKey: "gstValidate", sourceKeys: ["gstValidate", "GST Validate"] },
+      { id: "cinValidateCheckbox", payloadKey: "cinValidate", sourceKeys: ["cinValidate", "CIN Validate"] },
+      { id: "panValidateCheckbox", payloadKey: "panValidate", sourceKeys: ["panValidate", "PAN Validate"] },
+      { id: "msmeValidateCheckbox", payloadKey: "msmeValidate", sourceKeys: ["msmeValidate", "MSME Validate"] },
+      { id: "pfValidateCheckbox", payloadKey: "pfValidate", sourceKeys: ["pfValidate", "PF Validate"] },
+      { id: "esiValidateCheckbox", payloadKey: "esiValidate", sourceKeys: ["esiValidate", "ESI Validate"] },
+      { id: "bankValidateCheckbox", payloadKey: "bankValidate", sourceKeys: ["bankValidate", "Bank Validate"] },
+    ];
+    const VENDOR_VALIDATOR_CARD_CHECKBOXES = {
+      "GST Details": [{ id: "gstValidateCheckbox", label: "GST" }],
+      "Company Status & CIN Details": [{ id: "cinValidateCheckbox", label: "CIN" }],
+      "PAN Details": [{ id: "panValidateCheckbox", label: "PAN" }],
+      "MSME Details": [{ id: "msmeValidateCheckbox", label: "MSME" }],
+      "PF & ESI Details": [
+        { id: "pfValidateCheckbox", label: "PF" },
+        { id: "esiValidateCheckbox", label: "ESI" },
+      ],
+      "Bank Details": [{ id: "bankValidateCheckbox", label: "Bank" }],
+    };
+    function readRoleFromToken() {
+      const token = String(sessionStorage.getItem("token") || "").trim();
+      if (!token) return "";
+      const parts = token.split(".");
+      if (parts.length < 2) return "";
+      try {
+        const normalizedPayload = parts[1].replace(/-/g, "+").replace(/_/g, "/");
+        const paddedPayload = normalizedPayload + "=".repeat((4 - (normalizedPayload.length % 4)) % 4);
+        const decodedPayload = JSON.parse(atob(paddedPayload));
+        return normalizeRole(decodedPayload?.role || "");
+      } catch (_) {
+        return "";
+      }
+    }
+
+    const sessionRole = normalizeRole(sessionStorage.getItem("role") || "");
+    const tokenRole = readRoleFromToken();
+    const currentUserRole = tokenRole || sessionRole;
+    if (tokenRole && sessionRole && tokenRole !== sessionRole) {
+      sessionStorage.setItem("role", tokenRole);
+    }
+    const viewParams = new URLSearchParams(window.location.search);
+    const pageRecordId = String(viewParams.get("recordId") || "").trim();
+    const requestedApprovalMode = String(
+      viewParams.get("approval")
+      || sessionStorage.getItem("customerLastApprovalMode")
+      || ""
+    ).trim().toLowerCase();
+    const currentApprovalMode = resolveApprovalMode(currentUserRole, requestedApprovalMode);
+    const isValidatorUser = currentApprovalMode === "validator";
+    const isHodUser = currentApprovalMode === "hod";
+    const supportsRejectTarget = isValidatorUser || isHodUser;
+    const isCustomerPortal = true;
+    let VALIDATOR_CHECKBOX_FIELDS = [...VENDOR_VALIDATOR_CHECKBOX_FIELDS];
+    let VALIDATOR_CARD_CHECKBOXES = { ...VENDOR_VALIDATOR_CARD_CHECKBOXES };
+    if (isCustomerPortal) {
+      VALIDATOR_CHECKBOX_FIELDS = [
+        { id: "gstValidateCheckbox", payloadKey: "gstValidate", sourceKeys: ["gstValidate", "GST Validate"] },
+      ];
+      VALIDATOR_CARD_CHECKBOXES = {
+        "GST Details": [{ id: "gstValidateCheckbox", label: "GST" }],
+      };
+    }
+    const viewMode = String(viewParams.get("mode") || "").trim().toLowerCase();
+    const isHistoryMode = viewMode === "history";
+    let hodOptions = [];
+
+    function normalizeRole(value) {
+      const role = String(value || "").trim().toLowerCase();
+      if (role === "administrator") return "admin";
+      if (role === "head of department") return "hod";
+      if (role === "validator & user" || role === "validator and user" || role === "validator+user") return "validator_user";
+      if (role === "validator & hod" || role === "validator and hod" || role === "validator+hod") return "validator_hod";
+      return role;
+    }
+
+    function roleCapabilities(normalizedRole) {
+      if (normalizedRole === "validator_user") return new Set(["validator", "user", "buyer"]);
+      if (normalizedRole === "validator_hod") return new Set(["validator", "hod"]);
+      if (normalizedRole === "user") return new Set(["user", "buyer"]);
+      if (normalizedRole === "buyer") return new Set(["buyer", "user"]);
+      return new Set([normalizedRole]);
+    }
+
+    function hasRoleCapability(normalizedRole, capability) {
+      return roleCapabilities(normalizedRole).has(String(capability || "").trim().toLowerCase());
+    }
+
+    function resolveApprovalMode(normalizedRole, requestedMode) {
+      const requested = String(requestedMode || "").trim().toLowerCase();
+      if (requested === "validator" && hasRoleCapability(normalizedRole, "validator")) return "validator";
+      if (requested === "hod" && hasRoleCapability(normalizedRole, "hod")) return "hod";
+      if ((requested === "buyer" || requested === "user") && hasRoleCapability(normalizedRole, "user")) return "buyer";
+      if (hasRoleCapability(normalizedRole, "validator")) return "validator";
+      if (hasRoleCapability(normalizedRole, "hod")) return "hod";
+      return "buyer";
+    }
+
+    function normalizeStatusText(value) {
+      return String(value || "")
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, " ");
+    }
+
+    function getVendorApproverStatus(vendor) {
+      const resolved = pickWithSource(vendor || {}, ["approverStatus", "ApproverStatus", "ApprovStatus", "status", "Status"], "");
+      return String(resolved.value || "").trim();
+    }
+
+    function isPendingForValidatorApproval(vendor) {
+      return PENDING_VALIDATOR_STATUS_VALUES.has(normalizeStatusText(getVendorApproverStatus(vendor)));
+    }
+
+    function getGstRegistrationStatus(vendor) {
+      const resolved = pickWithSource(
+        vendor || {},
+        ["GSTStatus", "gstStatus", "gstRegistrationStatus"],
+        ""
+      );
+      return normalizeStatusText(resolved.value);
+    }
+
+    function getGstNumberFromRecord(vendor) {
+      const resolved = pickWithSource(vendor || {}, ["GSTIN", "gstin", "gstNumber"], "");
+      return String(resolved.value || "").trim().toUpperCase();
+    }
+
+    function shouldShowGstFilingToggle(cardTitle, vendor) {
+      if (String(cardTitle || "").trim() !== "GST Details") return false;
+      if (isHistoryMode) return false;
+      if (!isPendingForValidatorApproval(vendor)) return false;
+      if (!GST_REGISTERED_STATUS_VALUES.has(getGstRegistrationStatus(vendor))) return false;
+      return !!getGstNumberFromRecord(vendor);
+    }
+
+    function toBool(value) {
+      if (typeof value === "boolean") return value;
+      if (typeof value === "number") return value !== 0;
+      if (value === null || value === undefined) return false;
+      return ["1", "true", "yes", "y", "on"].includes(String(value).trim().toLowerCase());
+    }
+
+    function normalizeOptions(options) {
+      return (Array.isArray(options) ? options : []).map((entry) => {
+        if (typeof entry === "string") {
+          return { value: entry, label: entry };
+        }
+        return {
+          value: String(entry?.value || ""),
+          label: String(entry?.label || entry?.value || ""),
+        };
+      });
+    }
+
+    function withSelectedOption(options, selectedValue) {
+      const value = String(selectedValue || "").trim();
+      if (!value) return options;
+      if (options.some((item) => String(item.value || "").trim() === value)) {
+        return options;
+      }
+      return [{ value, label: value }, ...options];
+    }
+
+    function withSelectedOptions(options, selectedValues) {
+      const values = Array.isArray(selectedValues)
+        ? selectedValues.map((entry) => String(entry || "").trim()).filter(Boolean)
+        : [];
+      if (!values.length) return options;
+      const merged = options.slice();
+      const existing = new Set(merged.map((item) => String(item.value || "").trim()));
+      values.forEach((value) => {
+        if (existing.has(value)) return;
+        merged.unshift({ value, label: value });
+        existing.add(value);
+      });
+      return merged;
+    }
+
+    function parseStoredSingleSelect(value) {
+      if (Array.isArray(value)) {
+        return value.map((item) => String(item || "").trim()).find(Boolean) || "";
+      }
+      if (value === null || value === undefined) return "";
+      let raw = String(value).trim();
+      if (!raw) return "";
+
+      try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          return parsed.map((item) => String(item || "").trim()).find(Boolean) || "";
+        }
+        if (parsed !== null && parsed !== undefined && typeof parsed !== "object") {
+          return String(parsed).trim();
+        }
+      } catch (_) {}
+
+      if (raw.startsWith("[") && raw.endsWith("]")) {
+        const first = raw
+          .slice(1, -1)
+          .split(",")
+          .map((item) => item.trim().replace(/^['"]+|['"]+$/g, ""))
+          .find(Boolean);
+        return first || "";
+      }
+
+      return raw.replace(/^['"]+|['"]+$/g, "");
+    }
+
+    function getDistributionChannelOptions(salesOrganizationValue) {
+      const salesValue = String(salesOrganizationValue || "").trim();
+      if (!salesValue) return [];
+      return normalizeOptions(DISTRIBUTION_CHANNEL_MAP[salesValue] || []);
+    }
+
+    function getDivisionOptions(salesOrganizationValue, distributionChannelValue) {
+      const salesValue = String(salesOrganizationValue || "").trim();
+      const distributionValue = String(distributionChannelValue || "").trim();
+      if (!salesValue || !distributionValue) return [];
+      return normalizeOptions((DIVISION_MAP[salesValue] || {})[distributionValue] || []);
+    }
+
+    function getTeamSelectOptions(field, selectedValue) {
+      const optionsType = String(field?.optionsType || "").trim();
+      const salesOrganizationValue = String(field?.salesOrganizationValue || "").trim();
+      const distributionChannelValue = String(field?.distributionChannelValue || "").trim();
+
+      let options = [];
+      if (optionsType === "incoTerms") {
+        options = normalizeOptions(INCO_TERMS_OPTIONS);
+      } else if (optionsType === "paymentTerms") {
+        options = normalizeOptions(PAYMENT_TERMS_OPTIONS);
+      } else if (optionsType === "customerGroup") {
+        options = normalizeOptions(CUSTOMER_GROUP_OPTIONS);
+      } else if (optionsType === "industryType") {
+        options = normalizeOptions(INDUSTRY_TYPE_OPTIONS);
+      } else if (optionsType === "salesOrganization") {
+        options = normalizeOptions(SALES_ORGANIZATION_OPTIONS);
+      } else if (optionsType === "distributionChannel") {
+        options = getDistributionChannelOptions(salesOrganizationValue);
+      } else if (optionsType === "division") {
+        options = getDivisionOptions(salesOrganizationValue, distributionChannelValue);
+      } else if (optionsType === "accountAssignment") {
+        options = normalizeOptions(ACCOUNT_ASSIGNMENT_OPTIONS);
+      } else if (optionsType === "currency") {
+        options = normalizeOptions(CURRENCY_OPTIONS);
+      } else if (optionsType === "scrapSales") {
+        options = normalizeOptions(SCRAP_SALES_OPTIONS);
+      } else if (optionsType === "tcsRate") {
+        options = normalizeOptions(TCS_RATE_OPTIONS);
+      } else if (optionsType === "vendorType") {
+        options = isCustomerPortal
+          ? normalizeOptions(CUSTOMER_TYPE_OPTIONS)
+          : normalizeOptions(VENDOR_TYPE_OPTIONS);
+      } else if (optionsType === "hod") {
+        options = normalizeOptions(hodOptions);
+      }
+
+      if (optionsType === "customerGroup" || optionsType === "industryType" || optionsType === "vendorType") {
+        return options;
+      }
+      return withSelectedOption(options, selectedValue);
+    }
+
+    function documentFieldHtml(field, value, sourceKey, docIndex) {
+      const fieldName = getDocumentFieldName(field, sourceKey);
+      const storedValue = resolveDocumentStoredValue(field, value, sourceKey);
+      const hasDocument = hasDocumentValue(storedValue);
+      const fallbackUrl = hasDocument ? toDocumentUrl(storedValue) : "";
+      const docUrl = hasDocument ? buildRecordDocumentUrl(currentRecordId, fieldName, storedValue) : "";
+      const fileName = hasDocument ? (fileNameFromUrl(fallbackUrl) || "Uploaded Document") : "No Document";
+      const toggleId = `doc-toggle-${docIndex}`;
+      const previewId = `doc-preview-${docIndex}`;
+
+      if (!hasDocument) {
+        return `
+          <div class="row full">
+            <label>${escapeHtml(field.label)}</label>
+            <input readonly value="No Document" />
+          </div>
+        `;
+      }
+
+      return `
+        <div class="row full">
+          <label>${escapeHtml(field.label)}</label>
+          <input readonly value="${escapeHtml(fileName)}" />
+          <div class="switch-row">
+            <span>View Uploaded Document</span>
+            <label class="switch">
+              <input id="${toggleId}" type="checkbox" data-doc-toggle data-doc-url="${escapeHtml(docUrl)}" data-doc-name="${escapeHtml(fileName)}" data-preview-id="${previewId}" />
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div id="${previewId}" class="doc-preview hidden"></div>
+        </div>
+      `;
+    }
+
+    function textFieldHtml(field, resolved) {
+      const formatted = formatValue(resolved.value);
+      const isEditable = !isHistoryMode && field.editable !== false;
+      const fieldName = String(field.name || resolved.sourceKey || "").trim();
+      const sourceKey = String(resolved.sourceKey || fieldName || "").trim();
+      const teamAttr = field.teamField ? ' data-team-field="true"' : "";
+      const attrs = isEditable
+        ? ` data-editable-field="true" data-field-name="${escapeHtml(fieldName)}" data-source-key="${escapeHtml(sourceKey)}"${teamAttr}`
+        : " readonly";
+
+      if (field.multiline) {
+        return `
+          <div class="row full">
+            <label>${escapeHtml(field.label)}</label>
+            <textarea${attrs}>${escapeHtml(formatted)}</textarea>
+          </div>
+        `;
+      }
+      return `
+        <div class="row">
+          <label>${escapeHtml(field.label)}</label>
+          <input${attrs} value="${escapeHtml(formatted)}" />
+        </div>
+      `;
+    }
+
+    function selectFieldHtml(field, resolved) {
+      const fieldName = String(field.name || resolved.sourceKey || "").trim();
+      const sourceKey = String(resolved.sourceKey || fieldName || "").trim();
+      const selectedValue = formatValue(resolved.value).trim();
+      const teamAttr = field.teamField ? ' data-team-field="true"' : "";
+      const disabledAttr = isHistoryMode ? " disabled" : "";
+      const options = getTeamSelectOptions(field, selectedValue);
+      const optionsHtml = ['<option value="">Select</option>']
+        .concat(
+          options.map((item) => {
+            const value = String(item.value || "");
+            const label = String(item.label || value);
+            const selected = value === selectedValue ? " selected" : "";
+            return `<option value="${escapeHtml(value)}"${selected}>${escapeHtml(label)}</option>`;
+          })
+        )
+        .join("");
+
+      return `
+        <div class="row">
+          <label>${escapeHtml(field.label)}</label>
+          <select data-editable-field="true" data-field-name="${escapeHtml(fieldName)}" data-source-key="${escapeHtml(sourceKey)}"${teamAttr}${disabledAttr}>
+            ${optionsHtml}
+          </select>
+        </div>
+      `;
+    }
+
+    const previewBlobUrlById = new Map();
+
+    function releasePreviewBlobUrl(previewEl) {
+      const previewId = String(previewEl?.id || "").trim();
+      if (!previewId) return;
+      const blobUrl = previewBlobUrlById.get(previewId);
+      if (!blobUrl) return;
+      try {
+        URL.revokeObjectURL(blobUrl);
+      } catch (_) {}
+      previewBlobUrlById.delete(previewId);
+    }
+
+    function releaseAllPreviewBlobUrls() {
+      previewBlobUrlById.forEach((blobUrl) => {
+        try {
+          URL.revokeObjectURL(blobUrl);
+        } catch (_) {}
+      });
+      previewBlobUrlById.clear();
+    }
+
+    function isSameOriginUrl(urlValue) {
+      const text = String(urlValue || "").trim();
+      if (!text) return false;
+      try {
+        const parsed = new URL(text, window.location.origin);
+        return parsed.origin === window.location.origin;
+      } catch (_) {
+        return false;
+      }
+    }
+
+    function hasBytesPrefix(sourceBytes, prefixBytes) {
+      if (!sourceBytes || sourceBytes.length < prefixBytes.length) return false;
+      for (let i = 0; i < prefixBytes.length; i += 1) {
+        if (sourceBytes[i] !== prefixBytes[i]) return false;
+      }
+      return true;
+    }
+
+    async function sniffBlobContentType(blob, fallbackContentType = "") {
+      const normalizedFallback = String(fallbackContentType || "")
+        .split(";", 1)[0]
+        .trim()
+        .toLowerCase();
+      const genericTypes = new Set([
+        "",
+        "application/octet-stream",
+        "binary/octet-stream",
+        "application/download",
+        "application/x-download",
+        "text/plain",
+        "application/plain",
+      ]);
+
+      if (!genericTypes.has(normalizedFallback)) {
+        return normalizedFallback;
+      }
+
+      try {
+        const headerBuffer = await blob.slice(0, 4096).arrayBuffer();
+        const header = new Uint8Array(headerBuffer);
+        if (!header.length) return normalizedFallback;
+
+        const headerText = new TextDecoder("latin1").decode(header).toLowerCase();
+        if (headerText.includes("%pdf")) return "application/pdf";
+        if (hasBytesPrefix(header, [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])) return "image/png";
+        if (hasBytesPrefix(header, [0xff, 0xd8, 0xff])) return "image/jpeg";
+        if (hasBytesPrefix(header, [0x47, 0x49, 0x46, 0x38, 0x37, 0x61])) return "image/gif";
+        if (hasBytesPrefix(header, [0x47, 0x49, 0x46, 0x38, 0x39, 0x61])) return "image/gif";
+        if (hasBytesPrefix(header, [0x42, 0x4d])) return "image/bmp";
+        if (
+          hasBytesPrefix(header, [0x52, 0x49, 0x46, 0x46])
+          && header.length >= 12
+          && header[8] === 0x57
+          && header[9] === 0x45
+          && header[10] === 0x42
+          && header[11] === 0x50
+        ) {
+          return "image/webp";
+        }
+        if (headerText.includes("<svg")) return "image/svg+xml";
+      } catch (_) {
+        return normalizedFallback;
+      }
+
+      return normalizedFallback;
+    }
+
+    async function fetchDocumentPreviewBlob(docUrl) {
+      const token = String(sessionStorage.getItem("token") || "").trim();
+      const headers = token ? { "Authorization": `Bearer ${token}` } : {};
+      let response = await fetch(docUrl, { headers });
+      if (!response.ok && token && (response.status === 401 || response.status === 403)) {
+        response = await fetch(docUrl);
+      }
+      if (!response.ok) {
+        throw new Error(`Document preview failed (${response.status})`);
+      }
+      const blob = await response.blob();
+      const contentType = String(response.headers.get("content-type") || "")
+        .split(";", 1)[0]
+        .trim()
+        .toLowerCase();
+      const resolvedContentType = await sniffBlobContentType(blob, contentType);
+      let previewBlob = blob;
+      if (resolvedContentType && blob.type !== resolvedContentType) {
+        try {
+          previewBlob = blob.slice(0, blob.size, resolvedContentType);
+        } catch (_) {
+          previewBlob = new Blob([blob], { type: resolvedContentType });
+        }
+      }
+      return { blob: previewBlob, contentType: resolvedContentType };
+    }
+
+    function buildPdfDocumentUrl(docUrl) {
+      const text = String(docUrl || "").trim();
+      if (!text) return "";
+      try {
+        const parsed = new URL(text, window.location.origin);
+        if (
+          parsed.origin === window.location.origin
+          && (parsed.pathname === "/api/vendor/document" || parsed.pathname === "/api/customer/document")
+        ) {
+          parsed.pathname = `${parsed.pathname}/pdf`;
+          return parsed.toString();
+        }
+      } catch (_) {}
+      return text;
+    }
+
+    function getPdfJs() {
+      const pdfjs = window.pdfjsLib;
+      if (!pdfjs) return null;
+      if (pdfjs.GlobalWorkerOptions && !pdfjs.GlobalWorkerOptions.workerSrc) {
+        pdfjs.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+      }
+      return pdfjs;
+    }
+
+    async function fetchPdfBytes(pdfUrl) {
+      const token = String(sessionStorage.getItem("token") || "").trim();
+      const headers = token ? { "Authorization": `Bearer ${token}` } : {};
+      let response = await fetch(pdfUrl, { headers });
+      if (!response.ok && token && (response.status === 401 || response.status === 403)) {
+        response = await fetch(pdfUrl);
+      }
+      if (!response.ok) {
+        throw new Error(`PDF preview failed (${response.status})`);
+      }
+      return new Uint8Array(await response.arrayBuffer());
+    }
+
+    async function renderPdfDocumentPreview(previewEl, pdfUrl, openUrl) {
+      const pdfjs = getPdfJs();
+      let bodyHtml = `<div class="doc-actions"><a href="${escapeHtml(openUrl || pdfUrl)}" target="_blank" rel="noopener noreferrer">Open In New Page</a></div>`;
+      bodyHtml += `<div class="pdf-js-viewer" data-pdf-viewer><div class="pdf-js-status">Loading PDF...</div></div>`;
+      previewEl.innerHTML = bodyHtml;
+      previewEl.classList.remove("hidden");
+
+      const viewerEl = previewEl.querySelector("[data-pdf-viewer]");
+      if (!viewerEl) return;
+      if (!pdfjs) {
+        viewerEl.innerHTML = `<div class="pdf-js-status">PDF viewer could not load. Use Open In New Page.</div>`;
+        return;
+      }
+
+      try {
+        const pdfData = await fetchPdfBytes(pdfUrl);
+        const pdfDocument = await pdfjs.getDocument({ data: pdfData }).promise;
+        const totalPages = Number(pdfDocument.numPages || 0);
+        if (!totalPages) {
+          throw new Error("PDF has no pages");
+        }
+        viewerEl.innerHTML = "";
+        const availableWidth = Math.max(320, viewerEl.clientWidth - 36);
+
+        for (let pageNumber = 1; pageNumber <= totalPages; pageNumber += 1) {
+          const page = await pdfDocument.getPage(pageNumber);
+          const baseViewport = page.getViewport({ scale: 1 });
+          const scale = Math.min(2, Math.max(0.75, availableWidth / baseViewport.width));
+          const viewport = page.getViewport({ scale });
+          const outputScale = Math.max(1, window.devicePixelRatio || 1);
+
+          const pageEl = document.createElement("div");
+          pageEl.className = "pdf-js-page";
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.floor(viewport.width * outputScale);
+          canvas.height = Math.floor(viewport.height * outputScale);
+          canvas.style.width = `${Math.floor(viewport.width)}px`;
+          canvas.style.height = `${Math.floor(viewport.height)}px`;
+          pageEl.appendChild(canvas);
+          viewerEl.appendChild(pageEl);
+
+          const context = canvas.getContext("2d");
+          if (!context) {
+            throw new Error("PDF canvas is not available");
+          }
+          context.setTransform(outputScale, 0, 0, outputScale, 0, 0);
+          await page.render({ canvasContext: context, viewport }).promise;
+        }
+      } catch (err) {
+        viewerEl.innerHTML = `<div class="pdf-js-status">${escapeHtml(err?.message || "Unable to render PDF preview.")}</div>`;
+      }
+    }
+
+    async function renderDocumentPreview(previewEl, docUrl, docName = "") {
+      releasePreviewBlobUrl(previewEl);
+
+      const lower = String(docName || docUrl).toLowerCase().split("?")[0];
+      const openUrl = String(docUrl || "").trim();
+      const looksLikePdf = /\.pdf$/i.test(lower);
+      if (looksLikePdf) {
+        await renderPdfDocumentPreview(previewEl, buildPdfDocumentUrl(openUrl), openUrl);
+        return;
+      }
+      let previewUrl = openUrl;
+      let resolvedContentType = "";
+
+      if (openUrl && isSameOriginUrl(openUrl)) {
+        try {
+          const { blob, contentType } = await fetchDocumentPreviewBlob(openUrl);
+          resolvedContentType = contentType;
+          const blobUrl = URL.createObjectURL(blob);
+          previewBlobUrlById.set(String(previewEl.id || ""), blobUrl);
+          previewUrl = blobUrl;
+        } catch (_) {
+          resolvedContentType = "";
+          previewUrl = openUrl;
+        }
+      }
+
+      const isImage =
+        /^image\//.test(resolvedContentType)
+        || /\.(png|jpg|jpeg|gif|webp|bmp|svg)$/.test(lower);
+      const isPdf = resolvedContentType === "application/pdf";
+
+      let bodyHtml = `<div class="doc-actions"><a href="${escapeHtml(openUrl)}" target="_blank" rel="noopener noreferrer">Open In New Page</a></div>`;
+
+      if (isImage) {
+        bodyHtml += `<img src="${escapeHtml(previewUrl)}" alt="Uploaded Document Preview" />`;
+      } else if (isPdf) {
+        await renderPdfDocumentPreview(previewEl, buildPdfDocumentUrl(openUrl || previewUrl), openUrl || previewUrl);
+        return;
+      } else {
+        bodyHtml += `<iframe src="${escapeHtml(previewUrl)}" title="Document Preview"></iframe>`;
+      }
+
+      previewEl.innerHTML = bodyHtml;
+      previewEl.classList.remove("hidden");
+    }
+
+    function bindDocumentToggles() {
+      const toggles = document.querySelectorAll("[data-doc-toggle]");
+      toggles.forEach((toggle) => {
+        toggle.addEventListener("change", async () => {
+          const previewId = String(toggle.dataset.previewId || "");
+          const previewEl = document.getElementById(previewId);
+          if (!previewEl) return;
+
+          if (!toggle.checked) {
+            releasePreviewBlobUrl(previewEl);
+            previewEl.classList.add("hidden");
+            previewEl.innerHTML = "";
+            return;
+          }
+
+          const docUrl = String(toggle.dataset.docUrl || "").trim();
+          const docName = String(toggle.dataset.docName || "").trim();
+          if (!docUrl) {
+            releasePreviewBlobUrl(previewEl);
+            previewEl.classList.remove("hidden");
+            previewEl.innerHTML = `<div class="muted">No Document</div>`;
+            return;
+          }
+
+          await renderDocumentPreview(previewEl, docUrl, docName);
+        });
+      });
+    }
+
+    function getGstFilingModalElements() {
+      return {
+        modal: document.getElementById("gstFilingModal"),
+        title: document.getElementById("gstFilingTitle"),
+        meta: document.getElementById("gstFilingMeta"),
+        controls: document.getElementById("gstFilingControls"),
+        financialYearSelect: document.getElementById("gstFilingFinancialYear"),
+        fetchBtn: document.getElementById("gstFilingFetchBtn"),
+        body: document.getElementById("gstFilingBody"),
+      };
+    }
+
+    function setGstFilingToggleState(checked) {
+      document.querySelectorAll("[data-gst-filing-toggle]").forEach((toggle) => {
+        toggle.checked = !!checked;
+      });
+    }
+
+    function showGstFilingModal({
+      title = "GST Return Filing Details",
+      metaHtml = "",
+      bodyHtml = "",
+      controlsVisible = false,
+    } = {}) {
+      const { modal, title: titleEl, meta, controls, body } = getGstFilingModalElements();
+      if (!modal || !titleEl || !meta || !body) return;
+      titleEl.textContent = String(title || "GST Return Filing Details");
+      meta.innerHTML = metaHtml;
+      if (controls) {
+        controls.classList.toggle("hidden", !controlsVisible);
+      }
+      body.innerHTML = bodyHtml;
+      modal.classList.remove("hidden");
+      modal.setAttribute("aria-hidden", "false");
+    }
+
+    function closeGstFilingModal(resetToggle = true) {
+      const { modal, meta, controls, financialYearSelect, body } = getGstFilingModalElements();
+      if (!modal || !meta || !body) return;
+      modal.classList.add("hidden");
+      modal.setAttribute("aria-hidden", "true");
+      meta.innerHTML = "";
+      if (controls) {
+        controls.classList.add("hidden");
+      }
+      if (financialYearSelect) {
+        financialYearSelect.innerHTML = "";
+      }
+      body.innerHTML = "";
+      currentGstFilingContext = { recordId: "", gstNumber: "", financialYear: "" };
+      if (resetToggle) {
+        setGstFilingToggleState(false);
+      }
+    }
+
+    function cancelGstFilingRequestAndClose(resetToggle = true) {
+      currentGstFilingRequestId += 1;
+      closeGstFilingModal(resetToggle);
+    }
+
+    function buildFinancialYearOptions(yearCount = 11) {
+      const now = new Date();
+      const monthIndex = now.getMonth();
+      const currentYear = now.getFullYear();
+      const currentFyStart = monthIndex >= 3 ? currentYear : currentYear - 1;
+      const options = [];
+      for (let index = 0; index < yearCount; index += 1) {
+        const startYear = currentFyStart - index;
+        const endYearTwoDigits = String((startYear + 1) % 100).padStart(2, "0");
+        const value = `${startYear}-${endYearTwoDigits}`;
+        options.push({ value, label: value });
+      }
+      return options;
+    }
+
+    function populateGstFilingFinancialYearSelect(selectedValue = "") {
+      const { financialYearSelect } = getGstFilingModalElements();
+      if (!financialYearSelect) return "";
+      const options = buildFinancialYearOptions(11);
+      const fallbackValue = options[0]?.value || "";
+      const targetValue = String(selectedValue || "").trim() || fallbackValue;
+      financialYearSelect.innerHTML = options
+        .map((item) => `<option value="${escapeHtml(item.value)}">${escapeHtml(item.label)}</option>`)
+        .join("");
+      financialYearSelect.value = options.some((item) => item.value === targetValue)
+        ? targetValue
+        : fallbackValue;
+      return String(financialYearSelect.value || "");
+    }
+
+    function buildGstFilingMetaHtml(result, gstNumber, financialYear = "") {
+      const tradeName = String(result?.["Trade Name"] || "").trim();
+      const taxpayerType = String(result?.["Taxpayer Type"] || "").trim();
+      const status = String(result?.["GSTIN / UIN  Status"] || "").trim();
+      const items = [
+        `<span class="badge">GST Number: ${escapeHtml(gstNumber || "N/A")}</span>`,
+      ];
+      if (financialYear) {
+        items.push(`<span class="badge">Financial Year: ${escapeHtml(financialYear)}</span>`);
+      }
+      if (tradeName) items.push(`<span class="badge">Trade Name: ${escapeHtml(tradeName)}</span>`);
+      if (taxpayerType) items.push(`<span class="badge">Taxpayer Type: ${escapeHtml(taxpayerType)}</span>`);
+      if (status) items.push(`<span class="badge">GST Status: ${escapeHtml(status)}</span>`);
+      return items.join("");
+    }
+
+    function buildGstFilingTableHtml(table, index) {
+      const title = String(table?.title || `Table ${index + 1}`).trim() || `Table ${index + 1}`;
+      const headers = Array.isArray(table?.headers) ? table.headers.map((item) => String(item || "").trim()) : [];
+      const rows = Array.isArray(table?.rows)
+        ? table.rows
+            .map((row) => (Array.isArray(row) ? row.map((item) => String(item ?? "")) : []))
+            .filter((row) => row.length)
+        : [];
+      const columnCount = Math.max(
+        headers.length,
+        rows.reduce((maxCount, row) => Math.max(maxCount, row.length), 0)
+      );
+      const normalizedHeaders = headers.length
+        ? headers
+        : Array.from({ length: columnCount }, (_, headerIndex) => `Column ${headerIndex + 1}`);
+
+      const headHtml = normalizedHeaders.length
+        ? `<thead><tr>${normalizedHeaders.map((header) => `<th>${escapeHtml(header)}</th>`).join("")}</tr></thead>`
+        : "";
+      const bodyHtml = rows.length
+        ? `<tbody>${rows.map((row) => `<tr>${normalizedHeaders.map((_, cellIndex) => `<td>${escapeHtml(row[cellIndex] || "")}</td>`).join("")}</tr>`).join("")}</tbody>`
+        : `<tbody><tr><td colspan="${Math.max(normalizedHeaders.length, 1)}" class="gst-filing-empty">No rows available.</td></tr></tbody>`;
+
+      return `
+        <div class="gst-filing-table-card">
+          <h4>${escapeHtml(title)}</h4>
+          <div class="gst-filing-table-wrap">
+            <table class="gst-filing-table">
+              ${headHtml}
+              ${bodyHtml}
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderGstFilingResult(result, gstNumber, financialYear = "") {
+      const tables = Array.isArray(result?.["Filing Tables"]) ? result["Filing Tables"] : [];
+      const filingMessage = String(result?.["Filing Message"] || "").trim();
+      const metaHtml = buildGstFilingMetaHtml(result, gstNumber, financialYear);
+      const status = normalizeStatusText(result?.["GSTIN / UIN  Status"]);
+      let bodyHtml = "";
+
+      if (!tables.length) {
+        if (filingMessage) {
+          bodyHtml = `<div class="gst-filing-empty">${escapeHtml(filingMessage)}</div>`;
+        } else {
+          bodyHtml = `<div class="gst-filing-empty">${
+            status && status !== "valid" && status !== "active"
+              ? `GST filing-table extraction did not complete successfully. Current GST status: ${escapeHtml(String(result?.["GSTIN / UIN  Status"] || "Unknown"))}.`
+              : "No GST filing-table data is available for this GST number."
+          }</div>`;
+        }
+      } else {
+        bodyHtml = tables.map((table, index) => buildGstFilingTableHtml(table, index)).join("");
+      }
+
+      showGstFilingModal({
+        metaHtml,
+        bodyHtml,
+        controlsVisible: true,
+      });
+    }
+
+    function buildGstFilingCacheKey(recordId, gstNumber, financialYear) {
+      return `customer:${String(recordId || "").trim()}:${String(gstNumber || "").trim()}:${String(financialYear || "").trim()}`;
+    }
+
+    async function fetchGstFilingTable(recordId, financialYear) {
+      const token = String(sessionStorage.getItem("token") || "").trim();
+      const headers = token ? { "Authorization": `Bearer ${token}` } : {};
+      const query = new URLSearchParams();
+      query.set("recordId", String(recordId || "").trim());
+      if (String(financialYear || "").trim()) {
+        query.set("financialYear", String(financialYear || "").trim());
+      }
+      const res = await fetch(`/api/customer/gst-filing-table?${query.toString()}`, { headers });
+      const data = await parseApiResponse(res);
+      if (!res.ok) {
+        throw new Error(data.detail || "Unable to load GST filing-table details");
+      }
+      return data;
+    }
+
+    async function fetchAndRenderGstFilingTables() {
+      const recordId = String(currentGstFilingContext.recordId || "").trim();
+      const gstNumber = String(currentGstFilingContext.gstNumber || "").trim();
+      const { financialYearSelect, fetchBtn } = getGstFilingModalElements();
+      const selectedFinancialYear = String(financialYearSelect?.value || "").trim();
+
+      if (!recordId || !gstNumber) {
+        showGstFilingModal({
+          metaHtml: `<span class="badge">GST Number: ${escapeHtml(gstNumber || "N/A")}</span>`,
+          bodyHtml: `<div class="gst-filing-empty">GST context is missing. Please reopen filing table view.</div>`,
+          controlsVisible: true,
+        });
+        return;
+      }
+      if (!selectedFinancialYear) {
+        showGstFilingModal({
+          metaHtml: `<span class="badge">GST Number: ${escapeHtml(gstNumber)}</span>`,
+          bodyHtml: `<div class="gst-filing-empty">Please select Financial Year.</div>`,
+          controlsVisible: true,
+        });
+        return;
+      }
+
+      currentGstFilingContext.financialYear = selectedFinancialYear;
+      const requestId = currentGstFilingRequestId + 1;
+      currentGstFilingRequestId = requestId;
+      const cacheKey = buildGstFilingCacheKey(recordId, gstNumber, selectedFinancialYear);
+      if (fetchBtn) fetchBtn.disabled = true;
+
+      showGstFilingModal({
+        metaHtml: buildGstFilingMetaHtml({}, gstNumber, selectedFinancialYear),
+        bodyHtml: `<div class="gst-filing-empty">Loading GST filing-table details...</div>`,
+        controlsVisible: true,
+      });
+      populateGstFilingFinancialYearSelect(selectedFinancialYear);
+
+      try {
+        let payload = gstFilingCacheByRecord.get(cacheKey);
+        if (!payload) {
+          payload = await fetchGstFilingTable(recordId, selectedFinancialYear);
+          gstFilingCacheByRecord.set(cacheKey, payload);
+        }
+        if (requestId !== currentGstFilingRequestId) {
+          return;
+        }
+        const responseFinancialYear = String(
+          payload?.financialYear || selectedFinancialYear
+        ).trim() || selectedFinancialYear;
+        currentGstFilingContext.financialYear = responseFinancialYear;
+        renderGstFilingResult(payload?.result || {}, payload?.gstNumber || gstNumber, responseFinancialYear);
+        populateGstFilingFinancialYearSelect(responseFinancialYear);
+      } catch (err) {
+        if (requestId !== currentGstFilingRequestId) {
+          return;
+        }
+        showGstFilingModal({
+          metaHtml: buildGstFilingMetaHtml({}, gstNumber, selectedFinancialYear),
+          bodyHtml: `<div class="gst-filing-empty">${escapeHtml(err?.message || "Unable to load GST filing-table details.")}</div>`,
+          controlsVisible: true,
+        });
+        populateGstFilingFinancialYearSelect(selectedFinancialYear);
+      } finally {
+        if (fetchBtn) fetchBtn.disabled = false;
+      }
+    }
+
+    function bindGstFilingToggles() {
+      const toggles = document.querySelectorAll("[data-gst-filing-toggle]");
+      toggles.forEach((toggle) => {
+        toggle.addEventListener("change", () => {
+          if (!toggle.checked) {
+            cancelGstFilingRequestAndClose(false);
+            return;
+          }
+
+          const recordId = String(currentRecordId || "").trim();
+          const gstNumber = getGstNumberFromRecord(currentVendor);
+          if (!recordId || !gstNumber) {
+            toggle.checked = false;
+            showGstFilingModal({
+              bodyHtml: `<div class="gst-filing-empty">GST number is not available for this record.</div>`,
+              controlsVisible: false,
+            });
+            return;
+          }
+
+          const defaultFinancialYear = populateGstFilingFinancialYearSelect();
+          currentGstFilingContext = {
+            recordId,
+            gstNumber,
+            financialYear: defaultFinancialYear,
+          };
+          showGstFilingModal({
+            metaHtml: buildGstFilingMetaHtml({}, gstNumber, defaultFinancialYear),
+            bodyHtml: `<div class="gst-filing-empty">Select Financial Year and click Submit to extract filing table.</div>`,
+            controlsVisible: true,
+          });
+        });
+      });
+    }
+
+    function bindGstFilingModalControls() {
+      const { modal, closeBtn, fetchBtn, financialYearSelect } = {
+        modal: document.getElementById("gstFilingModal"),
+        closeBtn: document.getElementById("gstFilingCloseBtn"),
+        fetchBtn: document.getElementById("gstFilingFetchBtn"),
+        financialYearSelect: document.getElementById("gstFilingFinancialYear"),
+      };
+      if (closeBtn) {
+        closeBtn.addEventListener("click", () => {
+          cancelGstFilingRequestAndClose(true);
+        });
+      }
+      if (fetchBtn) {
+        fetchBtn.addEventListener("click", () => {
+          fetchAndRenderGstFilingTables();
+        });
+      }
+      if (financialYearSelect) {
+        financialYearSelect.addEventListener("change", () => {
+          currentGstFilingContext.financialYear = String(financialYearSelect.value || "").trim();
+        });
+      }
+      if (modal) {
+        modal.addEventListener("click", (event) => {
+          if (event.target === modal) {
+            cancelGstFilingRequestAndClose(true);
+          }
+        });
+      }
+      window.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          const modalEl = document.getElementById("gstFilingModal");
+          if (modalEl && !modalEl.classList.contains("hidden")) {
+            cancelGstFilingRequestAndClose(true);
+          }
+        }
+      });
+    }
+
+    window.addEventListener("beforeunload", releaseAllPreviewBlobUrls);
+
+    const NEGATIVE_STATUS_VALUES = new Set([
+      "no",
+      "false",
+      "none",
+      "nil",
+      "na",
+      "n/a",
+      "negative",
+      "inactive",
+      "not applicable",
+      "not registered",
+      "unregistered",
+    ]);
+
+    const NEGATIVE_STATUS_RULES = {
+      "GST Details": [
+        {
+          statusKeys: ["gstRegistrationStatus", "GSTStatus"],
+          dependentKeys: [
+            "gstNumber",
+            "GSTIN",
+            "tradeNameGst",
+            "TradeName",
+            "taxpayerTypeGst",
+            "TaxpayerTypeGST",
+            "Taxpayer Type",
+            "gstDocument",
+            "GSTAttachment",
+            "GSTCertificateName",
+            "GSTCertificate",
+            "GSTCertificate_FileName",
+          ],
+        },
+      ],
+      "Company Status & CIN Details": [
+        {
+          statusKeys: ["company", "CompanyStatus", "CINStatus", "cinStatus"],
+          dependentKeys: [
+            "cinNumber",
+            "CIN",
+            "cinDocument",
+            "CINCerti",
+            "Incorporation_Filename",
+            "IncorporationCertificate",
+            "IncorporationCertificate_FileName",
+          ],
+        },
+      ],
+      "PAN Details": [
+        {
+          statusKeys: ["panStatus", "PANStatus"],
+          dependentKeys: [
+            "panNumber",
+            "PANNo",
+            "businessEntityType",
+            "BusinessEntityType",
+            "tradeNamePan",
+            "TradeNamePAN",
+            "panDocument",
+            "PANAttachment",
+            "PAN_Card_Filename",
+            "PANUpload",
+            "PANUpload_FileName",
+          ],
+        },
+      ],
+      "MSME Details": [
+        {
+          statusKeys: ["msmeStatus", "MSMEStatus"],
+          dependentKeys: [
+            "udyamNumber",
+            "UdyamNumber",
+            "msmeCategory",
+            "MSMECategory",
+            "msmeIndustry",
+            "MSMEIndustry",
+            "msmeDocument",
+            "MSMECerti",
+            "MSME_Certificate_Filename",
+          ],
+        },
+      ],
+      "PF & ESI Details": [
+        {
+          statusKeys: ["pfStatus", "PFRegistrationStatus"],
+          dependentKeys: ["pfNumber", "PFNumber", "pfDocument", "PFCerti", "PF_Certificate_Filename"],
+        },
+        {
+          statusKeys: ["esiStatus", "ESIStatus"],
+          dependentKeys: ["esiNumber", "ESIN", "esiDocument", "ESICerti", "ESI_Filename"],
+        },
+      ],
+      "Bank Details": [
+        {
+          statusKeys: ["bankPaymentMethod", "BankPaymentMethod"],
+          dependentKeys: [
+            "ifscCode",
+            "IFSC_Code",
+            "bankName",
+            "BankName",
+            "branchName",
+            "BranchName",
+            "bankAccountNumber",
+            "BankAccount",
+            "cancelledCheque",
+            "CancelledCheque",
+            "Cancelled_Cheque_Filename",
+          ],
+        },
+      ],
+    };
+
+    function normalizeStatusValue(value) {
+      return String(value || "")
+        .trim()
+        .toLowerCase()
+        .replace(/[._-]+/g, " ")
+        .replace(/\s+/g, " ");
+    }
+
+    function isNegativeStatusValue(value) {
+      const normalized = normalizeStatusValue(value);
+      if (!normalized) return false;
+      if (NEGATIVE_STATUS_VALUES.has(normalized)) return true;
+      if (normalized.startsWith("not ")) return true;
+      return normalized.includes("not registered") || normalized.includes("unregistered");
+    }
+
+    function fieldHasAnyKey(field, keys) {
+      const fieldKeys = Array.isArray(field?.keys) ? field.keys : [];
+      const normalizedFieldKeys = fieldKeys.map((item) => String(item || "").trim().toLowerCase()).filter(Boolean);
+      return (Array.isArray(keys) ? keys : []).some((item) => normalizedFieldKeys.includes(String(item || "").trim().toLowerCase()));
+    }
+
+    function shouldHideFieldByNegativeStatus(card, field, vendor) {
+      const cardTitle = String(card?.title || "").trim();
+      const rules = NEGATIVE_STATUS_RULES[cardTitle] || [];
+      if (!rules.length) return false;
+
+      for (const rule of rules) {
+        const resolvedStatus = pickWithSource(vendor, rule.statusKeys || [], "");
+        if (!isNegativeStatusValue(resolvedStatus.value)) continue;
+        if (fieldHasAnyKey(field, rule.dependentKeys || [])) return true;
+      }
+      return false;
+    }
+
+    const VENDOR_SECTION_CONFIG = [
+      {
+        title: "1. Basic Details",
+        cards: [
+          {
+            title: "Basic Vendor Details",
+            fields: [
+              { label: "Company Name", keys: ["companyName", "CompanyName", "company", "Company"] },
+              { label: "Vendor Name", keys: ["vendorName", "Vendorname", "VendorName", "name", "Name"] },
+              { label: "Vendor Category", keys: ["vendorCategory", "VendorCategory", "Vendor_Category", "category", "Category"] },
+            ],
+          },
+          {
+            title: "GST Details",
+            fields: [
+              { label: "GST Registration Status", keys: ["gstRegistrationStatus", "GSTStatus"] },
+              { label: "GST Number", keys: ["gstNumber", "GSTIN"] },
+              { label: "Trade Name as per GST", keys: ["tradeNameGst", "TradeName"] },
+              { label: "Taxpayer Type", keys: ["TaxpayerTypeGST", "taxpayerTypeGst", "Taxpayer Type"] },
+              {
+                label: "Upload GST Certificate",
+                keys: [
+                  "gstDocument",
+                  "GSTAttachment",
+                  "GSTCertificateName",
+                  "GSTCertificate",
+                  "GSTCertificate_FileName",
+                ],
+                doc: true,
+              },
+            ],
+          },
+          {
+            title: "Address Details",
+            fields: [
+              { label: "Address Lane 1", keys: ["addressLane1", "Address1"] },
+              { label: "Address Lane 2", keys: ["addressLane2", "Address2"] },
+              { label: "Address Lane 3", keys: ["addressLane3", "Address3", "Adddress3"] },
+              { label: "Pincode", keys: ["pincode", "Pincode"] },
+              { label: "Country", keys: ["country", "Country"] },
+              { label: "State", keys: ["state", "State", "StateName"] },
+              { label: "District", keys: ["district", "District"] },
+            ],
+          },
+          {
+            title: "Company Status & CIN Details",
+            fields: [
+              { label: "CIN Status", keys: ["company", "CompanyStatus", "CINStatus", "cinStatus"] },
+              { label: "CIN Number", keys: ["cinNumber", "CIN"] },
+              {
+                label: "Upload CIN Certificate",
+                keys: [
+                  "cinDocument",
+                  "CINCerti",
+                  "Incorporation_Filename",
+                  "IncorporationCertificate",
+                  "IncorporationCertificate_FileName",
+                ],
+                doc: true,
+              },
+            ],
+          },
+          {
+            title: "PAN Details",
+            fields: [
+              { label: "PAN Status", keys: ["panStatus", "PANStatus"] },
+              { label: "PAN Number", keys: ["panNumber", "PANNo"] },
+              { label: "Business Entity Type", keys: ["businessEntityType", "BusinessEntityType"] },
+              { label: "Trade Name as per PAN", keys: ["tradeNamePan", "TradeNamePAN"] },
+              {
+                label: "Upload PAN Card",
+                keys: [
+                  "panDocument",
+                  "PANAttachment",
+                  "PAN_Card_Filename",
+                  "PANUpload",
+                  "PANUpload_FileName",
+                ],
+                doc: true,
+              },
+            ],
+          },
+          {
+            title: "MSME Details",
+            fields: [
+              { label: "MSME Status", keys: ["msmeStatus", "MSMEStatus"] },
+              { label: "Udyam Number", keys: ["udyamNumber", "UdyamNumber"] },
+              { label: "MSME Category", keys: ["msmeCategory", "MSMECategory"] },
+              { label: "MSME Industry", keys: ["msmeIndustry", "MSMEIndustry"] },
+              { label: "Upload MSME Certificate", keys: ["msmeDocument", "MSMECerti", "MSME_Certificate_Filename"], doc: true },
+            ],
+          },
+          {
+            title: "PF & ESI Details",
+            fields: [
+              { label: "PF Registration Status", keys: ["pfStatus", "PFRegistrationStatus"] },
+              { label: "PF Number", keys: ["pfNumber", "PFNumber"] },
+              { label: "Upload PF Certificate", keys: ["pfDocument", "PFCerti", "PF_Certificate_Filename"], doc: true },
+              { label: "ESI Status", keys: ["esiStatus", "ESIStatus"] },
+              { label: "ESI Number", keys: ["esiNumber", "ESIN"] },
+              { label: "Upload ESI Certificate", keys: ["esiDocument", "ESICerti", "ESI_Filename"], doc: true },
+            ],
+          },
+        ],
+      },
+      {
+        title: "2. Bank Details",
+        cards: [
+          {
+            title: "Bank Details",
+            fields: [
+              { label: "Payment Method RTGS", keys: ["bankPaymentMethod", "BankPaymentMethod"] },
+              { label: "IFSC Code", keys: ["ifscCode", "IFSC_Code"] },
+              { label: "Bank Name", keys: ["bankName", "BankName"] },
+              { label: "Branch Name", keys: ["branchName", "BranchName"] },
+              { label: "Bank Account Number", keys: ["bankAccountNumber", "BankAccount"] },
+              { label: "Cancelled Cheque / Bank Certificate", keys: ["cancelledCheque", "CancelledCheque", "Cancelled_Cheque_Filename"], doc: true },
+            ],
+          },
+        ],
+      },
+      {
+        title: "3. Statutory Details",
+        cards: [
+          {
+            title: "Statutory Details",
+            fields: [
+              { label: "Statutory Details", keys: ["statutoryDetails"], multiline: true },
+              { label: "Total Employees", keys: ["totalEmployees", "TotalEmployees"] },
+              { label: "Inhouse Machineries", keys: ["inhouseMachineries", "InhouseMachine"] },
+              { label: "Inhouse Machineries Document", keys: ["inhouseMachineriesDoc", "InhouseMachineAttchment", "Machineries_List_Filename"], doc: true },
+              { label: "Number Of Plants", keys: ["numberOfPlants", "NumberofPlant"] },
+              { label: "Number Of Plants Document", keys: ["numberOfPlantsDoc", "TopCustomerAttachment"], doc: true },
+              { label: "Year of Incorporation", keys: ["yearOfIncorporation", "Incoporationdate"] },
+              { label: "Selected Previous Year", keys: ["selectedPreviousYear", "Previous_Year"] },
+              { label: "Previous Year Turnover", keys: ["previousYearTurnover", "PY_Turnover"] },
+              { label: "Head Office Location", keys: ["headOfficeLocation", "CorporateLocation"] },
+            ],
+          },
+        ],
+      },
+      {
+        title: "4. Product/Service and Quality",
+        cards: [
+          {
+            title: "Product/Service and Quality",
+            fields: [
+              { label: "Material Dealings In", keys: ["materialDealingsIn", "MaterialDealing"], multiline: true },
+              { label: "Service Provide For", keys: ["serviceProvideFor", "servicedealing"], multiline: true },
+              { label: "ISO Certificates", keys: ["isoCertificates", "ISO_Certificate"] },
+              { label: "ISO 1", keys: ["iso1", "ISO_File1_Name"], doc: true },
+              { label: "ISO 2", keys: ["iso2", "ISO_File2_Name"], doc: true },
+              { label: "ISO 3", keys: ["iso3", "ISO_File3_Name"], doc: true },
+              { label: "ISO 4", keys: ["iso4", "ISO_File4_Name"], doc: true },
+              { label: "ISO 5", keys: ["iso5"], doc: true },
+              { label: "Eco Vadis Score", keys: ["ecoVadisScore", "EcoVadis"] },
+              { label: "Eco Vadis Document", keys: ["ecoVadisDoc", "ECOVadis_Filename"], doc: true },
+              { label: "OHSAS Certificate", keys: ["ohsasCertificate", "OHSAS_Code"] },
+              { label: "OHSAS Document", keys: ["ohsasDoc", "OHSAS_Filename"], doc: true },
+              { label: "Relevant Certificate", keys: ["relevantCertificate", "OtherCerti"] },
+              { label: "Relevant Certificate Document", keys: ["relevantCertificateDoc", "Other_Filename"], doc: true },
+            ],
+          },
+        ],
+      },
+      {
+        title: "5. Contact Person Details",
+        cards: [
+          {
+            title: "Contact Person Details",
+            fields: [
+              { label: "Information Furnished By", keys: ["contactPersonName", "ContactPerson"] },
+              { label: "Designation", keys: ["contactPersonDesignation"] },
+              { label: "Person Email", keys: ["contactPersonEmail", "ContactEmailID"] },
+              { label: "Person Mobile No.", keys: ["contactPersonMobile"] },
+              { label: "Alternative Person Name", keys: ["alternativePersonName"] },
+              { label: "Alternative Person Designation", keys: ["alternativePersonDesignation"] },
+              { label: "Alternative Person Email", keys: ["alternativePersonEmail"] },
+              { label: "Alternative Person Mobile", keys: ["alternativePersonMobile"] },
+              { label: "Date", keys: ["alternativePersonDate"] },
+              { label: "Person Place", keys: ["alternativePersonPlace"] },
+            ],
+          },
+        ],
+      },
+    ];
+    const CUSTOMER_SECTION_CONFIG = [
+      {
+        title: "1. Basic Customer Details",
+        cards: [
+          {
+            title: "Customer Profile",
+            fields: [
+              { label: "Company Dealing With", keys: ["CompanyDealing", "companyDealing"] },
+              { label: "Customer Name", keys: ["CustomerName", "customerName", "name", "Name"] },
+              { label: "CIN Status", keys: ["CompanyStatus", "companyStatus", "CINStatus", "cinStatus"] },
+              { label: "Firm Type", keys: ["FirmType", "firmType"] },
+              { label: "Manufacturing Type", keys: ["ManufacturingType", "manufacturingType"] },
+              { label: "Type of Entity", keys: ["TypeofEntity", "typeOfEntity"] },
+              { label: "Customer Group", keys: ["CustomerGroup", "customerGroup"] },
+              { label: "Customer Type", keys: ["CustomerType", "customerType"] },
+              { label: "Industry Type", keys: ["IndustryType", "industryType"] },
+              { label: "Material Dealing", keys: ["MaterialDealing", "materialDealing"], multiline: true },
+              { label: "Service Dealing", keys: ["ServiceDealing", "serviceDealing"], multiline: true },
+            ],
+          },
+          {
+            title: "PAN & CIN Details",
+            fields: [
+              { label: "PAN Status", keys: ["PANStatus", "panStatus"] },
+              { label: "PAN Number", keys: ["PANNumber", "panNumber"] },
+              { label: "Trade Name as per PAN", keys: ["TradeNamePAN", "tradeNamePAN"] },
+              { label: "TAN", keys: ["TAN", "tan"] },
+              { label: "CIN", keys: ["CIN", "cin"] },
+              { label: "PAN Upload", keys: ["PANUpload_FileName", "PANUpload", "panUpload"], doc: true },
+              { label: "Incorporation Certificate", keys: ["IncorporationCertificate_FileName", "IncorporationCertificate", "incorporationCertificate"], doc: true },
+            ],
+          },
+          {
+            title: "GST Details",
+            fields: [
+              { label: "GST Status", keys: ["GSTStatus", "gstStatus"] },
+              { label: "GSTIN", keys: ["GSTIN", "gstin"] },
+              { label: "Trade Name GST", keys: ["TradeNameGST", "tradeNameGST"] },
+              { label: "Taxpayer Type", keys: ["TaxpayerTypeGST", "taxpayerTypeGst", "Taxpayer Type"] },
+              { label: "GST Valid", keys: ["GST Valid", "GSTValid", "gstValid", "gstValidate", "GST Validate"] },
+              { label: "GST Certificate", keys: ["GSTCertificate_FileName", "GSTCertificate", "gstCertificate"], doc: true },
+            ],
+          },
+        ],
+      },
+      {
+        title: "2. Address Details",
+        cards: [
+          {
+            title: "Main Address",
+            fields: [
+              { label: "Country", keys: ["Country", "country"] },
+              { label: "State", keys: ["State", "state"] },
+              { label: "State Name", keys: ["State_Name", "stateName"] },
+              { label: "District", keys: ["District", "district"] },
+              { label: "Pincode", keys: ["Pincode", "pincode"] },
+              { label: "Lane 1", keys: ["Lane1", "lane1"] },
+              { label: "Lane 2", keys: ["Lane2", "lane2"] },
+              { label: "Lane 3", keys: ["Lane3", "lane3"] },
+              { label: "Ship to Address - Same as Above", keys: ["Shipto", "shipto"] },
+              { label: "Bill to Address - Same as Above", keys: ["Billto", "billto"] },
+            ],
+          },
+          {
+            title: "Ship-to Address Details - 1",
+            fields: [
+              { label: "State 1", keys: ["State1", "state1"] },
+              { label: "District 1", keys: ["District1", "district1"] },
+              { label: "Pincode 1", keys: ["Pincode1", "pincode1"] },
+              { label: "Lane 4", keys: ["Lane4", "lane4"] },
+              { label: "Lane 5", keys: ["Lane5", "lane5"] },
+              { label: "Lane 6", keys: ["Lane6", "lane6"] },
+            ],
+          },
+          {
+            title: "Ship-to Address Details - 2",
+            fields: [
+              { label: "State 2", keys: ["State2", "state2"] },
+              { label: "State Name 2", keys: ["StateName1", "stateName1"] },
+              { label: "District 2", keys: ["District2", "district2"] },
+              { label: "Pincode 2", keys: ["Pincode2", "pincode2"] },
+              { label: "Lane 7", keys: ["Lane7", "lane7"] },
+              { label: "Lane 8", keys: ["Lane8", "lane8"] },
+              { label: "Lane 9", keys: ["Lane9", "lane9"] },
+            ],
+          },
+        ],
+      },
+      {
+        title: "3. Contact Person Details",
+        cards: [
+          {
+            title: "Primary Contact",
+            fields: [
+              { label: "Information Furnished By", keys: ["FurnishBy", "furnishBy"] },
+              { label: "Designation", keys: ["Designation", "designation"] },
+              { label: "Email", keys: ["Email", "email"] },
+              { label: "Mobile", keys: ["Mobile", "mobile"] },
+              { label: "Date", keys: ["Datepicker", "datepicker"] },
+              { label: "Place", keys: ["Place", "place"] },
+            ],
+          },
+          {
+            title: "Alternative Contact",
+            fields: [
+              { label: "Information Furnished By", keys: ["AP_FurnishBy1", "apFurnishBy1"] },
+              { label: "Designation", keys: ["AP_Designation1", "apDesignation1"] },
+              { label: "Email", keys: ["AP_Email1", "apEmail1"] },
+              { label: "Mobile", keys: ["AP_Mobile1", "apMobile1"] },
+            ],
+          },
+        ],
+      },
+      {
+        title: "4. Internal Details",
+        cards: [
+          {
+            title: "Internal Configuration",
+            fields: [
+              { label: "Inco Terms", keys: ["IncoTerms", "incoTerms"] },
+              { label: "Payment Terms", keys: ["PaymentTerms", "paymentTerms"] },
+              { label: "HOD Email", keys: ["HODEmail", "hodEmail"] },
+              { label: "Sales Organization", keys: ["SalesOrganization", "salesOrganization"] },
+              { label: "Distribution Channel", keys: ["DistributionChannel", "distributionChannel"] },
+              { label: "Division", keys: ["Division", "division"] },
+              { label: "Account Assignment", keys: ["AccountAssignment", "accountAssignment"] },
+              { label: "Currency", keys: ["Currency", "currency"] },
+              { label: "Insurance Group", keys: ["InsuranceGroup", "insuranceGroup"] },
+              { label: "Insurance Limit", keys: ["InsuranceLimit", "insuranceLimit"] },
+              { label: "Credit Limit", keys: ["CreditLimit", "creditLimit"] },
+              { label: "Scrap Sales", keys: ["ScrapSales", "scrapSales"] },
+            ],
+          },
+        ],
+      },
+      {
+        title: "5. Additional Documents",
+        cards: [
+          {
+            title: "Document Uploads",
+            fields: [
+              { label: "Document 1", keys: ["FileUploader_FileName", "FileUploader", "fileUploader"], doc: true },
+              { label: "Document 2", keys: ["FileUploader1_FileName", "FileUploader1", "fileUploader1"], doc: true },
+              { label: "Document 3", keys: ["FileUploader2_FileName", "FileUploader2", "fileUploader2"], doc: true },
+              { label: "Document 4", keys: ["FileUploader3_FileName", "FileUploader3", "fileUploader3"], doc: true },
+              { label: "Document 5", keys: ["FileUploader4_FileName", "FileUploader4", "fileUploader4"], doc: true },
+              { label: "Document 6", keys: ["FileUploader5_FileName", "FileUploader5", "fileUploader5"], doc: true },
+            ],
+          },
+        ],
+      },
+    ];
+    const sectionConfig = CUSTOMER_SECTION_CONFIG;
+
+    let currentRecordId = "";
+    let currentVendor = {};
+    const gstFilingCacheByRecord = new Map();
+    let currentGstFilingRequestId = 0;
+    let currentGstFilingContext = { recordId: "", gstNumber: "", financialYear: "" };
+
+    function getAllowedApprovalModesByRole(role) {
+      if (role === "admin") return ["buyer", "validator", "hod"];
+      const modes = [];
+      if (hasRoleCapability(role, "validator")) modes.push("validator");
+      if (hasRoleCapability(role, "hod")) modes.push("hod");
+      if (hasRoleCapability(role, "user") || hasRoleCapability(role, "buyer")) modes.push("buyer");
+      return modes.length ? modes : ["buyer"];
+    }
+
+    function getApprovalRedirectMode() {
+      return currentApprovalMode;
+    }
+
+    function redirectToApprovalTable() {
+      sessionStorage.removeItem("customerLastViewedRecordId");
+      sessionStorage.removeItem("customerLastApprovalMode");
+      window.location.href = "/web/customer-dashboard";
+    }
+
+    function createToastManager() {
+      const host = document.createElement("div");
+      host.style.position = "fixed";
+      host.style.top = "12px";
+      host.style.left = "50%";
+      host.style.transform = "translateX(-50%)";
+      host.style.zIndex = "5000";
+      host.style.pointerEvents = "none";
+      document.body.appendChild(host);
+
+      let activeToast = null;
+      let activeTimer = null;
+
+      function removeToast(toast) {
+        if (!toast) return;
+        toast.style.opacity = "0";
+        toast.style.transform = "translateY(-10px)";
+        setTimeout(() => {
+          if (toast.parentNode) toast.parentNode.removeChild(toast);
+        }, 200);
+        if (activeToast === toast) activeToast = null;
+      }
+
+      return function showToast(text, kind = "info", duration = 10000) {
+        if (!text) return;
+        if (activeTimer) {
+          clearTimeout(activeTimer);
+          activeTimer = null;
+        }
+        if (activeToast) {
+          activeToast.remove();
+          activeToast = null;
+        }
+
+        const colors = { ok: "#166534", err: "#b91c1c", info: "#2454d9" };
+        const toast = document.createElement("div");
+        toast.textContent = text;
+        toast.style.width = "min(390px, calc(100vw - 36px))";
+        toast.style.maxWidth = "calc(100vw - 36px)";
+        toast.style.padding = "18px 20px";
+        toast.style.borderRadius = "12px";
+        toast.style.boxShadow = "0 12px 28px rgba(15, 23, 42, 0.22)";
+        toast.style.background = colors[kind] || colors.info;
+        toast.style.color = "#fff";
+        toast.style.fontSize = "16px";
+        toast.style.fontWeight = "700";
+        toast.style.lineHeight = "1.35";
+        toast.style.opacity = "0";
+        toast.style.transform = "translateY(-10px)";
+        toast.style.transition = "opacity .2s ease, transform .2s ease";
+
+        host.appendChild(toast);
+        requestAnimationFrame(() => {
+          toast.style.opacity = "1";
+          toast.style.transform = "translateY(0)";
+        });
+
+        activeToast = toast;
+        if (duration > 0) {
+          activeTimer = setTimeout(() => removeToast(toast), duration);
+        }
+      };
+    }
+
+    const showToast = createToastManager();
+
+    function setMessage(text, kind = "") {
+      const message = document.getElementById("message");
+      message.textContent = text || "";
+      message.className = kind ? `msg ${kind}` : "msg";
+    }
+
+    function setDecisionMessage(text, kind = "") {
+      const message = document.getElementById("decisionMessage");
+      message.textContent = text || "";
+      message.className = kind ? `msg ${kind}` : "msg";
+    }
+
+    function resolveHistoryRemarks(vendor) {
+      const candidates = [
+        "reviewRemarks",
+        "ReviewRemarks",
+        "remarks",
+        "Remarks",
+        "buyerRemarks",
+        "BuyerRemarks",
+        "hodRemarks",
+        "HodRemarks",
+        "accountsRemarks",
+        "AccountsRemarks",
+        "bankingRemarks",
+        "BankingRemarks",
+        "taxationRemarks",
+        "TaxationRemarks",
+      ];
+      const resolved = pickWithSource(vendor, candidates, "");
+      return String(resolved.value || "").trim();
+    }
+
+    function closeHistoryPopup() {
+      if (window.opener && !window.opener.closed) {
+        window.close();
+        return;
+      }
+      window.location.href = "/web/vendor-history?portal=customer";
+    }
+
+    function applyHistoryModeUi(vendor) {
+      if (!isHistoryMode) return;
+
+      const toolbar = document.getElementById("topToolbar");
+      if (toolbar) {
+        toolbar.classList.add("hidden");
+      }
+
+      const actionTitle = document.getElementById("approvalActionTitle");
+      if (actionTitle) {
+        actionTitle.textContent = "History Remarks";
+      }
+
+      const choiceRow = document.getElementById("decisionChoiceRow");
+      if (choiceRow) {
+        choiceRow.classList.add("hidden");
+      }
+
+      const rejectToContainer = document.getElementById("validatorRejectToContainer");
+      if (rejectToContainer) {
+        rejectToContainer.classList.add("hidden");
+      }
+
+      const remarksLabel = document.getElementById("decisionRemarksLabel");
+      if (remarksLabel) {
+        remarksLabel.textContent = "Remarks (From Database)";
+      }
+
+      const remarksInput = document.getElementById("decisionRemarks");
+      if (remarksInput) {
+        const historyRemarks = resolveHistoryRemarks(vendor);
+        remarksInput.value = historyRemarks || "No remarks available.";
+        remarksInput.readOnly = true;
+      }
+
+      const submitBtn = document.getElementById("submitDecisionBtn");
+      if (submitBtn) {
+        submitBtn.classList.add("hidden");
+        submitBtn.disabled = true;
+      }
+
+      const closeBtn = document.getElementById("closeViewBtn");
+      if (closeBtn) {
+        closeBtn.classList.remove("hidden");
+        closeBtn.onclick = closeHistoryPopup;
+      }
+
+      setDecisionMessage("");
+    }
+
+    async function loadHodOptions(token, selectedValue = "") {
+      try {
+        const headers = token ? { "Authorization": `Bearer ${token}` } : {};
+        const res = await fetch("/api/customer/get-hod-emails", { headers });
+        const data = await parseApiResponse(res);
+        if (!res.ok || !Array.isArray(data)) {
+          throw new Error(data.detail || "Unable to load HOD options");
+        }
+        hodOptions = data
+          .map((item) => {
+            const email = String(item?.email || "").trim();
+            const name = String(item?.name || "").trim();
+            if (!email) return null;
+            return {
+              value: email,
+              label: name ? `${name} (${email})` : email,
+            };
+          })
+          .filter(Boolean);
+      } catch (_) {
+        hodOptions = [];
+      }
+
+      const selected = String(selectedValue || "").trim();
+      if (selected && !hodOptions.some((item) => String(item.value || "").trim() === selected)) {
+        hodOptions.unshift({ value: selected, label: selected });
+      }
+    }
+
+    function renderMeta(vendor, recordId) {
+      const statusResolved = pickWithSource(vendor, ["approverStatus", "ApproverStatus", "status", "Status"], "N/A");
+      const vendorResolved = isCustomerPortal
+        ? pickWithSource(vendor, ["CustomerName", "customerName", "vendorName", "Vendorname", "VendorName", "name", "Name"], "N/A")
+        : pickWithSource(vendor, ["vendorName", "Vendorname", "VendorName", "name", "Name"], "N/A");
+      const status = formatValue(statusResolved.value || "N/A");
+      const vendorName = formatValue(vendorResolved.value || "N/A");
+      const nameLabel = isCustomerPortal ? "Customer" : "Vendor";
+      const loginRole = currentUserRole ? currentUserRole.toUpperCase() : "N/A";
+      const meta = document.getElementById("metaBadges");
+      meta.innerHTML = `
+        <span class="badge">Record ID: ${escapeHtml(recordId || "N/A")}</span>
+        <span class="badge">${escapeHtml(nameLabel)}: ${escapeHtml(vendorName)}</span>
+        <span class="badge">Approver Status: ${escapeHtml(status)}</span>
+        <span class="badge">Login Role: ${escapeHtml(loginRole)}</span>
+      `;
+    }
+
+    function renderValidatorChecksForCard(cardTitle) {
+      if (!isValidatorUser || isHistoryMode) return "";
+      const checks = VALIDATOR_CARD_CHECKBOXES[String(cardTitle || "")] || [];
+      if (!checks.length) return "";
+
+      const checkItems = checks
+        .map((item) => `
+          <label class="check-item"><input id="${escapeHtml(item.id)}" type="checkbox" />${escapeHtml(item.label)}</label>
+        `)
+        .join("");
+
+      return `
+        <div class="row full validator-inline-checks">
+          <h4>Validation Check</h4>
+          <div class="validation-grid">${checkItems}</div>
+        </div>
+      `;
+    }
+
+    function renderGstFilingToggleForCard(cardTitle, vendor) {
+      if (!shouldShowGstFilingToggle(cardTitle, vendor)) return "";
+      return `
+        <div class="row full">
+          <label>GST Return Filing Table</label>
+          <div class="switch-row">
+            <span>View GST Return Filing Table</span>
+            <label class="switch">
+              <input type="checkbox" data-gst-filing-toggle />
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="gst-filing-note">Loads filing-table data directly from the GST site. This data is not saved to the database.</div>
+        </div>
+      `;
+    }
+
+    function parseValidationChangeNote(rawValue) {
+      if (!rawValue) return null;
+      if (typeof rawValue === "object") return rawValue;
+      const text = String(rawValue || "").trim();
+      if (!text) return null;
+      try {
+        return JSON.parse(text);
+      } catch (_) {
+        return null;
+      }
+    }
+
+    function renderValidationChangeNoteForCard(cardTitle, vendor) {
+      const normalizedTitle = String(cardTitle || "").trim();
+      const noteConfig = {
+        "GST Details": {
+          title: "GST Validation Change Note",
+          keys: ["gstValidationChanges", "GSTValidationChanges"],
+        },
+        "MSME Details": {
+          title: "MSME Validation Change Note",
+          keys: ["msmeValidationChanges", "MSMEValidationChanges"],
+        },
+      }[normalizedTitle];
+      if (!noteConfig) return "";
+
+      const resolved = pickWithSource(vendor || {}, noteConfig.keys, "");
+      const note = parseValidationChangeNote(resolved.value);
+      const rows = Array.isArray(note?.rows) ? note.rows : [];
+      if (!rows.length) return "";
+
+      const changedAt = formatValue(note?.generatedAt || "");
+      const rowsHtml = rows.map((row) => {
+        const previousValue = formatValue(row?.previousValue || "") || "Blank";
+        const newValue = formatValue(row?.newValue || "") || "Blank";
+        return `
+          <tr>
+            <td>${escapeHtml(row?.field || "Field")}</td>
+            <td>${escapeHtml(previousValue)}</td>
+            <td>${escapeHtml(newValue)}</td>
+            <td>${escapeHtml(changedAt || "N/A")}</td>
+          </tr>
+        `;
+      }).join("");
+
+      return `
+        <div class="row full validation-change-note">
+          <h4>${escapeHtml(noteConfig.title)}</h4>
+          <div class="validation-change-table-wrap">
+            <table class="validation-change-table">
+              <thead>
+                <tr>
+                  <th>Field</th>
+                  <th>Previous Value</th>
+                  <th>New Value</th>
+                  <th>Changed At</th>
+                </tr>
+              </thead>
+              <tbody>${rowsHtml}</tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function shouldHideCustomerTeamManagedField(field) {
+      if (!isCustomerPortal) return false;
+      const keys = Array.isArray(field?.keys) ? field.keys : [];
+      return keys.some((key) => CUSTOMER_TEAM_MANAGED_FIELD_KEYS.has(String(key || "").trim().toLowerCase()));
+    }
+
+    function renderViewSections(vendor) {
+      const host = document.getElementById("sectionHost");
+      host.innerHTML = "";
+      let docCounter = 0;
+
+      sectionConfig.forEach((section) => {
+        const cardHtmlList = [];
+        section.cards.forEach((card) => {
+          let fieldsHtml = "";
+          card.fields.forEach((field) => {
+            if (shouldHideFieldByNegativeStatus(card, field, vendor)) {
+              return;
+            }
+            if (shouldHideCustomerTeamManagedField(field)) {
+              return;
+            }
+            const resolved = pickWithSource(vendor, field.keys, "");
+            if (field.doc) {
+              docCounter += 1;
+              fieldsHtml += documentFieldHtml(field, resolved.value, resolved.sourceKey, docCounter);
+            } else if (field.select) {
+              fieldsHtml += selectFieldHtml(field, resolved);
+            } else {
+              fieldsHtml += textFieldHtml(field, resolved);
+            }
+          });
+          fieldsHtml += renderValidationChangeNoteForCard(card.title, vendor);
+          fieldsHtml += renderValidatorChecksForCard(card.title);
+          fieldsHtml += renderGstFilingToggleForCard(card.title, vendor);
+          if (!String(fieldsHtml || "").trim()) {
+            return;
+          }
+          cardHtmlList.push(`
+            <div class="subcard">
+              <h3>${escapeHtml(card.title)}</h3>
+              <div class="grid">${fieldsHtml}</div>
+            </div>
+          `);
+        });
+
+        if (!cardHtmlList.length) {
+          return;
+        }
+        host.innerHTML += `<h2>${escapeHtml(section.title)}</h2>${cardHtmlList.join("")}`;
+      });
+
+      host.innerHTML += renderRubaminTeamSection(vendor);
+      host.innerHTML += renderValidatorTaxSection(vendor);
+
+      bindDocumentToggles();
+      bindGstFilingToggles();
+      bindTeamFieldListeners();
+      bindValidationCheckboxListeners();
+      bindValidatorTaxFieldListeners();
+    }
+
+    function buildRubaminTeamSelect(fieldName, label, optionsType, resolved, optionContext = {}) {
+      const selectedValue = formatValue(resolved.value).trim();
+      const sourceKey = String(resolved.sourceKey || fieldName || "").trim();
+      const options = getTeamSelectOptions({ optionsType, ...optionContext }, selectedValue);
+      const approvalMode = getApprovalRedirectMode();
+      const allowTeamEdit = !isHistoryMode && (approvalMode === "buyer" || approvalMode === "user");
+      const disabledAttr = allowTeamEdit ? "" : " disabled";
+      const optionsHtml = ['<option value="">Select</option>']
+        .concat(
+          options.map((item) => {
+            const value = String(item.value || "");
+            const optionLabel = String(item.label || value);
+            const selected = value === selectedValue ? " selected" : "";
+            return `<option value="${escapeHtml(value)}"${selected}>${escapeHtml(optionLabel)}</option>`;
+          })
+        )
+        .join("");
+
+      return `
+        <div class="row">
+          <label>${escapeHtml(label)}</label>
+          <select data-team-field="true" data-field-name="${escapeHtml(fieldName)}" data-source-key="${escapeHtml(sourceKey)}"${disabledAttr}>
+            ${optionsHtml}
+          </select>
+        </div>
+      `;
+    }
+
+    function buildRubaminTeamInput(fieldName, label, resolved) {
+      const value = formatValue(resolved.value).trim();
+      const sourceKey = String(resolved.sourceKey || fieldName || "").trim();
+      const approvalMode = getApprovalRedirectMode();
+      const allowTeamEdit = !isHistoryMode && (approvalMode === "buyer" || approvalMode === "user");
+      const disabledAttr = allowTeamEdit ? "" : " disabled";
+      return `
+        <div class="row">
+          <label>${escapeHtml(label)}</label>
+          <input data-team-field="true" data-field-name="${escapeHtml(fieldName)}" data-source-key="${escapeHtml(sourceKey)}" value="${escapeHtml(value)}"${disabledAttr} />
+        </div>
+      `;
+    }
+
+    function setTeamSelectOptions(selectEl, options, selectedValue, placeholder = "Select") {
+      if (!selectEl) return;
+      const normalized = Array.isArray(options) ? options : [];
+      const selected = String(selectedValue || "").trim();
+      const merged = withSelectedOption(normalized, selected);
+      const optionsHtml = ['<option value="">', escapeHtml(placeholder), "</option>"]
+        .join("")
+        .concat(
+          merged
+            .map((item) => {
+              const value = String(item.value || "");
+              const label = String(item.label || value);
+              const selectedAttr = value === selected ? " selected" : "";
+              return `<option value="${escapeHtml(value)}"${selectedAttr}>${escapeHtml(label)}</option>`;
+            })
+            .join("")
+        );
+      selectEl.innerHTML = optionsHtml;
+      if (selected && merged.some((item) => String(item.value || "").trim() === selected)) {
+        selectEl.value = selected;
+      }
+    }
+
+    function syncSalesAndDivisionTeamOptions(clearInvalidValues = false) {
+      const salesField = document.querySelector('[data-team-field="true"][data-field-name="salesOrganization"]');
+      const distributionField = document.querySelector('[data-team-field="true"][data-field-name="distributionChannel"]');
+      const divisionField = document.querySelector('[data-team-field="true"][data-field-name="division"]');
+      if (!salesField || !distributionField || !divisionField) return;
+
+      const salesValue = String(salesField.value || "").trim();
+      const distributionCurrent = String(distributionField.value || "").trim();
+      const distributionOptions = getDistributionChannelOptions(salesValue);
+      const hasDistribution = distributionOptions.some(
+        (item) => String(item.value || "").trim() === distributionCurrent
+      );
+      const distributionNext = (clearInvalidValues && distributionCurrent && !hasDistribution)
+        ? ""
+        : distributionCurrent;
+      setTeamSelectOptions(
+        distributionField,
+        distributionOptions,
+        distributionNext,
+        salesValue ? "Select" : "Select Sales Organization First"
+      );
+
+      const distributionValue = String(distributionField.value || "").trim();
+      const divisionCurrent = String(divisionField.value || "").trim();
+      const divisionOptions = getDivisionOptions(salesValue, distributionValue);
+      const hasDivision = divisionOptions.some(
+        (item) => String(item.value || "").trim() === divisionCurrent
+      );
+      const divisionNext = (clearInvalidValues && divisionCurrent && !hasDivision)
+        ? ""
+        : divisionCurrent;
+      const divisionPlaceholder = salesValue
+        ? (distributionValue ? "Select" : "Select Distribution Channel First")
+        : "Select Sales Organization First";
+      setTeamSelectOptions(divisionField, divisionOptions, divisionNext, divisionPlaceholder);
+    }
+
+    function renderRubaminTeamSection(vendor) {
+      const customerGroupResolved = pickWithSource(vendor, ["customerGroup", "CustomerGroup"], "");
+      const industryTypeResolved = pickWithSource(vendor, ["industryType", "IndustryType"], "");
+      const incoResolved = pickWithSource(vendor, ["incoTerms", "IncoTerms", "Incoterms"], "");
+      const paymentResolved = pickWithSource(vendor, ["paymentTerms", "PaymentTerms"], "");
+      const salesOrganizationResolved = pickWithSource(vendor, ["salesOrganization", "SalesOrganization"], "");
+      const distributionChannelResolved = pickWithSource(vendor, ["distributionChannel", "DistributionChannel"], "");
+      const divisionResolved = pickWithSource(vendor, ["division", "Division"], "");
+      const accountAssignmentResolved = pickWithSource(vendor, ["accountAssignment", "AccountAssignment"], "");
+      const currencyResolved = pickWithSource(vendor, ["currency", "Currency"], "");
+      const scrapSalesResolved = pickWithSource(vendor, ["scrapSales", "ScrapSales"], "");
+      const insuranceGroupResolved = pickWithSource(vendor, ["insuranceGroup", "InsuranceGroup"], "");
+      const insuranceLimitResolved = pickWithSource(vendor, ["insuranceLimit", "InsuranceLimit"], "");
+      const creditLimitResolved = pickWithSource(vendor, ["creditLimit", "CreditLimit"], "");
+      const vendorTypeResolved = isCustomerPortal
+        ? pickWithSource(vendor, ["CustomerType", "customerType", "vendorType", "VendorType"], "")
+        : pickWithSource(vendor, ["vendorType", "VendorType"], "");
+      const hodResolved = pickWithSource(vendor, ["rubaminApproverHod", "RubaminApproverHod", "hodEmail", "HodEmail"], "");
+      const salesOrganizationSelected = formatValue(salesOrganizationResolved.value).trim();
+      const distributionChannelSelected = formatValue(distributionChannelResolved.value).trim();
+
+      const fieldsHtml = [
+        buildRubaminTeamSelect("customerGroup", "Customer Group", "customerGroup", customerGroupResolved),
+        buildRubaminTeamSelect("industryType", "Industry Type", "industryType", industryTypeResolved),
+        buildRubaminTeamSelect("incoTerms", "Inco Terms", "incoTerms", incoResolved),
+        buildRubaminTeamSelect("paymentTerms", "Payment Terms", "paymentTerms", paymentResolved),
+        buildRubaminTeamSelect("salesOrganization", "Sales Organization", "salesOrganization", salesOrganizationResolved),
+        buildRubaminTeamSelect(
+          "distributionChannel",
+          "Distribution Channel",
+          "distributionChannel",
+          distributionChannelResolved,
+          { salesOrganizationValue: salesOrganizationSelected }
+        ),
+        buildRubaminTeamSelect(
+          "division",
+          "Division",
+          "division",
+          divisionResolved,
+          {
+            salesOrganizationValue: salesOrganizationSelected,
+            distributionChannelValue: distributionChannelSelected,
+          }
+        ),
+        buildRubaminTeamSelect("accountAssignment", "Account Assignment", "accountAssignment", accountAssignmentResolved),
+        buildRubaminTeamSelect("currency", "Currency", "currency", currencyResolved),
+        buildRubaminTeamSelect("scrapSales", "Scrap Sales", "scrapSales", scrapSalesResolved),
+        buildRubaminTeamInput("insuranceGroup", "Insurance Group", insuranceGroupResolved),
+        buildRubaminTeamInput("insuranceLimit", "Insurance Limit", insuranceLimitResolved),
+        buildRubaminTeamInput("creditLimit", "Credit Limit", creditLimitResolved),
+        buildRubaminTeamSelect("vendorType", isCustomerPortal ? "Customer Type" : "Vendor Type", "vendorType", vendorTypeResolved),
+        buildRubaminTeamSelect("rubaminApproverHod", "Sharp & Tannan Approver HOD", "hod", hodResolved),
+      ].join("");
+
+      return `
+        <h2>6. Sharp & Tannan Team</h2>
+        <div class="subcard group-team-card">
+          <h3 class="group-team-title">Sharp & Tannan Team</h3>
+          <div class="group-team-grid">
+            ${fieldsHtml}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderValidatorTaxSection(vendor) {
+      if (!isValidatorUser || isHistoryMode || !isPendingForValidatorApproval(vendor)) return "";
+
+      const tcsRateResolved = pickWithSource(
+        vendor,
+        ["tcsRate", "TCSRate", "TCS Rate", "withholdingTax", "WithholdingTax", "Withholding Tax"],
+        ""
+      );
+      const turnoverResolved = pickWithSource(
+        vendor,
+        ["turnoverLimit", "TurnoverLimit", "Turnover Limit"],
+        ""
+      );
+
+      const selectedTcsRateValue = parseStoredSingleSelect(tcsRateResolved.value);
+      const tcsRateSourceKey = String(tcsRateResolved.sourceKey || "tcsRate").trim();
+      const tcsRateOptions = withSelectedOption(
+        normalizeOptions(TCS_RATE_OPTIONS),
+        selectedTcsRateValue
+      );
+      const tcsRateOptionsHtml = tcsRateOptions
+        .map((item) => {
+          const value = String(item.value || "").trim();
+          const label = String(item.label || value).trim();
+          return `<option value="${escapeHtml(value)}">${escapeHtml(label)}</option>`;
+        })
+        .join("");
+
+      const turnoverSelected = parseStoredSingleSelect(turnoverResolved.value);
+      const turnoverSourceKey = String(turnoverResolved.sourceKey || "turnoverLimit").trim();
+      const turnoverOptions = withSelectedOption(normalizeOptions(TURNOVER_LIMIT_OPTIONS), turnoverSelected);
+      const turnoverOptionsHtml = turnoverOptions
+        .map((item) => {
+          const value = String(item.value || "");
+          const label = String(item.label || value);
+          return `<option value="${escapeHtml(value)}">${escapeHtml(label)}</option>`;
+        })
+        .join("");
+
+      return `
+        <h2>7. Tax Department Details</h2>
+        <div class="subcard group-team-card">
+          <h3 class="group-team-title">Tax Department Details</h3>
+          <div class="tax-grid">
+            <div class="row">
+              <label for="validatorTcsRate">TCS Rate</label>
+              <input
+                id="validatorTcsRate"
+                class="tax-typed-input"
+                type="text"
+                list="validatorTcsRateOptions"
+                data-field-name="tcsRate"
+                data-source-key="${escapeHtml(tcsRateSourceKey)}"
+                value="${escapeHtml(selectedTcsRateValue)}"
+              />
+              <datalist id="validatorTcsRateOptions">
+                ${tcsRateOptionsHtml}
+              </datalist>
+            </div>
+            <div class="row">
+              <label for="validatorTurnoverLimit">Turnover Limit</label>
+              <input
+                id="validatorTurnoverLimit"
+                class="tax-typed-input"
+                type="text"
+                list="validatorTurnoverLimitOptions"
+                data-field-name="turnoverLimit"
+                data-source-key="${escapeHtml(turnoverSourceKey)}"
+                value="${escapeHtml(turnoverSelected)}"
+              />
+              <datalist id="validatorTurnoverLimitOptions">
+                ${turnoverOptionsHtml}
+              </datalist>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function bindTeamFieldListeners() {
+      syncSalesAndDivisionTeamOptions(false);
+      if (isValidatorUser || isHistoryMode) return;
+      const teamFields = document.querySelectorAll('[data-team-field="true"]');
+      teamFields.forEach((field) => {
+        field.addEventListener("change", () => {
+          const fieldName = String(field.dataset.fieldName || "").trim();
+          if (fieldName === "salesOrganization" || fieldName === "distributionChannel") {
+            syncSalesAndDivisionTeamOptions(true);
+          }
+          syncSubmitButtonState();
+        });
+        field.addEventListener("input", syncSubmitButtonState);
+      });
+    }
+
+    function bindValidationCheckboxListeners() {
+      if (!isValidatorUser || isHistoryMode) return;
+      VALIDATOR_CHECKBOX_FIELDS.forEach((field) => {
+        const checkbox = document.getElementById(field.id);
+        if (!checkbox) return;
+        checkbox.addEventListener("change", syncSubmitButtonState);
+      });
+    }
+
+    function bindValidatorTaxFieldListeners() {
+      if (!isValidatorUser || isHistoryMode) return;
+      const tcsRateField = document.getElementById("validatorTcsRate");
+      const turnoverField = document.getElementById("validatorTurnoverLimit");
+      [tcsRateField, turnoverField].forEach((field) => {
+        if (!field) return;
+        field.addEventListener("change", syncSubmitButtonState);
+        field.addEventListener("input", syncSubmitButtonState);
+      });
+    }
+
+    function applyApproveRequiredUi(approveSelected) {
+      if (isHistoryMode) return;
+      const shouldRequire = !isValidatorUser && approveSelected;
+      TEAM_REQUIRED_FIELDS.forEach((fieldName) => {
+        const field = document.querySelector(`[data-team-field="true"][data-field-name="${fieldName}"]`);
+        if (!field) return;
+
+        if (shouldRequire) {
+          field.setAttribute("required", "required");
+        } else {
+          field.removeAttribute("required");
+        }
+
+        const row = field.closest(".row");
+        const label = row ? row.querySelector("label") : null;
+        if (!label) return;
+        let star = label.querySelector(".req-star");
+        if (!star) {
+          star = document.createElement("span");
+          star.className = "req-star";
+          star.textContent = "*";
+          label.appendChild(star);
+        }
+        star.classList.toggle("hidden", !shouldRequire);
+      });
+    }
+
+    function areApproveTeamFieldsFilled() {
+      if (isValidatorUser || isHistoryMode) return true;
+      return TEAM_REQUIRED_FIELDS.every((fieldName) => {
+        const field = document.querySelector(`[data-team-field="true"][data-field-name="${fieldName}"]`);
+        return !!field && String(field.value || "").trim() !== "";
+      });
+    }
+
+    function applyDecisionRoleUi() {
+      const rejectToContainer = document.getElementById("validatorRejectToContainer");
+      const rejectToRequired = document.getElementById("validatorRejectToRequired");
+      if (isHistoryMode) {
+        if (rejectToContainer) rejectToContainer.classList.add("hidden");
+        if (rejectToRequired) rejectToRequired.classList.add("hidden");
+        return;
+      }
+      const rejectSelected = !!document.getElementById("rejectCheckbox")?.checked;
+      const shouldShowRejectTo = supportsRejectTarget && rejectSelected;
+
+      if (rejectToContainer) {
+        rejectToContainer.classList.toggle("hidden", !shouldShowRejectTo);
+      }
+      if (rejectToRequired) {
+        rejectToRequired.classList.toggle("hidden", !shouldShowRejectTo);
+      }
+
+      if (!shouldShowRejectTo) {
+        document.querySelectorAll('input[name="validatorRejectTo"]').forEach((radio) => {
+          radio.checked = false;
+        });
+      }
+    }
+
+    function getSelectedRejectTo() {
+      const selected = document.querySelector('input[name="validatorRejectTo"]:checked');
+      return String(selected?.value || "").trim();
+    }
+
+    function normalizeSectionTitle(value) {
+      return String(value || "")
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, " ");
+    }
+
+    function parseSelectedSectionNames(rawValue) {
+      if (Array.isArray(rawValue)) {
+        return rawValue
+          .map((item) => String(item || "").trim())
+          .filter(Boolean);
+      }
+      if (rawValue === null || rawValue === undefined) {
+        return [];
+      }
+      const text = String(rawValue || "").trim();
+      if (!text) {
+        return [];
+      }
+      try {
+        const parsed = JSON.parse(text);
+        if (Array.isArray(parsed)) {
+          return parsed
+            .map((item) => String(item || "").trim())
+            .filter(Boolean);
+        }
+      } catch (_) {}
+
+      if (text.startsWith("[") && text.endsWith("]")) {
+        return text
+          .slice(1, -1)
+          .split(",")
+          .map((item) => item.trim().replace(/^['"]+|['"]+$/g, ""))
+          .filter(Boolean);
+      }
+
+      if (text.includes(",")) {
+        return text
+          .split(",")
+          .map((item) => item.trim().replace(/^['"]+|['"]+$/g, ""))
+          .filter(Boolean);
+      }
+
+      return [text];
+    }
+
+    function getSelectedSectionSetFromRecord(vendor) {
+      const resolved = pickWithSource(
+        vendor || {},
+        ["selectedSections", "SelectedSections", "selected_sections"],
+        []
+      );
+      const selectedNames = parseSelectedSectionNames(resolved.value);
+      return new Set(selectedNames.map((name) => normalizeSectionTitle(name)).filter(Boolean));
+    }
+
+    function shouldRequireValidatorChecksForApprove(vendor) {
+      if (!isValidatorUser || isHistoryMode) return false;
+      return isPendingForValidatorApproval(vendor || currentVendor);
+    }
+
+    function getRequiredValidatorCheckboxIds(vendor) {
+      const requiredIds = new Set();
+      const selectedSectionSet = getSelectedSectionSetFromRecord(vendor || currentVendor);
+      const hasSelectedSections = selectedSectionSet.size > 0;
+
+      Object.entries(VALIDATOR_CARD_CHECKBOXES || {}).forEach(([cardTitle, checks]) => {
+        if (hasSelectedSections && !selectedSectionSet.has(normalizeSectionTitle(cardTitle))) {
+          return;
+        }
+        (Array.isArray(checks) ? checks : []).forEach((item) => {
+          const id = String(item?.id || "").trim();
+          if (!id) return;
+          if (document.getElementById(id)) {
+            requiredIds.add(id);
+          }
+        });
+      });
+
+      if (!hasSelectedSections && requiredIds.size === 0) {
+        (Array.isArray(VALIDATOR_CHECKBOX_FIELDS) ? VALIDATOR_CHECKBOX_FIELDS : []).forEach((field) => {
+          const id = String(field?.id || "").trim();
+          if (!id) return;
+          if (document.getElementById(id)) {
+            requiredIds.add(id);
+          }
+        });
+      }
+      return Array.from(requiredIds);
+    }
+
+    function autoSelectRequiredValidatorChecks(vendor) {
+      getRequiredValidatorCheckboxIds(vendor).forEach((id) => {
+        const checkbox = document.getElementById(id);
+        if (!checkbox) return;
+        checkbox.checked = true;
+      });
+    }
+
+    function areRequiredValidatorChecksSatisfied(vendor) {
+      const requiredIds = getRequiredValidatorCheckboxIds(vendor);
+      if (!requiredIds.length) return true;
+      return requiredIds.every((id) => !!document.getElementById(id)?.checked);
+    }
+
+    function syncSubmitButtonState() {
+      const approve = document.getElementById("approveCheckbox");
+      const reject = document.getElementById("rejectCheckbox");
+      const remarks = document.getElementById("decisionRemarks");
+      const submitBtn = document.getElementById("submitDecisionBtn");
+      if (isHistoryMode) {
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.classList.add("hidden");
+        }
+        return;
+      }
+      const approveSelected = !!(approve && approve.checked);
+      const rejectSelected = !!(reject && reject.checked);
+      const hasChoice = approveSelected || rejectSelected;
+      const hasRemarks = String(remarks?.value || "").trim() !== "";
+      applyApproveRequiredUi(approveSelected);
+      applyDecisionRoleUi();
+
+      let roleSpecificValid = true;
+      if (supportsRejectTarget) {
+        roleSpecificValid = !rejectSelected || !!getSelectedRejectTo();
+      } else {
+        roleSpecificValid = !approveSelected || areApproveTeamFieldsFilled();
+      }
+      if (approveSelected && shouldRequireValidatorChecksForApprove(currentVendor)) {
+        roleSpecificValid = roleSpecificValid && areRequiredValidatorChecksSatisfied(currentVendor);
+      }
+
+      submitBtn.disabled = !(currentRecordId && hasChoice && hasRemarks && roleSpecificValid);
+    }
+
+    function collectTeamEdits() {
+      if (isValidatorUser || isHistoryMode) return {};
+      const edits = {};
+      const fields = document.querySelectorAll('[data-team-field="true"][data-field-name]');
+      fields.forEach((field) => {
+        const fieldName = String(field.dataset.fieldName || "").trim();
+        const sourceKey = String(field.dataset.sourceKey || "").trim();
+        const value = String(field.value || "").trim();
+        if (!fieldName) return;
+        edits[fieldName] = value;
+        if (sourceKey && sourceKey.toLowerCase() !== fieldName.toLowerCase()) {
+          edits[sourceKey] = value;
+        }
+      });
+      return edits;
+    }
+
+    function collectMainFieldEdits() {
+      if (isHistoryMode) return {};
+      const edits = {};
+      const fields = document.querySelectorAll('[data-editable-field="true"][data-field-name]');
+      fields.forEach((field) => {
+        if (String(field.dataset.teamField || "").trim().toLowerCase() === "true") return;
+        const fieldName = String(field.dataset.fieldName || "").trim();
+        const sourceKey = String(field.dataset.sourceKey || "").trim();
+        const value = String(field.value || "").trim();
+        if (!fieldName) return;
+        edits[fieldName] = value;
+        if (sourceKey && sourceKey.toLowerCase() !== fieldName.toLowerCase()) {
+          edits[sourceKey] = value;
+        }
+      });
+      return edits;
+    }
+
+    function collectValidatorValidations() {
+      const values = {};
+      VALIDATOR_CHECKBOX_FIELDS.forEach((field) => {
+        const input = document.getElementById(field.id);
+        values[field.payloadKey] = !!input?.checked;
+      });
+      return values;
+    }
+
+    function collectValidatorTaxDetails() {
+      const tcsRateField = document.getElementById("validatorTcsRate");
+      const turnoverField = document.getElementById("validatorTurnoverLimit");
+      const tcsRate = String(tcsRateField?.value || "").trim();
+      const turnoverLimit = String(turnoverField?.value || "").trim();
+
+      return { tcsRate, turnoverLimit };
+    }
+
+    function applyValidatorValidationValues(vendor) {
+      if (!isValidatorUser || isHistoryMode) return;
+      VALIDATOR_CHECKBOX_FIELDS.forEach((field) => {
+        const checkbox = document.getElementById(field.id);
+        if (!checkbox) return;
+        const resolved = pickWithSource(vendor, field.sourceKeys, false);
+        checkbox.checked = toBool(resolved.value);
+      });
+    }
+
+    function bindDecisionControls() {
+      const approve = document.getElementById("approveCheckbox");
+      const reject = document.getElementById("rejectCheckbox");
+      const remarks = document.getElementById("decisionRemarks");
+      const submitBtn = document.getElementById("submitDecisionBtn");
+      const closeBtn = document.getElementById("closeViewBtn");
+
+      if (isHistoryMode) {
+        if (closeBtn) {
+          closeBtn.addEventListener("click", closeHistoryPopup);
+        }
+        syncSubmitButtonState();
+        return;
+      }
+
+      const onChoiceChange = (changed) => {
+        if (changed === approve && approve.checked) {
+          reject.checked = false;
+          if (shouldRequireValidatorChecksForApprove(currentVendor)) {
+            autoSelectRequiredValidatorChecks(currentVendor);
+          }
+        }
+        if (changed === reject && reject.checked) {
+          approve.checked = false;
+        }
+        syncSubmitButtonState();
+      };
+
+      approve.addEventListener("change", () => onChoiceChange(approve));
+      reject.addEventListener("change", () => onChoiceChange(reject));
+      remarks.addEventListener("input", syncSubmitButtonState);
+      document.querySelectorAll('input[name="validatorRejectTo"]').forEach((radio) => {
+        radio.addEventListener("change", syncSubmitButtonState);
+      });
+      submitBtn.addEventListener("click", submitDecision);
+      syncSubmitButtonState();
+    }
+
+    async function submitDecision() {
+      if (isHistoryMode) {
+        setDecisionMessage("History view is read-only.", "err");
+        return;
+      }
+      const approve = document.getElementById("approveCheckbox");
+      const reject = document.getElementById("rejectCheckbox");
+      const remarksEl = document.getElementById("decisionRemarks");
+      const submitBtn = document.getElementById("submitDecisionBtn");
+      const token = sessionStorage.getItem("token");
+
+      if (!token) {
+        setDecisionMessage("Please login first.", "err");
+        return;
+      }
+
+      const decision = approve.checked ? "approve" : (reject.checked ? "reject" : "");
+      const remarks = String(remarksEl.value || "").trim();
+      if (!decision) {
+        setDecisionMessage("Please select Approve or Reject.", "err");
+        syncSubmitButtonState();
+        return;
+      }
+      if (!remarks) {
+        setDecisionMessage("Remarks are mandatory.", "err");
+        syncSubmitButtonState();
+        return;
+      }
+      if (isValidatorUser && decision === "approve" && shouldRequireValidatorChecksForApprove(currentVendor) && !areRequiredValidatorChecksSatisfied(currentVendor)) {
+        setDecisionMessage("Please select all required validation checkboxes before Approve.", "err");
+        syncSubmitButtonState();
+        return;
+      }
+      if (!isValidatorUser && decision === "approve" && !areApproveTeamFieldsFilled()) {
+        setDecisionMessage("Please fill all mandatory Sharp & Tannan Team fields (Insurance Group is optional) for Approve.", "err");
+        syncSubmitButtonState();
+        return;
+      }
+      const rejectTo = getSelectedRejectTo();
+      if (supportsRejectTarget && decision === "reject" && !rejectTo) {
+        setDecisionMessage("Please select Reject To: Customer or Buyer.", "err");
+        syncSubmitButtonState();
+        return;
+      }
+
+      const payload = {
+        recordId: currentRecordId,
+        decision,
+        remarks,
+        approvalMode: getApprovalRedirectMode(),
+        fieldUpdates: collectMainFieldEdits(),
+      };
+      if (isValidatorUser) {
+        payload.validations = collectValidatorValidations();
+        payload.taxDetails = collectValidatorTaxDetails();
+        if (decision === "reject") {
+          payload.rejectTo = rejectTo;
+        }
+      } else {
+        payload.team = collectTeamEdits();
+        if (isHodUser && decision === "reject") {
+          payload.rejectTo = rejectTo;
+        }
+      }
+
+      setDecisionMessage("Submitting decision...");
+      showToast(
+        decision === "approve"
+          ? "Processing approval, validation, mail and SAP..."
+          : "Processing rejection and sending mail...",
+        "info",
+        0
+      );
+      submitBtn.disabled = true;
+      try {
+        const reviewEndpoint = "/api/customer/review-decision";
+        const res = await fetch(reviewEndpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        });
+        const data = await parseApiResponse(res);
+        if (!res.ok) {
+          throw new Error(data.detail || "Unable to submit decision");
+        }
+
+        currentRecordId = String(data.recordId || currentRecordId || "").trim();
+        currentVendor = data.vendor || currentVendor;
+        renderMeta(currentVendor, currentRecordId);
+        renderViewSections(currentVendor);
+        applyValidatorValidationValues(currentVendor);
+        const warningParts = [];
+        const sapError = String(data.sapTemplateError || "").trim();
+        const uploadError = String(data.vendorUploadError || "").trim();
+        const sapLogonError = String(data.sapLogonError || "").trim();
+        const sapAutoLogonError = String(data.sapAutoLogonError || "").trim();
+        const sapTransactionError = String(data.sapTransactionError || "").trim();
+        const refreshMode = String(data?.vendorUploadSync?.refreshMode || "").trim();
+        const refreshWarning = String(data?.vendorUploadSync?.refreshWarning || "").trim();
+        if (sapError) warningParts.push(`SAP template error: ${sapError}`);
+        if (uploadError) warningParts.push(`Vendor upload error: ${uploadError}`);
+        if (sapLogonError) warningParts.push(`SAP Logon error: ${sapLogonError}`);
+        if (sapAutoLogonError) warningParts.push(`SAP login error: ${sapAutoLogonError}`);
+        if (sapTransactionError) warningParts.push(`SAP transaction error: ${sapTransactionError}`);
+        if (refreshMode && refreshMode !== "com_refresh") {
+          warningParts.push(`Vendor upload sync mode: ${refreshMode}`);
+        }
+        if (refreshWarning) warningParts.push(refreshWarning);
+
+        if (warningParts.length) {
+          setDecisionMessage(
+            `Submitted successfully. Status: ${data.approverStatus || ""}. Warnings: ${warningParts.join(" | ")}`,
+            "err"
+          );
+          showToast(`Submitted with warning. ${warningParts.join(" | ")}`, "err");
+        } else {
+          setDecisionMessage(`Submitted successfully. Status: ${data.approverStatus || ""}`, "ok");
+          showToast(`Submitted successfully. Status: ${data.approverStatus || ""}`, "ok");
+        }
+        setMessage("Review decision submitted successfully.", "ok");
+        setTimeout(redirectToApprovalTable, 900);
+      } catch (err) {
+        setDecisionMessage(err.message || "Unable to submit decision.", "err");
+        showToast(err.message || "Unable to submit decision.", "err");
+      } finally {
+        syncSubmitButtonState();
+      }
+    }
+
+    async function loadVendorView() {
+      const recordId = pageRecordId;
+      const token = sessionStorage.getItem("token");
+
+      if (!recordId) {
+        setMessage("Record ID is required to view customer details.", "err");
+        return;
+      }
+
+      setMessage("Loading customer details...");
+      setDecisionMessage("");
+      try {
+        const endpoint = `/api/customer/record?recordId=${encodeURIComponent(recordId)}`;
+        const authHeaders = token ? { "Authorization": `Bearer ${token}` } : {};
+        let res = await fetch(endpoint, { headers: authHeaders });
+        let data = await parseApiResponse(res);
+        if (!res.ok && token && (res.status === 401 || res.status === 403)) {
+          res = await fetch(endpoint);
+          data = await parseApiResponse(res);
+        }
+        if (!res.ok) {
+          if (res.status === 401) {
+            window.location.href = "/web/login";
+            return;
+          }
+          if (res.status === 403) {
+            redirectToApprovalTable();
+            return;
+          }
+          throw new Error(data.detail || "Unable to load customer details");
+        }
+
+        currentRecordId = String(data.recordId || recordId || "").trim();
+        currentVendor = data.vendor || {};
+        if (currentRecordId) {
+          sessionStorage.setItem("customerLastViewedRecordId", currentRecordId);
+        }
+        sessionStorage.setItem("customerLastApprovalMode", getApprovalRedirectMode());
+        const hodResolved = pickWithSource(
+          currentVendor,
+          ["rubaminApproverHod", "RubaminApproverHod", "hodEmail", "HodEmail"],
+          ""
+        );
+        await loadHodOptions(token, hodResolved.value);
+        renderMeta(currentVendor, currentRecordId);
+        renderViewSections(currentVendor);
+        applyValidatorValidationValues(currentVendor);
+        applyHistoryModeUi(currentVendor);
+        setMessage(
+          isHistoryMode
+            ? "Customer form loaded in history read-only mode."
+            : "Customer form loaded in view mode.",
+          "ok"
+        );
+        syncSubmitButtonState();
+      } catch (err) {
+        setMessage(err.message || "Unable to load customer details.", "err");
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const pageHeading = document.getElementById("pageHeading");
+      if (pageHeading) pageHeading.textContent = "View Customer Registration Form";
+      document.title = "View Customer Form";
+      const goBackBtn = document.getElementById("goBackBtn");
+      if (goBackBtn) {
+        goBackBtn.addEventListener("click", () => {
+          redirectToApprovalTable();
+        });
+      }
+      if (isHistoryMode) {
+        applyHistoryModeUi({});
+      }
+      bindDecisionControls();
+      bindGstFilingModalControls();
+      loadVendorView();
+    });
+  </script>
+</body>
+</html>
+

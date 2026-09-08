@@ -1,0 +1,863 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Invite Vendor</title>
+  <style>
+    :root {
+      --page-bg: linear-gradient(180deg, #f4f7ff 0%, #e8efff 100%);
+      --surface: #ffffff;
+      --surface-soft: #f8fafc;
+      --surface-strong: #dbeafe;
+      --border: #d7e2f1;
+      --text: #1f2937;
+      --muted: #526277;
+      --brand: #1d4ed8;
+      --brand-deep: #143b8f;
+      --brand-soft: #eff6ff;
+      --shadow: 0 16px 36px rgba(15, 23, 42, 0.10);
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: var(--page-bg);
+      margin: 0;
+      padding: 24px;
+      color: var(--text);
+    }
+
+    .wrap { max-width: 1280px; margin: 0 auto; }
+    .page-header { background: rgba(255, 255, 255, 0.9); border: 1px solid rgba(215, 226, 241, 0.9); border-radius: 12px; padding: 14px 18px; box-shadow: 0 8px 20px rgba(2, 6, 23, .08); margin-bottom: 16px; display: grid; grid-template-columns: 180px 1fr auto; gap: 14px; align-items: center; backdrop-filter: blur(10px); }
+    .brand-left { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+    .brand-art { width: 160px; max-width: 100%; height: auto; display: block; }
+    .brand-text { text-align: center; font-size: 20px; line-height: 1.4; color: #475569; font-weight: 700; }
+    .toolbar { margin-bottom: 16px; display: flex; gap: 10px; justify-content: flex-end; }
+    .toolbar button { width: auto; padding: 10px 16px; }
+    .card { background: rgba(255, 255, 255, 0.88); border: 1px solid rgba(215, 226, 241, 0.95); border-radius: 12px; padding: 20px; box-shadow: 0 10px 24px rgba(2, 6, 23, .08); backdrop-filter: blur(10px); }
+    button { background: #1d4ed8; color: #fff; border: none; font-weight: 700; cursor: pointer; border-radius: 8px; }
+
+    .invite-shell {
+      background: linear-gradient(135deg, #e0edff 0%, #f8fbff 54%, #eef4ff 100%);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px;
+    }
+    .invite-layout {
+      display: grid;
+      grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+      gap: 24px;
+    }
+    .invite-intro {
+      background: linear-gradient(160deg, #143b8f 0%, #1d4ed8 56%, #2563eb 100%);
+      color: #fff;
+      border-radius: 12px;
+      padding: 28px 24px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .invite-intro h1 {
+      margin: 0;
+      font-size: 34px;
+      line-height: 1.15;
+    }
+    .invite-intro p {
+      margin: 0;
+      color: rgba(255, 255, 255, 0.86);
+      line-height: 1.6;
+      font-size: 15px;
+    }
+    .intro-points {
+      display: grid;
+      gap: 12px;
+    }
+    .intro-point {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
+    .intro-point strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+    .intro-point span {
+      display: block;
+      font-size: 13px;
+      line-height: 1.5;
+      color: rgba(255, 255, 255, 0.82);
+    }
+    .invite-form-card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+    .form-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .form-head h2 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      color: var(--brand-deep);
+    }
+    .form-head p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: 14px;
+      max-width: 560px;
+    }
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      background: var(--brand-soft);
+      color: var(--brand-deep);
+      border: 1px solid #bfd3fb;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .status-chip::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.16);
+    }
+    .section {
+      margin-bottom: 20px;
+      padding: 24px;
+    }
+    .section:last-of-type {
+      margin-bottom: 0;
+    }
+    .section-header {
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(91, 142, 183, 0.16);
+    }
+    .section-header h3 {
+      margin: 0 0 4px;
+      font-size: 18px;
+      color: var(--brand-deep);
+    }
+    .section-header p {
+      margin: 0;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+    .question {
+      padding: 18px;
+      background: var(--surface-soft);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    }
+    .row { margin: 0; }
+    .full { grid-column: 1 / -1; }
+    label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 8px; color: #334155; }
+    .field-meta {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      margin-top: -2px;
+      margin-bottom: 8px;
+      line-height: 1.45;
+    }
+    .req { color: #b91c1c; }
+    input, select {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid #b8c7da;
+      border-radius: 8px;
+      padding: 11px 12px;
+      margin-top: 4px;
+      font-size: 15px;
+      background: #fff;
+      color: var(--text);
+      transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.16);
+      background: #fbfdff;
+    }
+    .search-btn {
+      width: auto;
+      padding: 11px 16px;
+      border-radius: 10px;
+      margin: 0;
+      box-shadow: 0 10px 20px rgba(29, 78, 216, 0.18);
+    }
+    .duplicate-box {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      min-height: 220px;
+      display: flex;
+      flex-direction: column;
+      background: #fff;
+    }
+    .duplicate-box table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    .duplicate-box th {
+      background: #eef4ff;
+      color: #1f2937;
+      text-align: left;
+      padding: 12px 8px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .duplicate-box td {
+      text-align: left;
+      color: #1f2937;
+      font-style: normal;
+      padding: 18px 10px;
+      font-size: 15px;
+      border-bottom: 1px solid #eef2f7;
+      vertical-align: top;
+      word-break: break-word;
+    }
+    .duplicate-box tbody tr:last-child td {
+      border-bottom: none;
+    }
+    .duplicate-box tbody tr:nth-child(even):not(.empty-row) td {
+      background: #f8fbff;
+    }
+    .duplicate-box tbody tr.empty-row td {
+      text-align: center;
+      color: #9ca3af;
+      font-style: italic;
+    }
+    .actions {
+      margin-top: 24px;
+      display: flex;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .btn-action {
+      min-width: 190px;
+      padding: 12px 14px;
+      font-size: 18px;
+      border-radius: 12px;
+      box-shadow: 0 12px 24px rgba(29, 78, 216, 0.16);
+    }
+    .btn-disabled {
+      background: #9db7dc;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    .btn-secondary {
+      background: #e2e8f0;
+      color: #1f2937;
+      box-shadow: none;
+    }
+    .msg { margin-top: 14px; text-align: left; font-size: 14px; color: #0f766e; }
+
+    @media (max-width: 980px) {
+      .page-header { grid-template-columns: 1fr; text-align: center; }
+      .brand-left { align-items: center; }
+      .invite-layout { grid-template-columns: 1fr; }
+      .invite-intro { padding: 22px; }
+      .invite-intro h1 { font-size: 28px; }
+      .invite-form-card { padding: 18px; }
+      .section { padding: 18px; }
+      .form-head { flex-direction: column; }
+      .grid { grid-template-columns: 1fr; }
+      .actions { flex-direction: column; align-items: stretch; }
+      .btn-action { width: 100%; min-width: 0; }
+    }
+  </style>
+  <link rel="stylesheet" href="/web/portal-liquid.css?v=20260610-light" />
+</head>
+<body>
+  <div class="wrap">
+    <div class="page-header">
+      <div class="brand-left">
+        <img src="/web/header-art-image" alt="Header Art" class="brand-art" />
+      </div>
+      <div class="brand-text">Sharp & Tannan Chartered Accountants</div>
+      <div></div>
+    </div>
+
+    <div class="toolbar">
+      <button type="button" onclick="location.href='/web/vendor-dashboard'">Go Back</button>
+      <button type="button" onclick="logoutAndRedirect()">Logout</button>
+    </div>
+
+    <div class="card">
+      <div class="invite-shell">
+        <div class="invite-layout">
+          <aside class="invite-intro">
+            <h1>Send Vendor Form Link</h1>
+            <p>Create a vendor invite by entering the vendor details, assigning the correct HOD, and sending the form link to the vendor.</p>
+            <div class="intro-points">
+              <div class="intro-point">
+                <strong>Step 1</strong>
+                <span>Capture the vendor name, email, type, and tax details in structured fields.</span>
+              </div>
+              <div class="intro-point">
+                <strong>Step 2</strong>
+                <span>Assign the right HOD approver before the invite is created and mailed.</span>
+              </div>
+              <div class="intro-point">
+                <strong>Step 3</strong>
+                <span>Review duplicate vendor records before sending the vendor invite link.</span>
+              </div>
+            </div>
+          </aside>
+
+          <div class="invite-form-card">
+            <div class="form-head">
+              <div>
+                <h2>Vendor Invitation</h2>
+                <p>Use the fields below to prepare the vendor invite, route it for approval, and send the form link.</p>
+              </div>
+              <div class="status-chip">Invite Setup</div>
+            </div>
+
+            <form id="inviteForm">
+              <section class="section">
+                <div class="section-header">
+                  <h3>Vendor Details</h3>
+                  <p>Enter the vendor information required to create the invite record and send the form link.</p>
+                </div>
+                <div class="grid">
+                  <div class="question row">
+                    <label>Vendor Name <span class="req">*</span></label>
+                    <span class="field-meta">Enter the legal or primary vendor name.</span>
+                    <input id="vendorName" name="vendorName" required />
+                  </div>
+
+                  <div class="question row">
+                    <label>Vendor Email <span class="req">*</span></label>
+                    <span class="field-meta">This email receives the vendor invite form link.</span>
+                    <input id="vendorEmail" name="vendorEmail" type="email" required />
+                  </div>
+
+                  <div class="question row">
+                    <label>Vendor Type <span class="req">*</span></label>
+                    <span class="field-meta">Choose Domestic or Import to show the correct tax field.</span>
+                    <select id="vendorType" name="vendorType" required>
+                      <option value="">Select Vendor Type</option>
+                      <option value="Domestic">Domestic</option>
+                      <option value="Import">Import</option>
+                    </select>
+                  </div>
+
+                  <div class="question row" id="vendorPanRow">
+                    <label>Vendor PAN <span class="req">*</span></label>
+                    <span class="field-meta">Required for domestic vendors. Format: ABCDE1234F.</span>
+                    <input id="vendorPan" name="vendorPan" required maxlength="10" />
+                  </div>
+
+                  <div class="question row" id="vendorPostalZipRow" style="display:none;">
+                    <label>Postal/ZIP Code</label>
+                    <span class="field-meta">Used for import vendors when PAN is not required.</span>
+                    <input id="vendorPostalZipCode" name="vendorPostalZipCode" maxlength="20" />
+                  </div>
+                </div>
+              </section>
+
+              <section class="section">
+                <div class="section-header">
+                  <h3>Approval Routing</h3>
+                  <p>Select the internal approver who should own the next step.</p>
+                </div>
+                <div class="grid">
+                  <div class="question row full">
+                    <label>HOD Email</label>
+                    <span class="field-meta">The selected HOD becomes the approval contact for this vendor invite.</span>
+                    <select id="hodEmail" name="hodEmail">
+                      <option value="">Select HOD</option>
+                      <option value="hod@example.com">hod@example.com</option>
+                      <option value="hod2@example.com">hod2@example.com</option>
+                    </select>
+                  </div>
+                </div>
+              </section>
+
+              <section class="section">
+                <div class="section-header">
+                  <h3>Duplicate Check</h3>
+                  <p>Search for possible duplicates before sending the form link.</p>
+                </div>
+                <div class="question row full">
+                  <button id="duplicateSearchBtn" class="search-btn" type="button">Search Duplicate Vendor</button>
+                </div>
+                <div class="duplicate-box">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Vendor Code</th>
+                        <th>Name</th>
+                        <th>Name1</th>
+                        <th>City</th>
+                        <th>District</th>
+                        <th>Pan</th>
+                        <th>GSTIN</th>
+                      </tr>
+                    </thead>
+                    <tbody id="duplicateResultsBody">
+                      <tr class="empty-row">
+                        <td colspan="7">No data</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+
+              <div class="actions">
+                <button class="btn-action btn-secondary" type="button" onclick="location.href='/web/vendor-dashboard'">Home</button>
+                <button id="sendFormBtn" class="btn-action btn-disabled" type="button" disabled>Send Form Link</button>
+              </div>
+            </form>
+            <div id="message" class="msg"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function requireSessionLogin() {
+      if (sessionStorage.getItem("token")) {
+        return;
+      }
+      fetch("/api/auth/logout", { method: "POST", keepalive: true }).catch(() => {});
+      window.location.replace("/web/login");
+    }
+
+    requireSessionLogin();
+    async function parseApiResponse(res) {
+      const text = await res.text();
+      if (!text) return {};
+      try {
+        return JSON.parse(text);
+      } catch (_) {
+        return { detail: text };
+      }
+    }
+
+    function createToastManager() {
+      const host = document.createElement("div");
+      host.style.position = "fixed";
+      host.style.top = "20px";
+      host.style.right = "20px";
+      host.style.zIndex = "5000";
+      document.body.appendChild(host);
+
+      let activeToast = null;
+      let activeTimer = null;
+
+      function removeToast(toast) {
+        if (!toast) return;
+        toast.style.opacity = "0";
+        toast.style.transform = "translateY(-10px)";
+        setTimeout(() => {
+          if (toast.parentNode) toast.parentNode.removeChild(toast);
+        }, 200);
+        if (activeToast === toast) {
+          activeToast = null;
+        }
+      }
+
+      return function showToast(text, kind = "info", duration = 10000) {
+        if (!text) return;
+        if (activeTimer) {
+          clearTimeout(activeTimer);
+          activeTimer = null;
+        }
+        if (activeToast) {
+          activeToast.remove();
+          activeToast = null;
+        }
+
+        const colors = {
+          ok: "#166534",
+          err: "#b91c1c",
+          info: "#1d4ed8",
+        };
+
+        const toast = document.createElement("div");
+        toast.textContent = text;
+        toast.style.minWidth = "280px";
+        toast.style.maxWidth = "420px";
+        toast.style.padding = "14px 16px";
+        toast.style.borderRadius = "12px";
+        toast.style.boxShadow = "0 12px 32px rgba(15, 23, 42, 0.24)";
+        toast.style.background = colors[kind] || colors.info;
+        toast.style.color = "#fff";
+        toast.style.fontSize = "14px";
+        toast.style.fontWeight = "700";
+        toast.style.opacity = "0";
+        toast.style.transform = "translateY(-10px)";
+        toast.style.transition = "opacity .2s ease, transform .2s ease";
+
+        host.appendChild(toast);
+        requestAnimationFrame(() => {
+          toast.style.opacity = "1";
+          toast.style.transform = "translateY(0)";
+        });
+
+        activeToast = toast;
+        if (duration > 0) {
+          activeTimer = setTimeout(() => removeToast(toast), duration);
+        }
+      };
+    }
+
+    const showToast = createToastManager();
+
+    async function loadHodEmails() {
+      const hodSelect = document.getElementById("hodEmail");
+      if (!hodSelect) {
+        return;
+      }
+
+      const token = sessionStorage.getItem("token");
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      hodSelect.innerHTML = "<option value=''>Loading...</option>";
+
+      try {
+        const res = await fetch("/api/vendor/get-hod-emails", { headers });
+        const data = await parseApiResponse(res);
+        hodSelect.innerHTML = "";
+
+        const placeholder = document.createElement("option");
+        placeholder.value = "";
+        placeholder.textContent = "Select HOD";
+        hodSelect.appendChild(placeholder);
+
+        if (!res.ok) {
+          const option = document.createElement("option");
+          option.value = "";
+          option.textContent = "Failed to load HOD emails";
+          hodSelect.appendChild(option);
+          return;
+        }
+
+        if (!Array.isArray(data) || data.length === 0) {
+          const option = document.createElement("option");
+          option.value = "";
+          option.textContent = "No HOD emails found";
+          hodSelect.appendChild(option);
+          return;
+        }
+
+        data.forEach((hod) => {
+          const email = String(hod?.email || "").trim();
+          if (!email) {
+            return;
+          }
+          const option = document.createElement("option");
+          option.value = email;
+          option.textContent = email;
+          hodSelect.appendChild(option);
+        });
+      } catch (_) {
+        hodSelect.innerHTML = "<option value=''>Failed to load HOD emails</option>";
+      }
+    }
+
+    async function logoutAndRedirect() {
+      await fetch("/api/auth/logout", { method: "POST" });
+      sessionStorage.removeItem("token");
+      sessionStorage.removeItem("role");
+      sessionStorage.removeItem("email");
+      sessionStorage.removeItem("name");
+      window.location.href = "/web/login";
+    }
+
+    const form = document.getElementById("inviteForm");
+    const msg = document.getElementById("message");
+    if (msg) {
+      msg.style.display = "none";
+    }
+    const sendBtn = document.getElementById("sendFormBtn");
+    const vendorPanInput = document.getElementById("vendorPan");
+    const vendorTypeSelect = document.getElementById("vendorType");
+    const vendorPostalZipInput = document.getElementById("vendorPostalZipCode");
+    const vendorPanRow = document.getElementById("vendorPanRow");
+    const vendorPostalZipRow = document.getElementById("vendorPostalZipRow");
+    const vendorNameInput = document.getElementById("vendorName");
+    const vendorEmailInput = document.getElementById("vendorEmail");
+    const duplicateSearchBtn = document.getElementById("duplicateSearchBtn");
+    const duplicateResultsBody = document.getElementById("duplicateResultsBody");
+    const PAN_REGEX = /^[A-Z]{5}[0-9]{4}[A-Z]$/;
+
+    function setupPanValidation() {
+      if (!vendorPanInput) {
+        return;
+      }
+      vendorPanInput.maxLength = 10;
+      vendorPanInput.placeholder = "ABCDE1234F";
+      vendorPanInput.setAttribute("pattern", PAN_REGEX.source);
+      vendorPanInput.setAttribute("title", "PAN format should be ABCDE1234F.");
+
+      vendorPanInput.addEventListener("input", () => {
+        const normalized = String(vendorPanInput.value || "")
+          .toUpperCase()
+          .replace(/[^A-Z0-9]/g, "")
+          .slice(0, 10);
+        if (normalized !== vendorPanInput.value) {
+          vendorPanInput.value = normalized;
+        }
+        vendorPanInput.setCustomValidity("");
+      });
+
+      vendorPanInput.addEventListener("blur", () => {
+        const value = String(vendorPanInput.value || "").trim();
+        if (!value) {
+          vendorPanInput.setCustomValidity("");
+          return;
+        }
+        if (!PAN_REGEX.test(value)) {
+          vendorPanInput.setCustomValidity("PAN format should be ABCDE1234F.");
+          vendorPanInput.reportValidity();
+          return;
+        }
+        vendorPanInput.setCustomValidity("");
+      });
+    }
+
+    function applyVendorTypeRules() {
+      const selectedType = String(vendorTypeSelect?.value || "").trim().toLowerCase();
+      const isDomestic = selectedType === "domestic";
+      const isImport = selectedType === "import";
+      if (vendorPanRow) {
+        vendorPanRow.style.display = isDomestic ? "" : "none";
+      }
+      if (vendorPostalZipRow) {
+        vendorPostalZipRow.style.display = isImport ? "" : "none";
+      }
+      if (vendorPanInput) {
+        vendorPanInput.required = isDomestic;
+        if (!isDomestic) {
+          vendorPanInput.value = "";
+          vendorPanInput.setCustomValidity("");
+        }
+      }
+      if (vendorPostalZipInput) {
+        vendorPostalZipInput.required = false;
+        if (!isImport) {
+          vendorPostalZipInput.value = "";
+          vendorPostalZipInput.setCustomValidity("");
+        }
+      }
+    }
+
+    function updateSendButtonState() {
+      const selectedType = String(vendorTypeSelect?.value || "").trim().toLowerCase();
+      const requiredFields = [vendorNameInput, vendorEmailInput, vendorTypeSelect];
+      if (selectedType === "domestic") {
+        requiredFields.push(vendorPanInput);
+      }
+      const isValid = requiredFields.every((field) => field && (field.value || "").trim() !== "" && field.checkValidity());
+      sendBtn.disabled = !isValid;
+      sendBtn.classList.toggle("btn-disabled", !isValid);
+      if (isValid) {
+        sendBtn.style.background = "#1d4ed8";
+        sendBtn.style.cursor = "pointer";
+      } else {
+        sendBtn.style.background = "#9db7dc";
+        sendBtn.style.cursor = "not-allowed";
+      }
+    }
+
+    function renderDuplicateMessage(message) {
+      if (!duplicateResultsBody) {
+        return;
+      }
+      duplicateResultsBody.innerHTML = "";
+      const row = document.createElement("tr");
+      row.className = "empty-row";
+      const cell = document.createElement("td");
+      cell.colSpan = 7;
+      cell.textContent = message || "No data";
+      row.appendChild(cell);
+      duplicateResultsBody.appendChild(row);
+    }
+
+    function renderDuplicateRows(rows) {
+      if (!duplicateResultsBody) {
+        return;
+      }
+      duplicateResultsBody.innerHTML = "";
+      if (!Array.isArray(rows) || rows.length === 0) {
+        renderDuplicateMessage("No data");
+        return;
+      }
+
+      rows.forEach((rowData) => {
+        const row = document.createElement("tr");
+        [
+          rowData?.vendorCode,
+          rowData?.name,
+          rowData?.name1,
+          rowData?.city,
+          rowData?.district,
+          rowData?.pan,
+          rowData?.gstin,
+        ].forEach((value) => {
+          const cell = document.createElement("td");
+          const text = String(value ?? "").trim();
+          cell.textContent = text || "-";
+          row.appendChild(cell);
+        });
+        duplicateResultsBody.appendChild(row);
+      });
+    }
+
+    [vendorNameInput, vendorEmailInput, vendorTypeSelect, vendorPanInput, vendorPostalZipInput].forEach((field) => {
+      if (!field) {
+        return;
+      }
+      field.addEventListener("input", updateSendButtonState);
+      field.addEventListener("change", () => {
+        applyVendorTypeRules();
+        updateSendButtonState();
+      });
+    });
+
+    if (duplicateSearchBtn) {
+      duplicateSearchBtn.addEventListener("click", async () => {
+        const token = sessionStorage.getItem("token");
+        if (!token) {
+          showToast("Please login first.", "err");
+          return;
+        }
+
+        const vendorPan = String(vendorPanInput?.value || "").trim().toUpperCase();
+        if (!vendorPan) {
+          renderDuplicateMessage("No data");
+          showToast("Enter PAN number first.", "err");
+          vendorPanInput?.focus();
+          return;
+        }
+        if (!PAN_REGEX.test(vendorPan)) {
+          vendorPanInput?.setCustomValidity("PAN format should be ABCDE1234F.");
+          vendorPanInput?.reportValidity();
+          return;
+        }
+        vendorPanInput?.setCustomValidity("");
+
+        const originalButtonText = duplicateSearchBtn.textContent;
+        duplicateSearchBtn.disabled = true;
+        duplicateSearchBtn.textContent = "Searching...";
+        renderDuplicateMessage("Loading...");
+
+        try {
+          const res = await fetch("/api/vendor/search-duplicates", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({ vendorPan })
+          });
+          const data = await parseApiResponse(res);
+          if (!res.ok) {
+            throw new Error(data.detail || data.error || "Unable to search duplicate vendors");
+          }
+
+          const matches = Array.isArray(data.matches) ? data.matches : [];
+          renderDuplicateRows(matches);
+          if (matches.length > 0) {
+            showToast(`${matches.length} duplicate vendor record${matches.length === 1 ? "" : "s"} found.`, "info");
+          } else {
+            showToast("No duplicate vendor found for this PAN.", "ok");
+          }
+        } catch (err) {
+          renderDuplicateMessage("No data");
+          showToast(err.message || "Unable to search duplicate vendors", "err");
+        } finally {
+          duplicateSearchBtn.disabled = false;
+          duplicateSearchBtn.textContent = originalButtonText;
+        }
+      });
+    }
+
+    sendBtn.addEventListener("click", async () => {
+      applyVendorTypeRules();
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
+      const token = sessionStorage.getItem("token");
+      if (!token) {
+        showToast("Please login first.", "err");
+        return;
+      }
+
+      const selectedType = String(vendorTypeSelect?.value || "").trim();
+      const payload = {
+        vendorName: String(vendorNameInput?.value || "").trim(),
+        vendorEmail: String(vendorEmailInput?.value || "").trim(),
+        vendorPan: selectedType === "Domestic" ? String(vendorPanInput?.value || "").trim().toUpperCase() : "",
+        postalZipCode: selectedType === "Import" ? String(vendorPostalZipInput?.value || "").trim() : "",
+        hodEmail: String(document.getElementById("hodEmail").value || "").trim(),
+        vendorType: selectedType
+      };
+
+      showToast("Saving invite details...", "info", 0);
+      sendBtn.disabled = true;
+      sendBtn.classList.add("btn-disabled");
+      sendBtn.style.background = "#9db7dc";
+      sendBtn.style.cursor = "not-allowed";
+
+      try {
+        const res = await fetch("/api/vendor/invite", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify(payload)
+        });
+        const data = await parseApiResponse(res);
+        if (!res.ok) {
+          throw new Error(data.detail || data.error || "Unable to save invite");
+        }
+        const emailSent = data.emailSent !== false;
+        showToast(
+          emailSent ? "Vendor invitation sent successfully." : "Vendor invitation saved, but email sending failed.",
+          emailSent ? "ok" : "err"
+        );
+      } catch (err) {
+        showToast(err.message || "Unable to save invite", "err");
+      } finally {
+        updateSendButtonState();
+      }
+    });
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+    });
+
+    setupPanValidation();
+    applyVendorTypeRules();
+    loadHodEmails();
+    updateSendButtonState();
+  </script>
+</body>
+</html>
+

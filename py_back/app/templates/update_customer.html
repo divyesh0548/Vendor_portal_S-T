@@ -1,0 +1,2221 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Update Customer Form</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #eef2ff; margin: 0; padding: 20px; color: #1f2937; }
+    .wrap { max-width: 1200px; margin: 0 auto; }
+    .page-header { background: #fff; border-radius: 12px; padding: 14px 18px; box-shadow: 0 8px 20px rgba(2, 6, 23, .08); margin-bottom: 12px; display: grid; grid-template-columns: 180px 1fr auto; gap: 14px; align-items: center; }
+    .brand-left { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+    .brand-art { width: 160px; max-width: 100%; height: auto; display: block; }
+    .brand-text { text-align: center; font-size: 20px; line-height: 1.4; color: #475569; font-weight: 700; }
+    .toolbar { margin-bottom: 12px; display: flex; gap: 8px; justify-content: flex-end; }
+    .toolbar button { width: auto; padding: 10px 14px; }
+    .card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 10px 24px rgba(2, 6, 23, .08); margin-bottom: 12px; }
+    .hidden { display: none !important; }
+    h1 { margin-top: 0; font-size: 26px; color: #1e3a8a; }
+    h2 { margin: 20px 0 10px; font-size: 18px; color: #1e3a8a; border-bottom: 1px solid #dbeafe; padding-bottom: 6px; }
+    .subcard { background: #f8fbff; border: 1px solid #dbeafe; border-radius: 10px; padding: 14px; margin-bottom: 12px; }
+    .subcard h3 { margin: 0 0 12px; font-size: 16px; color: #1e3a8a; }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .row { margin-bottom: 10px; }
+    .full { grid-column: 1 / -1; }
+    label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 6px; color: #334155; }
+    input, textarea, select, button { width: 100%; box-sizing: border-box; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; }
+    input, textarea, select { background: #fff; color: #1f2937; }
+    textarea { min-height: 84px; resize: vertical; }
+    button { background: #1d4ed8; color: #fff; border: none; font-weight: 700; cursor: pointer; }
+    .btn-success { background: #0f766e; }
+    .switch-row {
+      border: 1px solid #ea580c;
+      border-radius: 6px;
+      padding: 8px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: #fff;
+      margin-top: 6px;
+    }
+    .switch-row span { font-size: 13px; font-weight: 700; color: #1f2937; }
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 48px;
+      height: 24px;
+      flex: 0 0 auto;
+    }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background-color: #9ca3af;
+      transition: .2s;
+      border-radius: 999px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 2px;
+      bottom: 2px;
+      background-color: white;
+      transition: .2s;
+      border-radius: 50%;
+    }
+    .switch input:checked + .slider { background-color: #16a34a; }
+    .switch input:checked + .slider:before { transform: translateX(24px); }
+    .doc-preview {
+      margin-top: 10px;
+      border: 1px solid #dbe3f1;
+      border-radius: 8px;
+      padding: 10px;
+      background: #fff;
+    }
+    .doc-preview.hidden { display: none; }
+    .doc-preview iframe {
+      width: 100%;
+      min-height: 480px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: #fff;
+    }
+    .doc-preview img {
+      max-width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: #fff;
+    }
+    .doc-actions { margin-bottom: 10px; display: flex; justify-content: flex-end; }
+    .doc-actions a { color: #1d4ed8; font-weight: 700; text-decoration: none; }
+    .edit-meta-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+    .edit-meta-row .meta { flex: 1 1 720px; margin-bottom: 0; }
+    .edit-section-action-host {
+      flex: 0 0 auto;
+      display: flex;
+      justify-content: flex-end;
+      margin-left: auto;
+    }
+    .edit-section-action-host:empty { display: none; }
+    .edit-section-action-host .dynamic-selector-edit-wrap { margin-bottom: 0; }
+    .badge { background: #dbeafe; color: #1e40af; border-radius: 999px; padding: 6px 12px; font-weight: 700; font-size: 13px; }
+    .msg { margin-top: 8px; font-size: 14px; }
+    .msg.ok { color: #0a7a2d; }
+    .msg.err { color: #b3261e; }
+    .muted { color: #64748b; font-style: italic; }
+    .locked-card {
+      border-color: #f59e0b;
+      background: #fff7ed;
+    }
+    .locked-note {
+      margin: -2px 0 10px;
+      color: #9a3412;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .req-star { color: #dc2626; margin-left: 4px; font-weight: 700; }
+    .req-star.hidden { display: none; }
+    .entry-grid { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: end; }
+    .entry-grid button { width: auto; min-width: 180px; }
+    .row.lookup-spinner-host { position: relative; }
+    .lookup-with-spinner { padding-right: 34px; }
+    .lookup-spinner {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      width: 14px;
+      height: 14px;
+      margin-top: -7px;
+      border: 2px solid #cbd5e1;
+      border-top-color: #2563eb;
+      border-radius: 50%;
+      animation: lookupSpin .7s linear infinite;
+      display: none;
+      pointer-events: none;
+    }
+    .lookup-spinner.active { display: block; }
+    @keyframes lookupSpin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 980px) {
+      .page-header { grid-template-columns: 1fr; text-align: center; }
+      .brand-left { align-items: center; }
+      .grid { grid-template-columns: 1fr; }
+      .entry-grid { grid-template-columns: 1fr; }
+      .entry-grid button { width: 100%; }
+      .edit-section-action-host { flex: 1 1 100%; }
+    }
+  </style>
+  <link rel="stylesheet" href="/web/portal-liquid.css?v=20260610-light" />
+</head>
+<body>
+  <div class="wrap">
+    <div class="page-header">
+      <div class="brand-left">
+        <img src="/web/header-art-image" alt="Header Art" class="brand-art" />
+      </div>
+      <div class="brand-text">Sharp & Tannan Chartered Accountants</div>
+      <div></div>
+    </div>
+
+    <div class="toolbar">
+      <button id="goBackBtn" type="button">Go Back</button>
+      <button type="button" onclick="logoutAndRedirect()">Logout</button>
+    </div>
+
+    <div class="card">
+      <h1 id="entryHeading">Update Customer Form</h1>
+      <form id="entryForm">
+        <div class="entry-grid">
+          <div class="row">
+            <label id="recordIdLabel" for="recordIdInput">Entry Page - Record ID</label>
+            <input id="recordIdInput" type="text" placeholder="Enter Record ID" required />
+          </div>
+          <div class="row">
+            <button id="loadEntryBtn" type="submit">Load Customer Form</button>
+          </div>
+        </div>
+      </form>
+      <div id="entryMessage" class="msg"></div>
+    </div>
+
+    <div id="editCard" class="card hidden">
+      <h1 id="editHeading">Editable Customer Registration Form</h1>
+      <div class="edit-meta-row">
+        <div id="metaBadges" class="meta"></div>
+        <div id="editSectionActionHost" class="edit-section-action-host"></div>
+      </div>
+      <form id="updateForm">
+        <div id="sectionHost"></div>
+        <div class="row full">
+          <label for="updateRemarksInput">Update Remarks</label>
+          <textarea
+            id="updateRemarksInput"
+            data-field-name="updateRemarks"
+            data-source-key="updateRemarks"
+            placeholder="Enter remarks for this update"
+          ></textarea>
+        </div>
+        <div class="row full">
+          <button id="updateBtn" type="submit" class="btn-success">Update Customer Record</button>
+        </div>
+      </form>
+      <div id="updateMessage" class="msg"></div>
+    </div>
+  </div>
+
+  <script>
+    async function logoutAndRedirect() {
+      await fetch("/api/auth/logout", { method: "POST" });
+      sessionStorage.removeItem("token");
+      sessionStorage.removeItem("role");
+      sessionStorage.removeItem("email");
+      sessionStorage.removeItem("name");
+      window.location.href = "/web/login";
+    }
+
+    async function parseApiResponse(res) {
+      const text = await res.text();
+      if (!text) return {};
+      try {
+        return JSON.parse(text);
+      } catch (_) {
+        return { detail: text };
+      }
+    }
+
+    function createToastManager() {
+      const host = document.createElement("div");
+      host.style.position = "fixed";
+      host.style.top = "20px";
+      host.style.right = "20px";
+      host.style.zIndex = "5000";
+      document.body.appendChild(host);
+
+      let activeToast = null;
+      let activeTimer = null;
+
+      function removeToast(toast) {
+        if (!toast) return;
+        toast.style.opacity = "0";
+        toast.style.transform = "translateY(-10px)";
+        setTimeout(() => {
+          if (toast.parentNode) toast.parentNode.removeChild(toast);
+        }, 200);
+        if (activeToast === toast) {
+          activeToast = null;
+        }
+      }
+
+      return function showToast(text, kind = "info", duration = 10000) {
+        if (!text) return;
+        if (activeTimer) {
+          clearTimeout(activeTimer);
+          activeTimer = null;
+        }
+        if (activeToast) {
+          activeToast.remove();
+          activeToast = null;
+        }
+
+        const colors = {
+          ok: "#166534",
+          err: "#b91c1c",
+          info: "#1d4ed8",
+        };
+
+        const toast = document.createElement("div");
+        toast.textContent = text;
+        toast.style.minWidth = "280px";
+        toast.style.maxWidth = "420px";
+        toast.style.padding = "14px 16px";
+        toast.style.borderRadius = "12px";
+        toast.style.boxShadow = "0 12px 32px rgba(15, 23, 42, 0.24)";
+        toast.style.background = colors[kind] || colors.info;
+        toast.style.color = "#fff";
+        toast.style.fontSize = "14px";
+        toast.style.fontWeight = "700";
+        toast.style.opacity = "0";
+        toast.style.transform = "translateY(-10px)";
+        toast.style.transition = "opacity .2s ease, transform .2s ease";
+
+        host.appendChild(toast);
+        requestAnimationFrame(() => {
+          toast.style.opacity = "1";
+          toast.style.transform = "translateY(0)";
+        });
+
+        activeToast = toast;
+        if (duration > 0) {
+          activeTimer = setTimeout(() => removeToast(toast), duration);
+        }
+      };
+    }
+
+    const showToast = createToastManager();
+    const isCustomerPortal = true;
+    const recordTypeLabel = "Customer";
+    const pageParams = new URLSearchParams(window.location.search);
+    const requestedUpdateMode = String(pageParams.get("mode") || "").trim().toLowerCase();
+    const isShipToOnlyMode = ["shipto", "ship-to", "ship_to"].includes(requestedUpdateMode);
+    const initialRecordIdFromQuery = String(pageParams.get("recordId") || "").trim();
+    const SHIP_TO_ONLY_FIELD_NAMES = new Set([
+      "shipto",
+      "state1",
+      "district1",
+      "pincode1",
+      "lane4",
+      "lane5",
+      "lane6",
+      "state2",
+      "statename1",
+      "district2",
+      "pincode2",
+      "lane7",
+      "lane8",
+      "lane9",
+    ]);
+
+    function isShipToEditableField(fieldName) {
+      return SHIP_TO_ONLY_FIELD_NAMES.has(String(fieldName || "").trim().toLowerCase());
+    }
+
+    function getRecordApiBase() {
+      return "/api/customer";
+    }
+
+    function getDashboardUrl() {
+      return "/web/customer-dashboard";
+    }
+
+    function getBackUrl() {
+      return isShipToOnlyMode ? "/web/customer-shipto" : getDashboardUrl();
+    }
+
+    function buildAuthHeaders() {
+      const token = sessionStorage.getItem("token");
+      return token ? { "Authorization": `Bearer ${token}` } : {};
+    }
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function isMeaningfulValue(value) {
+      if (value === null || value === undefined) return false;
+      if (typeof value === "string" && value.trim() === "") return false;
+      return true;
+    }
+
+    function formatValue(value) {
+      if (value === null || value === undefined) return "";
+      if (typeof value === "boolean") return value ? "Yes" : "No";
+      return String(value);
+    }
+
+    function toBool(value) {
+      if (typeof value === "boolean") return value;
+      if (typeof value === "number") return value !== 0;
+      const normalized = String(value || "").trim().toLowerCase();
+      return ["1", "true", "yes", "y", "on"].includes(normalized);
+    }
+
+    const IFSC_REGEX = /^[A-Z]{4}0[A-Z0-9]{6}$/;
+
+    function pickValueWithSource(record, keys, fallbackKey) {
+      for (const key of keys) {
+        if (!Object.prototype.hasOwnProperty.call(record, key)) continue;
+        const value = record[key];
+        if (isMeaningfulValue(value)) {
+          return { value, sourceKey: key };
+        }
+      }
+      for (const key of keys) {
+        if (Object.prototype.hasOwnProperty.call(record, key)) {
+          return { value: record[key], sourceKey: key };
+        }
+      }
+      return { value: "", sourceKey: fallbackKey || keys[0] || "" };
+    }
+
+    function toDocumentUrl(rawValue) {
+      const value = String(rawValue || "").trim();
+      if (!value) return "";
+      if (value.startsWith("http://") || value.startsWith("https://") || value.startsWith("/")) {
+        return value;
+      }
+      return `/mock-files/${encodeURIComponent(value)}`;
+    }
+
+    function fileNameFromUrl(url) {
+      const clean = String(url || "").split("?")[0];
+      if (!clean) return "";
+      const parts = clean.split("/");
+      return decodeURIComponent(parts[parts.length - 1] || "");
+    }
+
+    function buildRecordDocumentUrl(recordId, fieldName, rawValue) {
+      const resolvedRecordId = String(recordId || currentRecordId || "").trim();
+      const resolvedFieldName = String(fieldName || "").trim();
+      if (resolvedRecordId && resolvedFieldName) {
+        return `${getRecordApiBase()}/document?recordId=${encodeURIComponent(resolvedRecordId)}&fieldName=${encodeURIComponent(resolvedFieldName)}`;
+      }
+      return toDocumentUrl(rawValue);
+    }
+
+    function renderDocumentPreview(previewEl, docUrl, docName = "") {
+      const lower = String(docName || docUrl).toLowerCase().split("?")[0];
+      let bodyHtml = `<div class="doc-actions"><a href="${escapeHtml(docUrl)}" target="_blank" rel="noopener noreferrer">Open In New Page</a></div>`;
+
+      if (lower.endsWith(".pdf")) {
+        bodyHtml += `<iframe src="${escapeHtml(docUrl)}" title="Document Preview"></iframe>`;
+      } else if (/\.(png|jpg|jpeg|gif|webp|bmp|svg)$/.test(lower)) {
+        bodyHtml += `<img src="${escapeHtml(docUrl)}" alt="Uploaded Document Preview" />`;
+      } else {
+        bodyHtml += `<div class="muted">Inline preview is not available for this file type.</div>`;
+      }
+
+      previewEl.innerHTML = bodyHtml;
+      previewEl.classList.remove("hidden");
+    }
+
+    const COMPANY_OPTIONS = [
+      "Sharp & Tannan Chartered Accountants",
+    ];
+    const VENDOR_CATEGORY_OPTIONS = [
+      "Manufacturer",
+      "Distributer",
+      "Dealer",
+      "Trader",
+      "Transporter",
+      "Service Provider",
+    ];
+    const GST_OPTIONS = [
+      { value: "Registered", label: "Yes (Registered)" },
+      { value: "Not Registered", label: "No (Not Registered)" },
+    ];
+    const YES_NO_OPTIONS = [
+      { value: "Yes", label: "Yes" },
+      { value: "No", label: "No" },
+    ];
+    const MSME_CATEGORY_OPTIONS = [
+      "Small",
+      "Micro",
+      "Medium",
+      "Not an MSME",
+    ];
+    const MSME_INDUSTRY_OPTIONS = [
+      "Manufacturing",
+      "Service",
+      "Trading",
+    ];
+    const ISO_OPTIONS = ["9000", "14000", "18000", "22000", "Other"];
+    const BOOLEAN_OPTIONS = [
+      { value: "true", label: "Yes" },
+      { value: "false", label: "No" },
+    ];
+    const COUNTRY_OPTIONS = ["India", "United States", "Switzerland", "Other / Not Listed"];
+    const INDIAN_STATE_OPTIONS = [
+      "Andhra Pradesh","Arunachal Pradesh","Assam","Bihar","Chhattisgarh","Goa","Gujarat","Haryana","Himachal Pradesh","Jharkhand","Karnataka","Kerala","Madhya Pradesh","Maharashtra","Manipur","Meghalaya","Mizoram","Nagaland","Odisha","Punjab","Rajasthan","Sikkim","Tamil Nadu","Telangana","Tripura","Uttar Pradesh","Uttarakhand","West Bengal","Andaman and Nicobar Islands","Chandigarh","Dadra and Nagar Haveli and Daman and Diu","Delhi","Jammu and Kashmir","Ladakh","Lakshadweep","Puducherry",
+    ];
+    const US_STATE_OPTIONS = [
+      "Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware","Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire","New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota","Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming",
+    ];
+    const SWITZERLAND_STATE_OPTIONS = [
+      "Aargau","Appenzell Ausserrhoden","Appenzell Innerrhoden","Basel-Landschaft","Basel-Stadt","Bern","Fribourg","Geneva","Glarus","Graubunden","Jura","Lucerne","Neuchatel","Nidwalden","Obwalden","Schaffhausen","Schwyz","Solothurn","St. Gallen","Thurgau","Ticino","Uri","Valais","Vaud","Zug","Zurich",
+    ];
+    const DEFAULT_STATE_OPTIONS = ["Other / Not Listed"];
+    const ISO_DOCUMENT_FIELD_TO_VALUE = {
+      iso1: "9000",
+      iso2: "14000",
+      iso3: "18000",
+      iso4: "22000",
+      iso5: "Other",
+    };
+
+    function parseIsoCertificateValues(rawValue) {
+      if (Array.isArray(rawValue)) {
+        return rawValue.map((value) => String(value || "").trim()).filter(Boolean);
+      }
+      const text = String(rawValue ?? "").trim();
+      if (!text) {
+        return [];
+      }
+      try {
+        const parsed = JSON.parse(text);
+        if (Array.isArray(parsed)) {
+          return parsed.map((value) => String(value || "").trim()).filter(Boolean);
+        }
+      } catch (_) {
+      }
+      return text.split(",").map((value) => value.trim()).filter(Boolean);
+    }
+
+    function normalizeSelectValue(fieldName, rawValue) {
+      const value = formatValue(rawValue).trim();
+      if (!value) return "";
+
+      if (fieldName === "isoCertificates") {
+        if (value.startsWith("[") && value.endsWith("]")) {
+          try {
+            const parsed = JSON.parse(value);
+            if (Array.isArray(parsed) && parsed.length) {
+              return String(parsed[0] || "").trim();
+            }
+          } catch (_) {
+          }
+        }
+        return value;
+      }
+
+      if (fieldName === "bankPaymentMethod" || fieldName === "agreeCodeOfConduct" || fieldName === "agreeInformationAccuracy") {
+        const lowered = value.toLowerCase();
+        if (["true", "yes", "1", "y"].includes(lowered)) return "true";
+        if (["false", "no", "0", "n"].includes(lowered)) return "false";
+      }
+
+      return value;
+    }
+
+    function normalizeOptions(optionValues) {
+      return optionValues.map((entry) => {
+        if (typeof entry === "string") {
+          return { value: entry, label: entry };
+        }
+        return { value: String(entry.value || ""), label: String(entry.label || entry.value || "") };
+      });
+    }
+
+    function withSelectedOption(options, selectedValue) {
+      if (!selectedValue) return options;
+      if (options.some((item) => String(item.value) === String(selectedValue))) return options;
+      return [{ value: selectedValue, label: selectedValue }, ...options];
+    }
+
+    function getStateOptionsByCountry(countryValue) {
+      const country = String(countryValue || "").trim();
+      if (country === "India") return normalizeOptions(INDIAN_STATE_OPTIONS);
+      if (country === "United States") return normalizeOptions(US_STATE_OPTIONS);
+      if (country === "Switzerland") return normalizeOptions(SWITZERLAND_STATE_OPTIONS);
+      return normalizeOptions(DEFAULT_STATE_OPTIONS);
+    }
+
+    function getFieldOptions(fieldName, vendor) {
+      if (fieldName === "companyName") return normalizeOptions(COMPANY_OPTIONS);
+      if (fieldName === "vendorCategory") return normalizeOptions(VENDOR_CATEGORY_OPTIONS);
+      if (fieldName === "gstRegistrationStatus") return normalizeOptions(GST_OPTIONS);
+      if (fieldName === "company") return normalizeOptions(YES_NO_OPTIONS);
+      if (fieldName === "panStatus") return normalizeOptions(YES_NO_OPTIONS);
+      if (fieldName === "msmeStatus") return normalizeOptions(YES_NO_OPTIONS);
+      if (fieldName === "pfStatus") return normalizeOptions(YES_NO_OPTIONS);
+      if (fieldName === "esiStatus") return normalizeOptions(YES_NO_OPTIONS);
+      if (fieldName === "msmeCategory") return normalizeOptions(MSME_CATEGORY_OPTIONS);
+      if (fieldName === "msmeIndustry") return normalizeOptions(MSME_INDUSTRY_OPTIONS);
+      if (fieldName === "country") return normalizeOptions(COUNTRY_OPTIONS);
+      if (fieldName === "state") {
+        const countryValue = pickValueWithSource(vendor, ["country", "Country"], "country").value;
+        return getStateOptionsByCountry(countryValue);
+      }
+      if (fieldName === "isoCertificates") return normalizeOptions(ISO_OPTIONS);
+      if (fieldName === "bankPaymentMethod") return normalizeOptions(BOOLEAN_OPTIONS);
+      if (fieldName === "agreeCodeOfConduct") return normalizeOptions(BOOLEAN_OPTIONS);
+      if (fieldName === "agreeInformationAccuracy") return normalizeOptions(BOOLEAN_OPTIONS);
+      return [];
+    }
+
+    function selectFieldHtml(field, value, sourceKey, vendor, locked = false) {
+      if (field.name === "isoCertificates") {
+        const selectedValues = parseIsoCertificateValues(value);
+        const selectedSet = new Set(selectedValues);
+        let options = getFieldOptions(field.name, vendor);
+        selectedValues.forEach((selectedValue) => {
+          options = withSelectedOption(options, selectedValue);
+        });
+        const lockedAttr = locked ? ' disabled data-locked-field="true"' : "";
+        const optionsHtml = options.map((item) => {
+          const optionValue = String(item.value || "");
+          const isSelected = selectedSet.has(optionValue) ? " selected" : "";
+          return `<option value="${escapeHtml(optionValue)}"${isSelected}>${escapeHtml(item.label)}</option>`;
+        }).join("");
+
+        return `
+          <div class="row">
+            <label>${escapeHtml(field.label)}</label>
+            <select multiple size="5" data-iso-certificates-select data-field-name="${escapeHtml(field.name)}" data-source-key="${escapeHtml(sourceKey)}"${lockedAttr}>
+              ${optionsHtml}
+            </select>
+          </div>
+        `;
+      }
+
+      const selectedValue = normalizeSelectValue(field.name, value);
+      let options = getFieldOptions(field.name, vendor);
+      options = withSelectedOption(options, selectedValue);
+      const lockedAttr = locked ? ' disabled data-locked-field="true"' : "";
+
+      let roleAttr = "";
+      if (field.name === "country") roleAttr = ' data-select-role="country"';
+      if (field.name === "state") roleAttr = ' data-select-role="state"';
+
+      const optionsHtml = [`<option value="">Select</option>`]
+        .concat(
+          options.map((item) => {
+            const optionValue = String(item.value || "");
+            const isSelected = optionValue === selectedValue ? " selected" : "";
+            return `<option value="${escapeHtml(optionValue)}"${isSelected}>${escapeHtml(item.label)}</option>`;
+          })
+        )
+        .join("");
+
+      return `
+        <div class="row">
+          <label>${escapeHtml(field.label)}</label>
+          <select data-field-name="${escapeHtml(field.name)}" data-source-key="${escapeHtml(sourceKey)}"${roleAttr}${lockedAttr}>
+            ${optionsHtml}
+          </select>
+        </div>
+      `;
+    }
+
+    function textFieldHtml(field, value, sourceKey, locked = false) {
+      const formatted = formatValue(value);
+      const lockedAttr = locked ? ' readonly data-locked-field="true"' : "";
+      if (field.multiline) {
+        return `
+          <div class="row full">
+            <label>${escapeHtml(field.label)}</label>
+            <textarea data-field-name="${escapeHtml(field.name)}" data-source-key="${escapeHtml(sourceKey)}"${lockedAttr}>${escapeHtml(formatted)}</textarea>
+          </div>
+        `;
+      }
+      return `
+        <div class="row">
+          <label>${escapeHtml(field.label)}</label>
+          <input data-field-name="${escapeHtml(field.name)}" data-source-key="${escapeHtml(sourceKey)}"${lockedAttr} value="${escapeHtml(formatted)}" />
+        </div>
+      `;
+    }
+
+    function bindCountryStateDropdown() {
+      const countryEl = document.querySelector('select[data-select-role="country"]');
+      const stateEl = document.querySelector('select[data-select-role="state"]');
+      if (!countryEl || !stateEl) return;
+
+      const rebuildStateOptions = () => {
+        const previous = String(stateEl.value || "").trim();
+        let options = getStateOptionsByCountry(countryEl.value);
+        options = withSelectedOption(options, previous);
+        const optionsHtml = [`<option value="">Select</option>`]
+          .concat(
+            options.map((item) => {
+              const optionValue = String(item.value || "");
+              const isSelected = optionValue === previous ? " selected" : "";
+              return `<option value="${escapeHtml(optionValue)}"${isSelected}>${escapeHtml(item.label)}</option>`;
+            })
+          )
+          .join("");
+        stateEl.innerHTML = optionsHtml;
+      };
+
+      countryEl.addEventListener("change", rebuildStateOptions);
+      rebuildStateOptions();
+    }
+
+    function normalizeIfscCode(value) {
+      return String(value || "").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 11);
+    }
+
+    function bindIfscAutoFill() {
+      const ifscFields = getFieldElementsByName("ifscCode");
+      if (!ifscFields.length) {
+        return;
+      }
+      const bankFields = getFieldElementsByName("bankName");
+      const branchFields = getFieldElementsByName("branchName");
+
+      ifscFields.forEach((ifscField, index) => {
+        if (!ifscField || ifscField.dataset.lockedField === "true") {
+          return;
+        }
+        const bankField = bankFields[index] || bankFields[0];
+        const branchField = branchFields[index] || branchFields[0];
+        if (!bankField || !branchField) {
+          return;
+        }
+
+        const spinnerHost = ifscField.closest(".row");
+        if (spinnerHost) {
+          spinnerHost.classList.add("lookup-spinner-host");
+        }
+        ifscField.classList.add("lookup-with-spinner");
+        const spinnerEl = document.createElement("span");
+        spinnerEl.className = "lookup-spinner";
+        if (spinnerHost) {
+          spinnerHost.appendChild(spinnerEl);
+        }
+        const setSpinner = (loading) => {
+          spinnerEl.classList.toggle("active", !!loading);
+        };
+
+        let lookupCounter = 0;
+        let lastLookupValue = "";
+        const triggerLookup = async () => {
+          const normalized = normalizeIfscCode(ifscField.value);
+          if (ifscField.value !== normalized) {
+            ifscField.value = normalized;
+          }
+          if (!IFSC_REGEX.test(normalized)) {
+            lastLookupValue = "";
+            setSpinner(false);
+            return;
+          }
+          if (normalized === lastLookupValue) {
+            setSpinner(false);
+            return;
+          }
+
+          const requestId = ++lookupCounter;
+          setSpinner(true);
+          try {
+            const res = await fetch(`/api/ifsc/${encodeURIComponent(normalized)}`);
+            const data = await parseApiResponse(res);
+            if (requestId !== lookupCounter || !res.ok) {
+              return;
+            }
+
+            const nextBankName = String(data?.bankName || data?.bank || "").trim();
+            const nextBranchName = String(data?.branchName || data?.branch || "").trim();
+            if (nextBankName) {
+              bankField.value = nextBankName;
+            }
+            if (nextBranchName) {
+              branchField.value = nextBranchName;
+            }
+            lastLookupValue = normalized;
+            refreshRequiredStars();
+          } catch (_) {
+          } finally {
+            if (requestId === lookupCounter) {
+              setSpinner(false);
+            }
+          }
+        };
+
+        ifscField.addEventListener("input", triggerLookup);
+        ifscField.addEventListener("change", triggerLookup);
+        ifscField.addEventListener("blur", triggerLookup);
+      });
+    }
+
+    function documentFieldHtml(field, value, sourceKey, docIndex, locked = false) {
+      const rawValue = formatValue(value);
+      const fallbackUrl = toDocumentUrl(rawValue);
+      const fileName = fileNameFromUrl(fallbackUrl) || (currentRecordId ? "Uploaded Document" : "");
+      const inputId = `doc-input-${docIndex}`;
+      const toggleId = `doc-toggle-${docIndex}`;
+      const previewId = `doc-preview-${docIndex}`;
+      const reuploadId = `doc-reupload-${docIndex}`;
+      const reuploadFileWrapId = `doc-reupload-file-wrap-${docIndex}`;
+      const reuploadFileId = `doc-reupload-file-${docIndex}`;
+      const docInputLockAttr = locked ? ' readonly data-locked-field="true"' : "";
+      const docReuploadLockAttr = locked ? " disabled" : "";
+      const docFileLockAttr = locked ? " disabled" : "";
+      const isoUploadValue = ISO_DOCUMENT_FIELD_TO_VALUE[field.name] || "";
+      const rowClass = isoUploadValue ? "row full hidden" : "row full";
+      const isoUploadAttr = isoUploadValue ? ` data-iso-upload-row="${escapeHtml(isoUploadValue)}"` : "";
+      return `
+        <div class="${rowClass}"${isoUploadAttr}>
+          <label>${escapeHtml(field.label)}</label>
+          <input id="${inputId}" data-field-name="${escapeHtml(field.name)}" data-source-key="${escapeHtml(sourceKey)}" data-original-value="${escapeHtml(rawValue)}"${docInputLockAttr} value="${escapeHtml(rawValue)}" />
+          <div class="row">
+            <label for="${reuploadId}">Reupload</label>
+            <select
+              id="${reuploadId}"
+              data-doc-reupload
+              data-doc-input-id="${inputId}"
+              data-doc-file-id="${reuploadFileId}"
+              data-doc-file-wrap-id="${reuploadFileWrapId}"
+              data-doc-field-name="${escapeHtml(field.name)}"
+              data-doc-source-key="${escapeHtml(sourceKey)}"
+              data-doc-label="${escapeHtml(field.label)}"
+              ${docReuploadLockAttr}
+            >
+              <option value="No" selected>No</option>
+              <option value="Yes">Yes</option>
+            </select>
+          </div>
+          <div id="${reuploadFileWrapId}" class="row full hidden">
+            <label for="${reuploadFileId}">Upload New Document</label>
+            <input id="${reuploadFileId}" type="file"${docFileLockAttr} />
+          </div>
+          <div class="switch-row">
+            <span>View Uploaded Document</span>
+            <label class="switch">
+              <input id="${toggleId}" type="checkbox" data-doc-toggle data-input-id="${inputId}" data-doc-field-name="${escapeHtml(field.name)}" data-doc-name="${escapeHtml(fileName)}" data-preview-id="${previewId}" />
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div id="${previewId}" class="doc-preview hidden"></div>
+        </div>
+      `;
+    }
+
+    function bindDocumentControls() {
+      const toggles = document.querySelectorAll("[data-doc-toggle]");
+      toggles.forEach((toggle) => {
+        const inputId = String(toggle.dataset.inputId || "");
+        const previewId = String(toggle.dataset.previewId || "");
+        const inputEl = document.getElementById(inputId);
+        const previewEl = document.getElementById(previewId);
+        if (!inputEl || !previewEl) return;
+        const reuploadEl = document.querySelector(`[data-doc-reupload][data-doc-input-id="${inputId}"]`);
+        const reuploadFileId = String(reuploadEl?.dataset.docFileId || "");
+        const reuploadFileWrapId = String(reuploadEl?.dataset.docFileWrapId || "");
+        const reuploadFileEl = reuploadFileId ? document.getElementById(reuploadFileId) : null;
+        const reuploadFileWrapEl = reuploadFileWrapId ? document.getElementById(reuploadFileWrapId) : null;
+
+        const hidePreview = () => {
+          toggle.checked = false;
+          previewEl.classList.add("hidden");
+          previewEl.innerHTML = "";
+        };
+
+        const getReuploadMode = () => String(reuploadEl?.value || "No").trim().toLowerCase();
+
+        const syncToggleAvailability = () => {
+          const fieldName = String(toggle.dataset.docFieldName || inputEl.dataset.fieldName || "").trim();
+          const hasValue = String(inputEl.value || "").trim() !== "" || (String(currentRecordId || "").trim() !== "" && fieldName !== "");
+          const isReupload = getReuploadMode() === "yes";
+          toggle.disabled = isReupload || !hasValue;
+          if (toggle.disabled) {
+            hidePreview();
+          }
+        };
+
+        const renderIfEnabled = () => {
+          if (!toggle.checked) return;
+          const fieldName = String(toggle.dataset.docFieldName || inputEl.dataset.fieldName || "").trim();
+          const docUrl = buildRecordDocumentUrl(currentRecordId, fieldName, inputEl.value);
+          const docName = String(inputEl.value || toggle.dataset.docName || "").trim();
+          if (!docUrl) {
+            previewEl.classList.remove("hidden");
+            previewEl.innerHTML = `<div class="muted">Document not available.</div>`;
+            return;
+          }
+          renderDocumentPreview(previewEl, docUrl, docName);
+        };
+
+        const applyReuploadVisibility = () => {
+          const isReupload = getReuploadMode() === "yes";
+          if (reuploadFileWrapEl) {
+            reuploadFileWrapEl.classList.toggle("hidden", !isReupload);
+          }
+          if (isReupload) {
+            inputEl.value = "";
+          } else {
+            if (reuploadFileEl) {
+              reuploadFileEl.value = "";
+            }
+            inputEl.value = String(inputEl.dataset.originalValue || "");
+          }
+          syncToggleAvailability();
+          refreshRequiredStars();
+        };
+
+        toggle.addEventListener("change", () => {
+          if (!toggle.checked) {
+            previewEl.classList.add("hidden");
+            previewEl.innerHTML = "";
+            return;
+          }
+          renderIfEnabled();
+        });
+
+        inputEl.addEventListener("input", () => {
+          syncToggleAvailability();
+          renderIfEnabled();
+        });
+
+        if (reuploadEl) {
+          reuploadEl.addEventListener("change", applyReuploadVisibility);
+        }
+
+        if (reuploadFileEl) {
+          reuploadFileEl.addEventListener("change", () => {
+            const fileObj = reuploadFileEl.files && reuploadFileEl.files[0];
+            if (fileObj) {
+              inputEl.value = String(fileObj.name || "").trim();
+            } else if (getReuploadMode() === "yes") {
+              inputEl.value = "";
+            }
+            syncToggleAvailability();
+            hidePreview();
+            refreshRequiredStars();
+          });
+        }
+
+        if (reuploadEl) {
+          applyReuploadVisibility();
+        }
+        syncToggleAvailability();
+      });
+    }
+
+    function getSelectedIsoCertificatesFromSelect(selectEl) {
+      if (!selectEl) {
+        return [];
+      }
+      return Array.from(selectEl.selectedOptions)
+        .map((option) => String(option.value || "").trim())
+        .filter(Boolean);
+    }
+
+    function syncIsoDocumentRows() {
+      const selectEl = document.querySelector("[data-iso-certificates-select]");
+      const selectedSet = new Set(getSelectedIsoCertificatesFromSelect(selectEl));
+      const rows = document.querySelectorAll("[data-iso-upload-row]");
+      rows.forEach((row) => {
+        const shouldShow = selectedSet.has(String(row.dataset.isoUploadRow || "").trim());
+        row.classList.toggle("hidden", !shouldShow);
+        if (!shouldShow) {
+          const reuploadEl = row.querySelector("[data-doc-reupload]");
+          if (reuploadEl && !reuploadEl.disabled) {
+            reuploadEl.value = "No";
+            reuploadEl.dispatchEvent(new Event("change", { bubbles: true }));
+          }
+        }
+      });
+    }
+
+    function bindIsoCertificateMultiSelect() {
+      const selectEl = document.querySelector("[data-iso-certificates-select]");
+      if (selectEl) {
+        selectEl.addEventListener("change", syncIsoDocumentRows);
+      }
+      syncIsoDocumentRows();
+    }
+
+    function collectReuploadSelections() {
+      const selections = [];
+      const controls = document.querySelectorAll("[data-doc-reupload]");
+      controls.forEach((control) => {
+        if (control.disabled || control.closest("[data-iso-upload-row].hidden")) {
+          return;
+        }
+        const mode = String(control.value || "No").trim().toLowerCase();
+        if (mode !== "yes") return;
+
+        const fieldName = String(control.dataset.docFieldName || "").trim();
+        const sourceKey = String(control.dataset.docSourceKey || fieldName).trim();
+        const label = String(control.dataset.docLabel || fieldName).trim();
+        const fileId = String(control.dataset.docFileId || "").trim();
+        const fileEl = fileId ? document.getElementById(fileId) : null;
+        const fileObj = fileEl && fileEl.files ? fileEl.files[0] : null;
+
+        selections.push({
+          fieldName,
+          sourceKey,
+          label,
+          file: fileObj || null,
+        });
+      });
+      return selections;
+    }
+
+    const CONDITIONAL_REQUIRED_RULES = [
+      {
+        triggerField: "gstRegistrationStatus",
+        positiveValues: ["Registered", "Yes"],
+        requiredFields: ["gstNumber", "tradeNameGst", "gstDocument"],
+      },
+      {
+        triggerField: "company",
+        positiveValues: ["Yes"],
+        requiredFields: ["cinNumber", "cinDocument"],
+      },
+      {
+        triggerField: "panStatus",
+        positiveValues: ["Yes"],
+        requiredFields: ["panNumber", "businessEntityType", "tradeNamePan", "panDocument"],
+      },
+      {
+        triggerField: "msmeStatus",
+        positiveValues: ["Yes"],
+        requiredFields: ["udyamNumber", "msmeCategory", "msmeIndustry", "msmeDocument"],
+      },
+      {
+        triggerField: "pfStatus",
+        positiveValues: ["Yes"],
+        requiredFields: ["pfNumber", "pfDocument"],
+      },
+      {
+        triggerField: "esiStatus",
+        positiveValues: ["Yes"],
+        requiredFields: ["esiNumber", "esiDocument"],
+      },
+      {
+        triggerField: "bankPaymentMethod",
+        positiveValues: ["true", "Yes", "1"],
+        requiredFields: ["ifscCode", "bankName", "branchName", "bankAccountNumber", "cancelledCheque"],
+      },
+    ];
+
+    function getFieldElementsByName(fieldName) {
+      return Array.from(document.querySelectorAll(`[data-field-name="${fieldName}"]`));
+    }
+
+    function getFirstFieldValue(fieldName) {
+      const first = getFieldElementsByName(fieldName)[0];
+      if (!first) return "";
+      return String(first.value || "").trim();
+    }
+
+    function isPositiveValue(value, positiveValues) {
+      const normalized = String(value || "").trim().toLowerCase();
+      return positiveValues.some((item) => normalized === String(item || "").trim().toLowerCase());
+    }
+
+    function setRequiredStateForField(fieldName, required) {
+      const fields = getFieldElementsByName(fieldName);
+      fields.forEach((field) => {
+        if (field.dataset.lockedField === "true") {
+          field.removeAttribute("required");
+          delete field.dataset.conditionalRequired;
+          return;
+        }
+        if (required) {
+          field.setAttribute("required", "required");
+          field.dataset.conditionalRequired = "true";
+        } else if (field.dataset.conditionalRequired === "true") {
+          field.removeAttribute("required");
+          delete field.dataset.conditionalRequired;
+        }
+      });
+    }
+
+    function isFieldEmpty(field) {
+      if (!field) return true;
+      return String(field.value || "").trim() === "";
+    }
+
+    function refreshRequiredStars() {
+      const fields = document.querySelectorAll("[data-field-name]");
+      fields.forEach((field) => {
+        const row = field.closest(".row");
+        const label = row ? row.querySelector("label") : null;
+        if (!label) return;
+
+        let star = label.querySelector(".req-star");
+        if (!star) {
+          star = document.createElement("span");
+          star.className = "req-star";
+          star.textContent = "*";
+          label.appendChild(star);
+        }
+
+        const locked = field.dataset.lockedField === "true";
+        const required = field.hasAttribute("required");
+        const shouldShow = !locked && required && isFieldEmpty(field);
+        star.classList.toggle("hidden", !shouldShow);
+      });
+    }
+
+    function applyConditionalRequiredRules() {
+      const impactedFields = new Set();
+      CONDITIONAL_REQUIRED_RULES.forEach((rule) => {
+        rule.requiredFields.forEach((name) => impactedFields.add(name));
+      });
+      impactedFields.forEach((fieldName) => setRequiredStateForField(fieldName, false));
+
+      CONDITIONAL_REQUIRED_RULES.forEach((rule) => {
+        const triggerValue = getFirstFieldValue(rule.triggerField);
+        if (!isPositiveValue(triggerValue, rule.positiveValues)) {
+          return;
+        }
+        rule.requiredFields.forEach((fieldName) => setRequiredStateForField(fieldName, true));
+      });
+
+      refreshRequiredStars();
+    }
+
+    function bindConditionalRequiredRules() {
+      CONDITIONAL_REQUIRED_RULES.forEach((rule) => {
+        const triggerFields = getFieldElementsByName(rule.triggerField);
+        triggerFields.forEach((field) => {
+          field.addEventListener("change", applyConditionalRequiredRules);
+          field.addEventListener("input", applyConditionalRequiredRules);
+        });
+      });
+
+      const allFields = document.querySelectorAll("[data-field-name]");
+      allFields.forEach((field) => {
+        field.addEventListener("input", refreshRequiredStars);
+        field.addEventListener("change", refreshRequiredStars);
+      });
+
+      applyConditionalRequiredRules();
+    }
+
+    const VENDOR_SECTION_CONFIG = [
+      {
+        title: "1. Basic Details",
+        cards: [
+          {
+            title: "Basic Vendor Details",
+            fields: [
+              { name: "companyName", label: "Company Name", keys: ["companyName", "CompanyName", "company", "Company"], select: true },
+              { name: "vendorName", label: "Vendor Name", keys: ["vendorName", "Vendorname", "VendorName", "name", "Name"] },
+              { name: "vendorCategory", label: "Vendor Category", keys: ["vendorCategory", "VendorCategory", "Vendor_Category", "category", "Category"], select: true },
+            ],
+          },
+          {
+            title: "GST Details",
+            fields: [
+              { name: "gstRegistrationStatus", label: "GST Registration Status", keys: ["gstRegistrationStatus", "GSTStatus"], select: true },
+              { name: "gstNumber", label: "GST Number", keys: ["gstNumber", "GSTIN"] },
+              { name: "tradeNameGst", label: "Trade Name as per GST", keys: ["tradeNameGst", "TradeName"] },
+              { name: "gstDocument", label: "Upload GST Certificate", keys: ["gstDocument", "GSTAttachment", "GSTCertificateName"], doc: true },
+            ],
+          },
+          {
+            title: "Address Details",
+            fields: [
+              { name: "addressLane1", label: "Address Lane 1", keys: ["addressLane1", "Address1"] },
+              { name: "addressLane2", label: "Address Lane 2", keys: ["addressLane2", "Address2"] },
+              { name: "addressLane3", label: "Address Lane 3", keys: ["addressLane3", "Address3", "Adddress3"] },
+              { name: "pincode", label: "Pincode", keys: ["pincode", "Pincode"] },
+              { name: "country", label: "Country", keys: ["country", "Country"], select: true },
+              { name: "state", label: "State", keys: ["state", "State", "StateName"], select: true },
+              { name: "district", label: "District", keys: ["district", "District"] },
+            ],
+          },
+          {
+            title: "Company Status & CIN Details",
+            fields: [
+              { name: "company", label: "CIN Status", keys: ["company", "CompanyStatus", "CINStatus", "cinStatus"], select: true },
+              { name: "cinNumber", label: "CIN Number", keys: ["cinNumber", "CIN"] },
+              { name: "cinDocument", label: "Upload CIN Certificate", keys: ["cinDocument", "CINCerti", "Incorporation_Filename"], doc: true },
+            ],
+          },
+          {
+            title: "PAN Details",
+            fields: [
+              { name: "panStatus", label: "PAN Status", keys: ["panStatus", "PANStatus"], select: true },
+              { name: "panNumber", label: "PAN Number", keys: ["panNumber", "PANNo"] },
+              { name: "businessEntityType", label: "Business Entity Type", keys: ["businessEntityType", "BusinessEntityType"] },
+              { name: "tradeNamePan", label: "Trade Name as per PAN", keys: ["tradeNamePan", "TradeNamePAN"] },
+              { name: "panDocument", label: "Upload PAN Card", keys: ["panDocument", "PANAttachment", "PAN_Card_Filename"], doc: true },
+            ],
+          },
+          {
+            title: "MSME Details",
+            fields: [
+              { name: "msmeStatus", label: "MSME Status", keys: ["msmeStatus", "MSMEStatus"], select: true },
+              { name: "udyamNumber", label: "Udyam Number", keys: ["udyamNumber", "UdyamNumber"] },
+              { name: "msmeCategory", label: "MSME Category", keys: ["msmeCategory", "MSMECategory"], select: true },
+              { name: "msmeIndustry", label: "MSME Industry", keys: ["msmeIndustry", "MSMEIndustry"], select: true },
+              { name: "msmeDocument", label: "Upload MSME Certificate", keys: ["msmeDocument", "MSMECerti", "MSME_Certificate_Filename"], doc: true },
+            ],
+          },
+          {
+            title: "PF & ESI Details",
+            fields: [
+              { name: "pfStatus", label: "PF Registration Status", keys: ["pfStatus", "PFRegistrationStatus"], select: true },
+              { name: "pfNumber", label: "PF Number", keys: ["pfNumber", "PFNumber"] },
+              { name: "pfDocument", label: "Upload PF Certificate", keys: ["pfDocument", "PFCerti", "PF_Certificate_Filename"], doc: true },
+              { name: "esiStatus", label: "ESI Status", keys: ["esiStatus", "ESIStatus"], select: true },
+              { name: "esiNumber", label: "ESI Number", keys: ["esiNumber", "ESIN"] },
+              { name: "esiDocument", label: "Upload ESI Certificate", keys: ["esiDocument", "ESICerti", "ESI_Filename"], doc: true },
+            ],
+          },
+          {
+            title: "Sharp & Tannan - Contact Person Details",
+            fields: [
+              { name: "contactPersonName", label: "Contact Person Name", keys: ["contactPersonName", "ContactPerson"] },
+              { name: "department", label: "Department", keys: ["department", "Department"] },
+              { name: "contactPersonEmail", label: "Contact Person Email ID", keys: ["contactPersonEmail", "ContactPersonEmail", "ContactEmailID"] },
+            ],
+          },
+        ],
+      },
+      {
+        title: "2. Bank Details",
+        cards: [
+          {
+            title: "Bank Details",
+            fields: [
+              { name: "bankPaymentMethod", label: "Payment Method RTGS", keys: ["bankPaymentMethod", "BankPaymentMethod"], select: true },
+              { name: "ifscCode", label: "IFSC Code", keys: ["ifscCode", "IFSC_Code"] },
+              { name: "bankName", label: "Bank Name", keys: ["bankName", "BankName"] },
+              { name: "branchName", label: "Branch Name", keys: ["branchName", "BranchName"] },
+              { name: "bankAccountNumber", label: "Bank Account Number", keys: ["bankAccountNumber", "BankAccount"] },
+              { name: "cancelledCheque", label: "Cancelled Cheque / Bank Certificate", keys: ["cancelledCheque", "CancelledCheque", "Cancelled_Cheque_Filename"], doc: true },
+            ],
+          },
+        ],
+      },
+      {
+        title: "3. Statutory Details",
+        cards: [
+          {
+            title: "Statutory Details",
+            fields: [
+              { name: "statutoryDetails", label: "Statutory Details", keys: ["statutoryDetails"], multiline: true },
+              { name: "totalEmployees", label: "Total Employees", keys: ["totalEmployees", "TotalEmployees"] },
+              { name: "inhouseMachineries", label: "Inhouse Machineries", keys: ["inhouseMachineries", "InhouseMachine"] },
+              { name: "inhouseMachineriesDoc", label: "Inhouse Machineries Document", keys: ["inhouseMachineriesDoc", "InhouseMachineAttchment", "Machineries_List_Filename"], doc: true },
+              { name: "numberOfPlants", label: "Number Of Plants", keys: ["numberOfPlants", "NumberofPlant"] },
+              { name: "numberOfPlantsDoc", label: "Number Of Plants Document", keys: ["numberOfPlantsDoc", "TopCustomerAttachment"], doc: true },
+              { name: "yearOfIncorporation", label: "Year of Incorporation", keys: ["yearOfIncorporation", "Incoporationdate"] },
+              { name: "selectedPreviousYear", label: "Selected Previous Year", keys: ["selectedPreviousYear", "Previous_Year"] },
+              { name: "previousYearTurnover", label: "Previous Year Turnover", keys: ["previousYearTurnover", "PY_Turnover"] },
+              { name: "headOfficeLocation", label: "Head Office Location", keys: ["headOfficeLocation", "CorporateLocation"] },
+            ],
+          },
+        ],
+      },
+      {
+        title: "4. Product/Service and Quality",
+        cards: [
+          {
+            title: "Product/Service and Quality",
+            fields: [
+              { name: "materialDealingsIn", label: "Material Dealings In", keys: ["materialDealingsIn", "MaterialDealing"], multiline: true },
+              { name: "serviceProvideFor", label: "Service Provide For", keys: ["serviceProvideFor", "servicedealing"], multiline: true },
+              { name: "isoCertificates", label: "ISO Certificates", keys: ["isoCertificates", "ISO_Certificate"], select: true },
+              { name: "iso1", label: "ISO 9000 Certificate File", keys: ["iso1", "ISO_File1_Name"], doc: true },
+              { name: "iso2", label: "ISO 14000 Certificate File", keys: ["iso2", "ISO_File2_Name"], doc: true },
+              { name: "iso3", label: "ISO 18000 Certificate File", keys: ["iso3", "ISO_File3_Name"], doc: true },
+              { name: "iso4", label: "ISO 22000 Certificate File", keys: ["iso4", "ISO_File4_Name"], doc: true },
+              { name: "iso5", label: "Other ISO Certificate File", keys: ["iso5", "ISO_File5_Name"], doc: true },
+              { name: "ecoVadisScore", label: "Eco Vadis Score", keys: ["ecoVadisScore", "EcoVadis"] },
+              { name: "ecoVadisDoc", label: "Eco Vadis Document", keys: ["ecoVadisDoc", "ECOVadis_Filename"], doc: true },
+              { name: "ohsasCertificate", label: "OHSAS Certificate", keys: ["ohsasCertificate", "OHSAS_Code"] },
+              { name: "ohsasDoc", label: "OHSAS Document", keys: ["ohsasDoc", "OHSAS_Filename"], doc: true },
+              { name: "relevantCertificate", label: "Relevant Certificate", keys: ["relevantCertificate", "OtherCerti"] },
+              { name: "relevantCertificateDoc", label: "Relevant Certificate Document", keys: ["relevantCertificateDoc", "Other_Filename"], doc: true },
+            ],
+          },
+        ],
+      },
+      {
+        title: "5. Contact Person Details",
+        cards: [
+          {
+            title: "Contact Person Details",
+            fields: [
+              { name: "contactPersonName", label: "Information Furnished By", keys: ["contactPersonName", "ContactPerson"] },
+              { name: "contactPersonDesignation", label: "Designation", keys: ["contactPersonDesignation"] },
+              { name: "contactPersonEmail", label: "Person Email", keys: ["contactPersonEmail", "ContactEmailID"] },
+              { name: "contactPersonMobile", label: "Person Mobile No.", keys: ["contactPersonMobile"] },
+              { name: "alternativePersonName", label: "Alternative Person Name", keys: ["alternativePersonName"] },
+              { name: "alternativePersonDesignation", label: "Alternative Person Designation", keys: ["alternativePersonDesignation"] },
+              { name: "alternativePersonEmail", label: "Alternative Person Email", keys: ["alternativePersonEmail"] },
+              { name: "alternativePersonMobile", label: "Alternative Person Mobile", keys: ["alternativePersonMobile"] },
+              { name: "alternativePersonDate", label: "Date", keys: ["alternativePersonDate"] },
+              { name: "alternativePersonPlace", label: "Person Place", keys: ["alternativePersonPlace"] },
+            ],
+          },
+        ],
+      },
+      {
+        title: "6. Declaration & Agreement",
+        cards: [
+          {
+            title: "Declaration & Agreement",
+            fields: [
+              { name: "agreeCodeOfConduct", label: "Agree Code of Conduct", keys: ["agreeCodeOfConduct", "CodeofConduct"], select: true },
+              { name: "agreeInformationAccuracy", label: "Agree Information Accuracy", keys: ["agreeInformationAccuracy"], select: true },
+            ],
+          },
+        ],
+      },
+    ];
+    const CUSTOMER_SECTION_CONFIG = [
+      {
+        title: "1. Basic Customer Details",
+        cards: [
+          {
+            title: "Customer Profile",
+            fields: [
+              { name: "CompanyDealing", label: "Company Dealing With", keys: ["CompanyDealing", "companyDealing"] },
+              { name: "CustomerName", label: "Customer Name", keys: ["CustomerName", "customerName", "name", "Name"] },
+              { name: "CompanyStatus", label: "CIN Status", keys: ["CompanyStatus", "companyStatus", "CINStatus", "cinStatus"] },
+              { name: "FirmType", label: "Firm Type", keys: ["FirmType", "firmType"] },
+              { name: "ManufacturingType", label: "Manufacturing Type", keys: ["ManufacturingType", "manufacturingType"] },
+              { name: "TypeofEntity", label: "Type of Entity", keys: ["TypeofEntity", "typeOfEntity"] },
+              { name: "CustomerGroup", label: "Customer Group", keys: ["CustomerGroup", "customerGroup"] },
+              { name: "CustomerType", label: "Customer Type", keys: ["CustomerType", "customerType"] },
+              { name: "IndustryType", label: "Industry Type", keys: ["IndustryType", "industryType"] },
+              { name: "MaterialDealing", label: "Material Dealing", keys: ["MaterialDealing", "materialDealing"], multiline: true },
+              { name: "ServiceDealing", label: "Service Dealing", keys: ["ServiceDealing", "serviceDealing"], multiline: true },
+            ],
+          },
+          {
+            title: "PAN & CIN Details",
+            fields: [
+              { name: "PANStatus", label: "PAN Status", keys: ["PANStatus", "panStatus"] },
+              { name: "PANNumber", label: "PAN Number", keys: ["PANNumber", "panNumber"] },
+              { name: "TradeNamePAN", label: "Trade Name as per PAN", keys: ["TradeNamePAN", "tradeNamePAN"] },
+              { name: "TAN", label: "TAN", keys: ["TAN", "tan"] },
+              { name: "CIN", label: "CIN", keys: ["CIN", "cin"] },
+              { name: "PANUpload", label: "PAN Upload", keys: ["PANUpload_FileName", "PANUpload", "panUpload"], doc: true },
+              { name: "IncorporationCertificate", label: "Incorporation Certificate", keys: ["IncorporationCertificate_FileName", "IncorporationCertificate", "incorporationCertificate"], doc: true },
+            ],
+          },
+          {
+            title: "GST Details",
+            fields: [
+              { name: "GSTStatus", label: "GST Status", keys: ["GSTStatus", "gstStatus"] },
+              { name: "GSTIN", label: "GSTIN", keys: ["GSTIN", "gstin"] },
+              { name: "TradeNameGST", label: "Trade Name GST", keys: ["TradeNameGST", "tradeNameGST"] },
+              { name: "GSTCertificate", label: "GST Certificate", keys: ["GSTCertificate_FileName", "GSTCertificate", "gstCertificate"], doc: true },
+            ],
+          },
+        ],
+      },
+      {
+        title: "2. Address Details",
+        cards: [
+          {
+            title: "Main Address",
+            fields: [
+              { name: "Country", label: "Country", keys: ["Country", "country"] },
+              { name: "State", label: "State", keys: ["State", "state"] },
+              { name: "State_Name", label: "State Name", keys: ["State_Name", "stateName"] },
+              { name: "District", label: "District", keys: ["District", "district"] },
+              { name: "Pincode", label: "Pincode", keys: ["Pincode", "pincode"] },
+              { name: "Lane1", label: "Lane 1", keys: ["Lane1", "lane1"] },
+              { name: "Lane2", label: "Lane 2", keys: ["Lane2", "lane2"] },
+              { name: "Lane3", label: "Lane 3", keys: ["Lane3", "lane3"] },
+              { name: "Shipto", label: "Ship to Address - Same as Above", keys: ["Shipto", "shipto"] },
+              { name: "Billto", label: "Bill to Address - Same as Above", keys: ["Billto", "billto"] },
+            ],
+          },
+          {
+            title: "Ship-to Address Details - 1",
+            fields: [
+              { name: "State1", label: "State 1", keys: ["State1", "state1"] },
+              { name: "District1", label: "District 1", keys: ["District1", "district1"] },
+              { name: "Pincode1", label: "Pincode 1", keys: ["Pincode1", "pincode1"] },
+              { name: "Lane4", label: "Lane 4", keys: ["Lane4", "lane4"] },
+              { name: "Lane5", label: "Lane 5", keys: ["Lane5", "lane5"] },
+              { name: "Lane6", label: "Lane 6", keys: ["Lane6", "lane6"] },
+            ],
+          },
+          {
+            title: "Ship-to Address Details - 2",
+            fields: [
+              { name: "State2", label: "State 2", keys: ["State2", "state2"] },
+              { name: "StateName1", label: "State Name 2", keys: ["StateName1", "stateName1"] },
+              { name: "District2", label: "District 2", keys: ["District2", "district2"] },
+              { name: "Pincode2", label: "Pincode 2", keys: ["Pincode2", "pincode2"] },
+              { name: "Lane7", label: "Lane 7", keys: ["Lane7", "lane7"] },
+              { name: "Lane8", label: "Lane 8", keys: ["Lane8", "lane8"] },
+              { name: "Lane9", label: "Lane 9", keys: ["Lane9", "lane9"] },
+            ],
+          },
+        ],
+      },
+      {
+        title: "3. Contact Person Details",
+        cards: [
+          {
+            title: "Primary Contact",
+            fields: [
+              { name: "FurnishBy", label: "Information Furnished By", keys: ["FurnishBy", "furnishBy"] },
+              { name: "Designation", label: "Designation", keys: ["Designation", "designation"] },
+              { name: "Email", label: "Email", keys: ["Email", "email"] },
+              { name: "Mobile", label: "Mobile", keys: ["Mobile", "mobile"] },
+              { name: "Datepicker", label: "Date", keys: ["Datepicker", "datepicker"] },
+              { name: "Place", label: "Place", keys: ["Place", "place"] },
+            ],
+          },
+          {
+            title: "Alternative Contact",
+            fields: [
+              { name: "AP_FurnishBy1", label: "Information Furnished By", keys: ["AP_FurnishBy1", "apFurnishBy1"] },
+              { name: "AP_Designation1", label: "Designation", keys: ["AP_Designation1", "apDesignation1"] },
+              { name: "AP_Email1", label: "Email", keys: ["AP_Email1", "apEmail1"] },
+              { name: "AP_Mobile1", label: "Mobile", keys: ["AP_Mobile1", "apMobile1"] },
+            ],
+          },
+        ],
+      },
+      {
+        title: "4. Internal Details",
+        cards: [
+          {
+            title: "Internal Configuration",
+            fields: [
+              { name: "IncoTerms", label: "Inco Terms", keys: ["IncoTerms", "incoTerms"] },
+              { name: "PaymentTerms", label: "Payment Terms", keys: ["PaymentTerms", "paymentTerms"] },
+              { name: "HODEmail", label: "HOD Email", keys: ["HODEmail", "hodEmail"] },
+              { name: "SalesOrganization", label: "Sales Organization", keys: ["SalesOrganization", "salesOrganization"] },
+              { name: "DistributionChannel", label: "Distribution Channel", keys: ["DistributionChannel", "distributionChannel"] },
+              { name: "Division", label: "Division", keys: ["Division", "division"] },
+              { name: "AccountAssignment", label: "Account Assignment", keys: ["AccountAssignment", "accountAssignment"] },
+              { name: "Currency", label: "Currency", keys: ["Currency", "currency"] },
+              { name: "InsuranceGroup", label: "Insurance Group", keys: ["InsuranceGroup", "insuranceGroup"] },
+              { name: "InsuranceLimit", label: "Insurance Limit", keys: ["InsuranceLimit", "insuranceLimit"] },
+              { name: "CreditLimit", label: "Credit Limit", keys: ["CreditLimit", "creditLimit"] },
+              { name: "ScrapSales", label: "Scrap Sales", keys: ["ScrapSales", "scrapSales"] },
+            ],
+          },
+        ],
+      },
+      {
+        title: "5. Additional Documents",
+        cards: [
+          {
+            title: "Document Uploads",
+            fields: [
+              { name: "FileUploader", label: "Document 1", keys: ["FileUploader_FileName", "FileUploader", "fileUploader"], doc: true },
+              { name: "FileUploader1", label: "Document 2", keys: ["FileUploader1_FileName", "FileUploader1", "fileUploader1"], doc: true },
+              { name: "FileUploader2", label: "Document 3", keys: ["FileUploader2_FileName", "FileUploader2", "fileUploader2"], doc: true },
+              { name: "FileUploader3", label: "Document 4", keys: ["FileUploader3_FileName", "FileUploader3", "fileUploader3"], doc: true },
+              { name: "FileUploader4", label: "Document 5", keys: ["FileUploader4_FileName", "FileUploader4", "fileUploader4"], doc: true },
+              { name: "FileUploader5", label: "Document 6", keys: ["FileUploader5_FileName", "FileUploader5", "fileUploader5"], doc: true },
+            ],
+          },
+        ],
+      },
+    ];
+    const sectionConfig = CUSTOMER_SECTION_CONFIG;
+
+    const VENDOR_VALIDATOR_LOCK_RULES = [
+      { cardTitle: "GST Details", flagKeys: ["gstValidate", "GST Validate"] },
+      { cardTitle: "Company Status & CIN Details", flagKeys: ["cinValidate", "CIN Validate"] },
+      { cardTitle: "PAN Details", flagKeys: ["panValidate", "PAN Validate"] },
+      { cardTitle: "MSME Details", flagKeys: ["msmeValidate", "MSME Validate"] },
+      { cardTitle: "PF & ESI Details", flagKeys: ["pfValidate", "PF Validate", "esiValidate", "ESI Validate"] },
+      { cardTitle: "Bank Details", flagKeys: ["bankValidate", "Bank Validate"] },
+    ];
+    let VALIDATOR_LOCK_RULES = [...VENDOR_VALIDATOR_LOCK_RULES];
+    if (isCustomerPortal) {
+      VALIDATOR_LOCK_RULES = [
+        { cardTitle: "GST Details", flagKeys: ["gstValidate", "GST Validate"] },
+      ];
+    }
+
+    function hasAnyTruthyFlag(vendor, keys) {
+      return keys.some((key) => Object.prototype.hasOwnProperty.call(vendor, key) && toBool(vendor[key]));
+    }
+
+    function getLockedCardTitles(vendor) {
+      const lockedCards = new Set();
+      VALIDATOR_LOCK_RULES.forEach((rule) => {
+        if (hasAnyTruthyFlag(vendor, rule.flagKeys)) {
+          lockedCards.add(rule.cardTitle);
+        }
+      });
+      return lockedCards;
+    }
+
+    let currentRecordId = "";
+    let currentVendor = {};
+
+    function setMessage(id, text, kind = "") {
+      const el = document.getElementById(id);
+      if (el) {
+        el.textContent = "";
+        el.className = "msg";
+        el.style.display = "none";
+      }
+      if (!text) return;
+      const toastKind = kind || "info";
+      const isProgress = text.endsWith("...") || text.startsWith("Loading ") || text.startsWith("Updating ");
+      showToast(text, toastKind, isProgress ? 0 : 10000);
+    }
+
+    function renderMeta(vendor, recordId) {
+      const statusSource = pickValueWithSource(vendor, ["approverStatus", "ApproverStatus", "status", "Status"], "approverStatus");
+      const vendorNameSource = isCustomerPortal
+        ? pickValueWithSource(vendor, ["CustomerName", "customerName", "vendorName", "Vendorname", "VendorName", "name", "Name"], "CustomerName")
+        : pickValueWithSource(vendor, ["vendorName", "Vendorname", "VendorName", "name", "Name"], "vendorName");
+      const nameLabel = isCustomerPortal ? "Customer" : "Vendor";
+      const meta = document.getElementById("metaBadges");
+      meta.innerHTML = `
+        <span class="badge">Record ID: ${escapeHtml(recordId || "N/A")}</span>
+        <span class="badge">${escapeHtml(nameLabel)}: ${escapeHtml(formatValue(vendorNameSource.value) || "N/A")}</span>
+        <span class="badge">Approver Status: ${escapeHtml(formatValue(statusSource.value) || "N/A")}</span>
+      `;
+    }
+
+    function ensureDynamicSectionSelectionStyle() {
+      const styleId = "updateDynamicSectionSelectionStyle";
+      if (document.getElementById(styleId)) return;
+      const style = document.createElement("style");
+      style.id = styleId;
+      style.textContent = `
+        .dynamic-selector-card {
+          border: 1px solid #bfdbfe;
+          background: linear-gradient(135deg, #eff6ff 0%, #f8fbff 52%, #ffffff 100%);
+          box-shadow: inset 0 1px 0 rgba(255, 255, 255, .85), 0 10px 22px rgba(37, 99, 235, .08);
+          padding: 18px;
+        }
+        .dynamic-selector-header {
+          display: flex;
+          gap: 12px;
+          justify-content: space-between;
+          align-items: flex-start;
+          flex-wrap: wrap;
+          margin-bottom: 12px;
+        }
+        .dynamic-selector-title {
+          margin: 0;
+          font-size: 23px;
+          color: #1e3a8a;
+          letter-spacing: .2px;
+        }
+        .dynamic-selector-subtitle {
+          margin: 8px 0 0;
+          font-size: 14px;
+          line-height: 1.5;
+          color: #334155;
+        }
+        .dynamic-selector-pill {
+          padding: 6px 12px;
+          border: 1px solid #93c5fd;
+          border-radius: 999px;
+          background: #dbeafe;
+          color: #1e3a8a;
+          font-size: 12px;
+          font-weight: 700;
+          white-space: nowrap;
+        }
+        .dynamic-selector-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+          gap: 12px;
+          margin-top: 6px;
+        }
+        .dynamic-selector-item {
+          position: relative;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding: 12px 14px;
+          border: 1px solid #bfdbfe;
+          border-radius: 12px;
+          background: rgba(255, 255, 255, .9);
+          cursor: pointer;
+          transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease, background-color .2s ease;
+        }
+        .dynamic-selector-item:hover {
+          border-color: #60a5fa;
+          transform: translateY(-1px);
+          box-shadow: 0 6px 16px rgba(59, 130, 246, .16);
+        }
+        .dynamic-selector-item.dynamic-selected {
+          border-color: #2563eb;
+          background: #dbeafe;
+          box-shadow: 0 0 0 2px rgba(37, 99, 235, .14);
+        }
+        .dynamic-selector-item input[type="checkbox"] {
+          width: 18px;
+          height: 18px;
+          margin: 0;
+          accent-color: #1d4ed8;
+          flex: 0 0 auto;
+        }
+        .dynamic-selector-item-title {
+          font-size: 15px;
+          line-height: 1.25;
+          font-weight: 700;
+          color: #1e293b;
+        }
+        .dynamic-selector-toolbar {
+          margin-top: 12px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+        .dynamic-selector-count {
+          padding: 4px 10px;
+          border: 1px solid #bfdbfe;
+          border-radius: 999px;
+          background: #e0ecff;
+          color: #1e3a8a;
+          font-size: 13px;
+          font-weight: 700;
+        }
+        .dynamic-selector-note {
+          font-size: 12px;
+          color: #475569;
+        }
+        .dynamic-selector-actions {
+          margin-top: 14px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          flex-wrap: wrap-reverse;
+        }
+        .dynamic-selector-actions #dynamicSelectorSaveNext {
+          width: auto;
+          min-width: 170px;
+          padding: 12px 20px;
+          border-radius: 10px;
+          font-size: 16px;
+          font-weight: 800;
+          letter-spacing: .2px;
+          box-shadow: 0 6px 14px rgba(29, 78, 216, .24);
+        }
+        .dynamic-selector-message {
+          min-height: 18px;
+          font-size: 13px;
+          font-weight: 700;
+          color: #b91c1c;
+        }
+        .dynamic-selector-edit-wrap {
+          display: flex;
+          justify-content: flex-end;
+          margin-bottom: 10px;
+        }
+        .dynamic-selector-edit-btn {
+          width: auto;
+          min-width: 170px;
+          padding: 10px 14px;
+          border-radius: 10px;
+          box-shadow: 0 6px 14px rgba(29, 78, 216, .18);
+        }
+        .dynamic-selector-hidden { display: none !important; }
+        @media (max-width: 760px) {
+          .dynamic-selector-card { padding: 14px; }
+          .dynamic-selector-title { font-size: 20px; }
+          .dynamic-selector-grid { grid-template-columns: 1fr; }
+          .dynamic-selector-item { padding: 11px 12px; }
+          .dynamic-selector-edit-wrap { justify-content: stretch; }
+          .dynamic-selector-edit-btn { width: 100%; }
+          .dynamic-selector-actions { align-items: stretch; }
+          .dynamic-selector-actions #dynamicSelectorSaveNext { width: 100%; }
+          .dynamic-selector-message { width: 100%; }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    function normalizeSectionTitle(value) {
+      return String(value || "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, " ")
+        .trim();
+    }
+
+    function parseSelectedSectionTitles(rawValue) {
+      const values = [];
+      const addValue = (value) => {
+        const text = String(value || "").trim();
+        if (text) values.push(text);
+      };
+
+      if (Array.isArray(rawValue)) {
+        rawValue.forEach((item) => addValue(item));
+      } else {
+        const rawText = String(rawValue ?? "").trim();
+        if (rawText) {
+          let parsed = null;
+          try {
+            parsed = JSON.parse(rawText);
+          } catch (_) {
+            parsed = null;
+          }
+          if (Array.isArray(parsed)) {
+            parsed.forEach((item) => addValue(item));
+          } else {
+            rawText.split(/[,\n|]+/).forEach((item) => addValue(item));
+          }
+        }
+      }
+
+      return Array.from(new Set(values));
+    }
+
+    function titleMatchesSelectedSection(title, normalizedSelectedTitles) {
+      const normalizedTitle = normalizeSectionTitle(title);
+      if (!normalizedTitle || !normalizedSelectedTitles.length) return false;
+      return normalizedSelectedTitles.some((selectedTitle) => (
+        selectedTitle === normalizedTitle
+        || selectedTitle.includes(normalizedTitle)
+        || normalizedTitle.includes(selectedTitle)
+      ));
+    }
+
+    function initUpdateSectionSelection(formEl, vendor) {
+      const editActionHost = document.getElementById("editSectionActionHost");
+      if (editActionHost) editActionHost.innerHTML = "";
+      if (!formEl || isShipToOnlyMode) return;
+      const sectionHost = document.getElementById("sectionHost");
+      if (!sectionHost) return;
+
+      formEl.querySelectorAll(".dynamic-selector-card").forEach((node) => node.remove());
+      formEl.querySelectorAll(".dynamic-selector-edit-wrap").forEach((node) => node.remove());
+      formEl.querySelectorAll("[data-dynamic-selected-sections='1']").forEach((node) => node.remove());
+      ensureDynamicSectionSelectionStyle();
+
+      const selectedSectionsSource = pickValueWithSource(
+        vendor || {},
+        ["selectedSections", "SelectedSections", "selected_sections", "selectedSection", "SelectedSection"],
+        "selectedSections"
+      );
+      const selectedTitles = parseSelectedSectionTitles(selectedSectionsSource.value);
+      const normalizedSelectedTitles = selectedTitles.map((item) => normalizeSectionTitle(item)).filter(Boolean);
+      const selectedSectionsSourceKey = String(selectedSectionsSource.sourceKey || "selectedSections").trim() || "selectedSections";
+
+      const groups = [];
+      const headingNodes = new Set();
+      const alwaysVisibleGroupIds = new Set();
+      const isAlwaysVisibleGroup = (title) => /declaration/i.test(String(title || ""));
+      let currentHeading = null;
+      let sectionCounter = 0;
+
+      const isEligibleControl = (control) => {
+        const tag = String(control.tagName || "").toLowerCase();
+        if (!["input", "select", "textarea"].includes(tag)) return false;
+        const type = String(control.type || "").toLowerCase();
+        if (["hidden", "button", "submit", "reset", "image"].includes(type)) return false;
+        return true;
+      };
+
+      Array.from(sectionHost.children).forEach((node) => {
+        if (node.tagName === "H2") {
+          currentHeading = node;
+          return;
+        }
+        if (!node.classList || !node.classList.contains("subcard")) return;
+        const controls = Array.from(node.querySelectorAll("input, select, textarea")).filter(isEligibleControl);
+        if (!controls.length) return;
+        sectionCounter += 1;
+        const titleEl = node.querySelector("h3");
+        const title = (titleEl ? String(titleEl.textContent || "") : "").trim() || `Section ${sectionCounter}`;
+        const groupId = `sec_${sectionCounter}`;
+        if (currentHeading) {
+          headingNodes.add(currentHeading);
+        }
+        if (isAlwaysVisibleGroup(title)) {
+          alwaysVisibleGroupIds.add(groupId);
+        }
+        groups.push({
+          id: groupId,
+          title,
+          nodes: [node],
+          controls,
+          heading: currentHeading,
+        });
+      });
+
+      if (!groups.length) return;
+
+      const hiddenSelectedInput = document.createElement("input");
+      hiddenSelectedInput.type = "hidden";
+      hiddenSelectedInput.dataset.dynamicSelectedSections = "1";
+      hiddenSelectedInput.dataset.fieldName = "selectedSections";
+      hiddenSelectedInput.dataset.sourceKey = selectedSectionsSourceKey;
+      hiddenSelectedInput.value = "";
+      formEl.prepend(hiddenSelectedInput);
+
+      const selectorCard = document.createElement("div");
+      selectorCard.className = "subcard dynamic-selector-card";
+      selectorCard.innerHTML = `
+        <div class="dynamic-selector-header">
+          <div>
+            <h3 class="dynamic-selector-title">Select Form Sections</h3>
+            <p class="dynamic-selector-subtitle">Choose the form sections to update. Existing section selection is prefilled; you can add more before continuing.</p>
+          </div>
+          <div class="dynamic-selector-pill">Step 1 of 2</div>
+        </div>
+        <div class="dynamic-selector-grid" role="group" aria-label="Form section selection"></div>
+        <div class="dynamic-selector-toolbar">
+          <div class="dynamic-selector-count" id="dynamicSelectorCount">0 sections selected</div>
+          <div class="dynamic-selector-note">Declaration stays compulsory for every form.</div>
+        </div>
+        <div class="dynamic-selector-actions">
+          <div class="dynamic-selector-message" id="dynamicSelectorMessage"></div>
+          <button type="button" id="dynamicSelectorSaveNext">Save & Next</button>
+        </div>
+      `;
+      formEl.insertBefore(selectorCard, sectionHost);
+      const editSelectionWrap = document.createElement("div");
+      editSelectionWrap.className = "dynamic-selector-edit-wrap hidden";
+      editSelectionWrap.innerHTML = `<button type="button" class="dynamic-selector-edit-btn">Edit Section Selection</button>`;
+      if (editActionHost) {
+        editActionHost.appendChild(editSelectionWrap);
+      } else {
+        formEl.insertBefore(editSelectionWrap, sectionHost);
+      }
+
+      const listEl = selectorCard.querySelector(".dynamic-selector-grid");
+      const messageEl = selectorCard.querySelector("#dynamicSelectorMessage");
+      const saveNextBtn = selectorCard.querySelector("#dynamicSelectorSaveNext");
+      const countEl = selectorCard.querySelector("#dynamicSelectorCount");
+      const editSelectionBtn = editSelectionWrap.querySelector(".dynamic-selector-edit-btn");
+
+      groups
+        .filter((group) => !alwaysVisibleGroupIds.has(group.id))
+        .forEach((group) => {
+          const item = document.createElement("label");
+          item.className = "dynamic-selector-item";
+          item.innerHTML = `<input type="checkbox" value="${group.id}" data-group-title="${escapeHtml(group.title)}" /> <span class="dynamic-selector-item-title">${escapeHtml(group.title)}</span>`;
+          listEl.appendChild(item);
+        });
+
+      const checkboxEls = Array.from(listEl.querySelectorAll("input[type='checkbox']"));
+      checkboxEls.forEach((checkbox) => {
+        const groupTitle = String(checkbox.getAttribute("data-group-title") || "").trim();
+        checkbox.checked = normalizedSelectedTitles.length
+          ? titleMatchesSelectedSection(groupTitle, normalizedSelectedTitles)
+          : true;
+      });
+      if (checkboxEls.length && !checkboxEls.some((checkbox) => checkbox.checked)) {
+        checkboxEls.forEach((checkbox) => {
+          checkbox.checked = true;
+        });
+      }
+
+      const setControlState = (control, visible) => {
+        if (!control.dataset.dynamicPrevDisabled) {
+          control.dataset.dynamicPrevDisabled = control.disabled ? "1" : "0";
+        }
+        if (!control.dataset.dynamicPrevRequired) {
+          control.dataset.dynamicPrevRequired = control.required ? "1" : "0";
+        }
+
+        if (!visible) {
+          control.required = false;
+          control.disabled = true;
+          return;
+        }
+
+        control.disabled = control.dataset.dynamicPrevDisabled === "1";
+        if (control.disabled || control.readOnly) {
+          control.required = false;
+          return;
+        }
+        control.required = control.dataset.dynamicPrevRequired === "1";
+      };
+
+      const applyVisibility = (selectedIds) => {
+        groups.forEach((group) => {
+          const visible = alwaysVisibleGroupIds.has(group.id) || selectedIds.has(group.id);
+          group.nodes.forEach((node) => node.classList.toggle("dynamic-selector-hidden", !visible));
+          group.controls.forEach((control) => setControlState(control, visible));
+        });
+
+        headingNodes.forEach((heading) => heading.classList.add("dynamic-selector-hidden"));
+        groups.forEach((group) => {
+          if ((alwaysVisibleGroupIds.has(group.id) || selectedIds.has(group.id)) && group.heading) {
+            group.heading.classList.remove("dynamic-selector-hidden");
+          }
+        });
+      };
+
+      const auxNodes = Array.from(formEl.children).filter((node) => (
+        node !== sectionHost
+        && node !== selectorCard
+        && node !== editSelectionWrap
+        && node !== hiddenSelectedInput
+      ));
+
+      const buildSelectedIds = () => new Set(
+        Array.from(listEl.querySelectorAll("input[type='checkbox']:checked")).map((input) => input.value)
+      );
+
+      const selectedTitlesFromIds = (selectedIds) => groups
+        .filter((group) => selectedIds.has(group.id))
+        .map((group) => group.title);
+
+      const updateSelectionSummary = () => {
+        let selectedCount = 0;
+        checkboxEls.forEach((checkbox) => {
+          const selected = checkbox.checked;
+          checkbox.closest(".dynamic-selector-item")?.classList.toggle("dynamic-selected", selected);
+          if (selected) selectedCount += 1;
+        });
+        if (countEl) {
+          countEl.textContent = `${selectedCount} section${selectedCount === 1 ? "" : "s"} selected`;
+        }
+        hiddenSelectedInput.value = JSON.stringify(selectedTitlesFromIds(buildSelectedIds()));
+      };
+
+      checkboxEls.forEach((checkbox) => checkbox.addEventListener("change", updateSelectionSummary));
+      updateSelectionSummary();
+
+      const openSelectionStep = () => {
+        groups.forEach((group) => {
+          group.nodes.forEach((node) => node.classList.add("dynamic-selector-hidden"));
+          group.controls.forEach((control) => setControlState(control, false));
+        });
+        headingNodes.forEach((heading) => heading.classList.add("dynamic-selector-hidden"));
+        auxNodes.forEach((node) => node.classList.add("dynamic-selector-hidden"));
+        editSelectionWrap.classList.add("hidden");
+        selectorCard.classList.remove("dynamic-selector-hidden");
+      };
+
+      const applySelectedSectionsAndContinue = (selectedIds) => {
+        applyVisibility(selectedIds);
+        hiddenSelectedInput.value = JSON.stringify(selectedTitlesFromIds(selectedIds));
+        auxNodes.forEach((node) => node.classList.remove("dynamic-selector-hidden"));
+        selectorCard.classList.add("dynamic-selector-hidden");
+        editSelectionWrap.classList.remove("hidden");
+        applyConditionalRequiredRules();
+        refreshRequiredStars();
+      };
+
+      openSelectionStep();
+
+      saveNextBtn.addEventListener("click", () => {
+        const selectedIds = buildSelectedIds();
+        if (!selectedIds.size) {
+          if (messageEl) messageEl.textContent = "Select at least one section to continue.";
+          return;
+        }
+        if (messageEl) messageEl.textContent = "";
+        applySelectedSectionsAndContinue(selectedIds);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+
+      if (editSelectionBtn) {
+        editSelectionBtn.addEventListener("click", () => {
+          openSelectionStep();
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+      }
+    }
+
+    function renderEditableSections(vendor) {
+      const host = document.getElementById("sectionHost");
+      host.innerHTML = "";
+      let docCounter = 0;
+      const lockedCards = getLockedCardTitles(vendor);
+      const activeSectionConfig = isShipToOnlyMode
+        ? sectionConfig
+            .map((section) => {
+              const visibleCards = section.cards
+                .map((card) => {
+                  const visibleFields = card.fields.filter((field) => isShipToEditableField(field.name));
+                  if (!visibleFields.length) return null;
+                  return {
+                    title: card.title,
+                    fields: visibleFields,
+                  };
+                })
+                .filter(Boolean);
+              if (!visibleCards.length) return null;
+              return {
+                title: section.title,
+                cards: visibleCards,
+              };
+            })
+            .filter(Boolean)
+        : sectionConfig;
+
+      activeSectionConfig.forEach((section) => {
+        let sectionHtml = `<h2>${escapeHtml(section.title)}</h2>`;
+        section.cards.forEach((card) => {
+          const isCardLocked = lockedCards.has(card.title);
+          let fieldsHtml = "";
+          card.fields.forEach((field) => {
+            const resolved = pickValueWithSource(vendor, field.keys, field.name);
+            const isFieldLocked = isCardLocked || (isShipToOnlyMode && !isShipToEditableField(field.name));
+            if (field.doc) {
+              docCounter += 1;
+              fieldsHtml += documentFieldHtml(field, resolved.value, resolved.sourceKey, docCounter, isFieldLocked);
+            } else if (field.select) {
+              fieldsHtml += selectFieldHtml(field, resolved.value, resolved.sourceKey, vendor, isFieldLocked);
+            } else {
+              fieldsHtml += textFieldHtml(field, resolved.value, resolved.sourceKey, isFieldLocked);
+            }
+          });
+          const cardClass = isCardLocked ? "subcard locked-card" : "subcard";
+          const lockNote = isCardLocked
+            ? '<div class="locked-note">Locked because validator marked this section as validated.</div>'
+            : "";
+          sectionHtml += `
+            <div class="${cardClass}">
+              <h3>${escapeHtml(card.title)}</h3>
+              ${lockNote}
+              <div class="grid">${fieldsHtml}</div>
+            </div>
+          `;
+        });
+        host.innerHTML += sectionHtml;
+      });
+
+      bindCountryStateDropdown();
+      bindConditionalRequiredRules();
+      bindDocumentControls();
+      bindIsoCertificateMultiSelect();
+      bindIfscAutoFill();
+      initUpdateSectionSelection(document.getElementById("updateForm"), vendor);
+    }
+
+    function bindUpdateRemarksField(vendor) {
+      const remarksInput = document.getElementById("updateRemarksInput");
+      if (!remarksInput) return;
+      const resolved = pickValueWithSource(vendor || {}, ["updateRemarks", "UpdateRemarks"], "updateRemarks");
+      remarksInput.value = formatValue(resolved.value);
+      remarksInput.dataset.sourceKey = String(resolved.sourceKey || "updateRemarks").trim() || "updateRemarks";
+      if (isShipToOnlyMode) {
+        remarksInput.readOnly = true;
+        remarksInput.dataset.lockedField = "true";
+      } else {
+        remarksInput.readOnly = false;
+        delete remarksInput.dataset.lockedField;
+      }
+    }
+
+    function collectUpdatePayload() {
+      const fields = document.querySelectorAll("[data-field-name]");
+      const updates = {};
+      fields.forEach((fieldEl) => {
+        if (Object.prototype.hasOwnProperty.call(fieldEl.dataset, "originalValue")) {
+          return;
+        }
+        if (fieldEl.dataset.lockedField === "true") {
+          return;
+        }
+        if (fieldEl.disabled) {
+          return;
+        }
+        if (fieldEl.closest(".dynamic-selector-hidden")) {
+          return;
+        }
+        const fieldName = String(fieldEl.dataset.fieldName || "").trim();
+        const sourceKey = String(fieldEl.dataset.sourceKey || fieldName).trim();
+        if (!fieldName || !sourceKey) return;
+        let value = String(fieldEl.value || "").trim();
+        if (fieldName === "isoCertificates") {
+          const selectedValues = getSelectedIsoCertificatesFromSelect(fieldEl);
+          value = selectedValues.length ? JSON.stringify(selectedValues) : "";
+        }
+        updates[sourceKey] = value;
+        if (sourceKey.toLowerCase() !== fieldName.toLowerCase()) {
+          updates[fieldName] = value;
+        }
+      });
+      return updates;
+    }
+
+    async function loadVendorByRecordId(recordId) {
+      setMessage("entryMessage", `Loading ${recordTypeLabel.toLowerCase()} details...`);
+      setMessage("updateMessage", "");
+      try {
+        const res = await fetch(`${getRecordApiBase()}/record?recordId=${encodeURIComponent(recordId)}`, {
+          headers: buildAuthHeaders(),
+        });
+        const data = await parseApiResponse(res);
+        if (!res.ok) {
+          throw new Error(data.detail || `Unable to load ${recordTypeLabel.toLowerCase()} details`);
+        }
+
+        currentRecordId = String(data.recordId || recordId || "").trim();
+        currentVendor = data.vendor || {};
+        renderMeta(currentVendor, currentRecordId);
+        renderEditableSections(currentVendor);
+        bindUpdateRemarksField(currentVendor);
+        document.getElementById("editCard").classList.remove("hidden");
+        setMessage("entryMessage", `${recordTypeLabel} form loaded for update.`, "ok");
+      } catch (err) {
+        setMessage("entryMessage", err.message || `Unable to load ${recordTypeLabel.toLowerCase()} details.`, "err");
+      }
+    }
+
+    async function updateVendorRecord() {
+      const updateForm = document.getElementById("updateForm");
+      if (!currentRecordId) {
+        setMessage("updateMessage", "Load a Record ID first.", "err");
+        return;
+      }
+
+      applyConditionalRequiredRules();
+      if (updateForm && !updateForm.checkValidity()) {
+        updateForm.reportValidity();
+        setMessage("updateMessage", "Please fill all mandatory fields before update.", "err");
+        return;
+      }
+
+      const updates = collectUpdatePayload();
+      const reuploadSelections = collectReuploadSelections();
+      if (!Object.keys(updates).length && !reuploadSelections.length) {
+        setMessage("updateMessage", "No fields found to update.", "err");
+        return;
+      }
+      const missingUploads = reuploadSelections.filter((item) => !item.file);
+      if (missingUploads.length) {
+        const labels = missingUploads.map((item) => item.label).join(", ");
+        setMessage("updateMessage", `Please upload new file for: ${labels}.`, "err");
+        return;
+      }
+
+      setMessage("updateMessage", `Updating ${recordTypeLabel.toLowerCase()} record...`);
+      try {
+        const formData = new FormData();
+        formData.append("recordId", currentRecordId);
+        formData.append("updates", JSON.stringify(updates));
+
+        const docSourceMap = {};
+        reuploadSelections.forEach((item) => {
+          if (!item.fieldName || !item.file) return;
+          docSourceMap[item.fieldName] = item.sourceKey || item.fieldName;
+          formData.append(`file_${item.fieldName}`, item.file, item.file.name || item.fieldName);
+        });
+        if (Object.keys(docSourceMap).length) {
+          formData.append("docSourceMap", JSON.stringify(docSourceMap));
+        }
+
+        const res = await fetch(`${getRecordApiBase()}/update-record-with-files`, {
+          method: "PUT",
+          headers: buildAuthHeaders(),
+          body: formData,
+        });
+        const data = await parseApiResponse(res);
+        if (!res.ok) {
+          throw new Error(data.detail || `Unable to update ${recordTypeLabel.toLowerCase()} record`);
+        }
+
+        currentVendor = data.vendor || currentVendor;
+        renderMeta(currentVendor, currentRecordId);
+        renderEditableSections(currentVendor);
+        bindUpdateRemarksField(currentVendor);
+        const nextStatus = String(data.approverStatus || currentVendor.approverStatus || "").trim();
+        const successMessage = String(data.message || `${recordTypeLabel} record updated successfully.`).trim();
+        setMessage(
+          "updateMessage",
+          nextStatus ? `${successMessage} (Status: ${nextStatus})` : successMessage,
+          "ok"
+        );
+      } catch (err) {
+        setMessage("updateMessage", err.message || `Unable to update ${recordTypeLabel.toLowerCase()} record.`, "err");
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      if (window.location.search) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+
+      const entryForm = document.getElementById("entryForm");
+      const updateForm = document.getElementById("updateForm");
+      const recordIdInput = document.getElementById("recordIdInput");
+      const goBackBtn = document.getElementById("goBackBtn");
+      const entryHeading = document.getElementById("entryHeading");
+      const editHeading = document.getElementById("editHeading");
+      const loadEntryBtn = document.getElementById("loadEntryBtn");
+      const updateBtn = document.getElementById("updateBtn");
+      const recordIdLabel = document.getElementById("recordIdLabel");
+
+      if (isCustomerPortal) {
+        document.title = "Update Customer Form";
+        if (entryHeading) entryHeading.textContent = "Update Customer Form";
+        if (editHeading) editHeading.textContent = "Editable Customer Registration Form";
+        if (loadEntryBtn) loadEntryBtn.textContent = "Load Customer Form";
+        if (updateBtn) updateBtn.textContent = "Update Customer Record";
+        if (recordIdLabel) recordIdLabel.textContent = "Entry Page - Record ID";
+        if (recordIdInput) {
+          recordIdInput.placeholder = "Enter Customer Record ID";
+        }
+      }
+
+      if (isShipToOnlyMode) {
+        document.title = "Update Customer Ship-to Address";
+        if (entryHeading) entryHeading.textContent = "Update Customer Ship-to Address";
+        if (editHeading) editHeading.textContent = "Editable Ship-to Address";
+        if (loadEntryBtn) loadEntryBtn.textContent = "Load Ship-to Details";
+        if (updateBtn) updateBtn.textContent = "Update Ship-to Address";
+        if (recordIdLabel) recordIdLabel.textContent = "Ship-to Entry - Record ID";
+        if (recordIdInput) {
+          recordIdInput.placeholder = "Enter Customer Record ID";
+        }
+      }
+
+      if (goBackBtn) {
+        goBackBtn.addEventListener("click", () => {
+          window.location.href = getBackUrl();
+        });
+      }
+
+      entryForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const recordId = String(recordIdInput.value || "").trim();
+        if (!recordId) {
+          setMessage("entryMessage", "Record ID is required.", "err");
+          return;
+        }
+        loadVendorByRecordId(recordId);
+      });
+
+      updateForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        updateVendorRecord();
+      });
+
+      if (initialRecordIdFromQuery) {
+        if (recordIdInput) {
+          recordIdInput.value = initialRecordIdFromQuery;
+        }
+        loadVendorByRecordId(initialRecordIdFromQuery);
+      }
+
+    });
+  </script>
+</body>
+</html>

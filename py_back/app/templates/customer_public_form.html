@@ -1,0 +1,1647 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Customer Public Form</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #eef2ff; margin: 0; padding: 20px; color: #1f2937; }
+    .wrap { max-width: 1200px; margin: 0 auto; }
+    .page-header { background: #fff; border-radius: 12px; padding: 14px 18px; box-shadow: 0 8px 20px rgba(2, 6, 23, .08); margin-bottom: 12px; display: grid; grid-template-columns: 180px 1fr auto; gap: 14px; align-items: center; }
+    .brand-left { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+    .brand-art { width: 160px; max-width: 100%; height: auto; display: block; }
+    .brand-text { text-align: center; font-size: 20px; line-height: 1.4; color: #475569; font-weight: 700; }
+
+    .card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 10px 24px rgba(2, 6, 23, .08); }
+    h1 { margin: 0 0 12px; font-size: 26px; color: #1e3a8a; }
+    h2 { margin: 18px 0 10px; font-size: 18px; color: #1e3a8a; border-bottom: 1px solid #dbeafe; padding-bottom: 6px; }
+    .note { margin: 0 0 16px; color: #475569; font-size: 14px; }
+
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .row { display: grid; gap: 6px; }
+    .full { grid-column: 1 / -1; }
+    label { font-size: 12px; font-weight: 700; color: #334155; }
+    .req-star { color: #dc2626; margin-left: 4px; font-weight: 700; }
+    input, select, textarea, button { width: 100%; box-sizing: border-box; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; font-size: 14px; }
+    textarea { min-height: 90px; resize: vertical; }
+    .checks { display: flex; gap: 18px; align-items: center; flex-wrap: wrap; }
+    .check-item { display: inline-flex; gap: 8px; align-items: center; font-size: 14px; color: #334155; }
+    .check-item input { width: 18px; height: 18px; }
+    .actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px; }
+    button { background: #1d4ed8; color: #fff; border: none; font-weight: 800; cursor: pointer; }
+    button:disabled { background: #94a3b8; cursor: not-allowed; }
+    .msg { margin-top: 12px; font-size: 14px; white-space: pre-wrap; }
+    .msg.ok { color: #166534; }
+    .msg.err { color: #b91c1c; }
+    .hidden { display: none !important; }
+    .entry-grid { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: end; }
+    .entry-grid button { width: auto; min-width: 170px; }
+    .row.pincode-spinner-host { position: relative; }
+    .pincode-with-spinner { padding-right: 34px; }
+    .pincode-spinner {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      width: 14px;
+      height: 14px;
+      margin-top: -7px;
+      border: 2px solid #cbd5e1;
+      border-top-color: #2563eb;
+      border-radius: 50%;
+      animation: pincodeSpin .7s linear infinite;
+      display: none;
+      pointer-events: none;
+    }
+    .pincode-spinner.active { display: block; }
+    .row.document-extraction-host { position: relative; }
+    .document-extraction-file { padding-right: 34px; }
+    .document-extraction-spinner {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      width: 14px;
+      height: 14px;
+      margin-top: -2px;
+      border: 2px solid #cbd5e1;
+      border-top-color: #2563eb;
+      border-radius: 50%;
+      animation: pincodeSpin .7s linear infinite;
+      display: none;
+      pointer-events: none;
+    }
+    .document-extraction-spinner.active { display: block; }
+    @keyframes pincodeSpin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 980px) {
+      .page-header { grid-template-columns: 1fr; text-align: center; }
+      .brand-left { align-items: center; }
+      .grid { grid-template-columns: 1fr; }
+      .actions { flex-direction: column; }
+      .entry-grid { grid-template-columns: 1fr; }
+      .entry-grid button { width: 100%; }
+    }
+  </style>
+  <link rel="stylesheet" href="/web/portal-liquid.css?v=20260610-light" />
+</head>
+<body>
+  <div class="wrap">
+    <div class="page-header">
+      <div class="brand-left">
+        <img src="/web/header-art-image" alt="Header Art" class="brand-art" />
+      </div>
+      <div class="brand-text">Sharp & Tannan Chartered Accountants</div>
+      <div></div>
+    </div>
+
+    <div class="card" id="recordEntryCard">
+      <h1>Customer Public Form</h1>
+      <p class="note">Enter your Record ID to load the customer public form.</p>
+      <form id="recordEntryForm">
+        <div class="entry-grid">
+          <div class="row">
+            <label for="recordIdEntry">Record ID <span class="req-star">*</span></label>
+            <input id="recordIdEntry" type="text" placeholder="Enter Record ID" required />
+          </div>
+          <div class="row">
+            <button id="loadRecordBtn" type="submit">Load Form</button>
+          </div>
+        </div>
+      </form>
+      <div id="entryMessage" class="msg"></div>
+    </div>
+
+    <div id="publicFormCard" class="card hidden">
+      <h1>Customer Public Form</h1>
+      <p class="note">Please complete the details below. Fields marked with <span class="req-star">*</span> are mandatory.</p>
+
+      <form id="customerPublicForm" enctype="multipart/form-data">
+        <input type="hidden" id="recordId" name="recordId" />
+
+        <h2>Basic Details</h2>
+        <div class="grid">
+          <div class="row">
+            <label for="CompanyDealing">Company Name</label>
+            <input id="CompanyDealing" name="CompanyDealing" />
+          </div>
+          <div class="row">
+            <label for="CustomerName">Customer Name</label>
+            <input id="CustomerName" name="CustomerName" />
+          </div>
+          <div class="row">
+            <label for="FirmType">Type of Firm</label>
+            <select id="FirmType" name="FirmType">
+              <option value="">Select Type</option>
+              <option value="Manufacturer">Manufacturer</option>
+              <option value="Trader">Trader</option>
+              <option value="Consignment Agent">Consignment Agent</option>
+            </select>
+          </div>
+          <div class="row">
+            <label for="ManufacturingType">Type of Manufacturing</label>
+            <select id="ManufacturingType" name="ManufacturingType">
+              <option value="">Select Type</option>
+              <option value="Chemical">Chemical</option>
+              <option value="Pharma">Pharma</option>
+              <option value="Pigments">Pigments</option>
+              <option value="Others">Others</option>
+            </select>
+          </div>
+        </div>
+
+        <h2>GST Details</h2>
+        <div class="grid">
+          <div class="row">
+            <label for="GSTStatus">GST Registration Status <span class="req-star">*</span></label>
+            <select id="GSTStatus" name="GSTStatus" required>
+              <option value="">Select Status</option>
+              <option value="Registered">Registered</option>
+              <option value="Unregistered">Unregistered</option>
+            </select>
+          </div>
+          <div class="row gst-related">
+            <label for="GSTIN">GST Number <span id="gstNumberRequiredStar" class="req-star hidden">*</span></label>
+            <input id="GSTIN" name="GSTIN" />
+          </div>
+          <div class="row gst-related">
+            <label for="TradeNameGST">Trade Name as per GST <span id="gstTradeNameRequiredStar" class="req-star hidden">*</span></label>
+            <input id="TradeNameGST" name="TradeNameGST" />
+          </div>
+          <div class="row gst-related">
+            <label for="GSTCertificate">Upload GST Certificate <span id="gstCertificateRequiredStar" class="req-star hidden">*</span></label>
+            <input type="file" id="GSTCertificate" name="GSTCertificate" />
+          </div>
+        </div>
+
+        <h2>PAN and Entity</h2>
+        <div class="grid">
+          <div class="row">
+            <label for="PANStatus">PAN Status</label>
+            <select id="PANStatus" name="PANStatus">
+              <option value="">Select Status</option>
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+            </select>
+          </div>
+          <div class="row pan-related">
+            <label for="PANNumber">PAN Number <span id="panNumberRequiredStar" class="req-star hidden">*</span></label>
+            <input id="PANNumber" name="PANNumber" maxlength="10" placeholder="ABCDE1234F" />
+          </div>
+          <div class="row pan-related">
+            <label for="TradeNamePAN">Trade Name as per PAN <span id="panTradeNameRequiredStar" class="req-star hidden">*</span></label>
+            <input id="TradeNamePAN" name="TradeNamePAN" />
+          </div>
+          <div class="row pan-related">
+            <label for="TypeofEntity">Type of Business Entity</label>
+            <input id="TypeofEntity" name="TypeofEntity" />
+          </div>
+          <div class="row pan-related">
+            <label for="PANUpload">Upload PAN Card <span id="panUploadRequiredStar" class="req-star hidden">*</span></label>
+            <input type="file" id="PANUpload" name="PANUpload" />
+          </div>
+          <div class="row full">
+            <label for="CompanyStatus">CIN Status <span class="req-star">*</span></label>
+            <select id="CompanyStatus" name="CompanyStatus" required>
+              <option value="">Select Status</option>
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+            </select>
+          </div>
+          <div class="row company-related">
+            <label for="CIN">CIN Number <span id="cinRequiredStar" class="req-star hidden">*</span></label>
+            <input id="CIN" name="CIN" />
+          </div>
+          <div class="row company-related">
+            <label for="IncorporationCertificate">Upload Incorporation Certificate <span id="incCertRequiredStar" class="req-star hidden">*</span></label>
+            <input type="file" id="IncorporationCertificate" name="IncorporationCertificate" />
+          </div>
+          <div class="row">
+            <label for="TAN">TAN Number</label>
+            <input id="TAN" name="TAN" />
+          </div>
+        </div>
+
+        <h2>Material / Service</h2>
+        <div class="grid">
+          <div class="row full">
+            <label for="MaterialDealing">Material Dealing In</label>
+            <textarea id="MaterialDealing" name="MaterialDealing"></textarea>
+          </div>
+          <div class="row full">
+            <label for="ServiceDealing">Service Dealing In</label>
+            <textarea id="ServiceDealing" name="ServiceDealing"></textarea>
+          </div>
+        </div>
+
+        <h2>Address (Main)</h2>
+        <div class="grid">
+          <div class="row">
+            <label for="Lane1">Address Lane 1 <span class="req-star">*</span></label>
+            <input id="Lane1" name="Lane1" required />
+          </div>
+          <div class="row">
+            <label for="Lane2">Address Lane 2</label>
+            <input id="Lane2" name="Lane2" />
+          </div>
+          <div class="row">
+            <label for="Lane3">Address Lane 3</label>
+            <input id="Lane3" name="Lane3" />
+          </div>
+          <div class="row">
+            <label for="Pincode">Pincode <span class="req-star">*</span></label>
+            <input id="Pincode" name="Pincode" required inputmode="numeric" />
+          </div>
+          <div class="row">
+            <label for="Country">Country <span class="req-star">*</span></label>
+            <input id="Country" name="Country" required />
+          </div>
+          <div class="row">
+            <label for="State">State <span class="req-star">*</span></label>
+            <input id="State" name="State" required />
+          </div>
+          <div class="row">
+            <label for="District">District <span class="req-star">*</span></label>
+            <input id="District" name="District" required />
+          </div>
+        </div>
+
+        <h2>Ship-to Details</h2>
+        <div class="grid">
+          <div class="row">
+            <label for="Shipto">Ship to Address - Same as Above</label>
+            <select id="Shipto" name="Shipto">
+              <option value="">Select</option>
+              <option value="Yes">Yes</option>
+              <option value="No">No</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="shipAddressContainer" class="hidden">
+          <h2>Ship-to-Address Details - 1</h2>
+          <div class="grid">
+            <div class="row">
+              <label for="Lane4">Address Lane 1 <span class="req-star">*</span></label>
+              <input id="Lane4" name="Lane4" />
+            </div>
+            <div class="row">
+              <label for="Lane5">Address Lane 2</label>
+              <input id="Lane5" name="Lane5" />
+            </div>
+            <div class="row">
+              <label for="Lane6">Address Lane 3</label>
+              <input id="Lane6" name="Lane6" />
+            </div>
+            <div class="row">
+              <label for="Pincode1">Pincode <span class="req-star">*</span></label>
+              <input id="Pincode1" name="Pincode1" inputmode="numeric" />
+            </div>
+            <div class="row">
+              <label for="State1">State <span class="req-star">*</span></label>
+              <input id="State1" name="State1" />
+            </div>
+            <div class="row">
+              <label for="District1">District <span class="req-star">*</span></label>
+              <input id="District1" name="District1" />
+            </div>
+          </div>
+
+          <h2>Ship-to-Address Details - 2</h2>
+          <div class="grid">
+            <div class="row">
+              <label for="Lane7">Address Lane 1 <span class="req-star">*</span></label>
+              <input id="Lane7" name="Lane7" />
+            </div>
+            <div class="row">
+              <label for="Lane8">Address Lane 2</label>
+              <input id="Lane8" name="Lane8" />
+            </div>
+            <div class="row">
+              <label for="Lane9">Address Lane 3</label>
+              <input id="Lane9" name="Lane9" />
+            </div>
+            <div class="row">
+              <label for="Pincode2">Pincode <span class="req-star">*</span></label>
+              <input id="Pincode2" name="Pincode2" inputmode="numeric" />
+            </div>
+            <div class="row">
+              <label for="State2">State <span class="req-star">*</span></label>
+              <input id="State2" name="State2" />
+            </div>
+            <div class="row">
+              <label for="District2">District <span class="req-star">*</span></label>
+              <input id="District2" name="District2" />
+            </div>
+          </div>
+        </div>
+
+        <h2>Information Furnished By</h2>
+        <div class="grid">
+          <div class="row">
+            <label for="FurnishBy">Information Furnished By <span class="req-star">*</span></label>
+            <input id="FurnishBy" name="FurnishBy" required />
+          </div>
+          <div class="row">
+            <label for="Designation">Designation</label>
+            <input id="Designation" name="Designation" />
+          </div>
+          <div class="row">
+            <label for="Email">Email <span class="req-star">*</span></label>
+            <input type="email" id="Email" name="Email" required />
+          </div>
+          <div class="row">
+            <label for="Mobile">Mobile <span class="req-star">*</span></label>
+            <input type="tel" id="Mobile" name="Mobile" required />
+          </div>
+          <div class="row">
+            <label for="Datepicker">Date</label>
+            <input type="date" id="Datepicker" name="Datepicker" />
+          </div>
+          <div class="row">
+            <label for="Place">Place <span class="req-star">*</span></label>
+            <input id="Place" name="Place" required />
+          </div>
+        </div>
+
+        <h2>Alternate Contact (Optional)</h2>
+        <div class="grid">
+          <div class="row">
+            <label for="AP_FurnishBy1">Name</label>
+            <input id="AP_FurnishBy1" name="AP_FurnishBy1" />
+          </div>
+          <div class="row">
+            <label for="AP_Designation1">Designation</label>
+            <input id="AP_Designation1" name="AP_Designation1" />
+          </div>
+          <div class="row">
+            <label for="AP_Email1">Email</label>
+            <input type="email" id="AP_Email1" name="AP_Email1" />
+          </div>
+          <div class="row">
+            <label for="AP_Mobile1">Mobile</label>
+            <input type="tel" id="AP_Mobile1" name="AP_Mobile1" />
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="submitBtn" type="submit">Submit</button>
+        </div>
+        <div id="message" class="msg"></div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function setMessage(text, kind) {
+      const el = document.getElementById("message");
+      if (!el) return;
+      el.textContent = text || "";
+      el.className = kind ? `msg ${kind}` : "msg";
+    }
+
+    function setEntryMessage(text, kind) {
+      const el = document.getElementById("entryMessage");
+      if (!el) return;
+      el.textContent = text || "";
+      el.className = kind ? `msg ${kind}` : "msg";
+    }
+
+    async function parseApiResponse(res) {
+      const text = await res.text();
+      if (!text) return {};
+      try {
+        return JSON.parse(text);
+      } catch (_) {
+        return { detail: text };
+      }
+    }
+
+    function createToastManager() {
+      const host = document.createElement("div");
+      host.style.position = "fixed";
+      host.style.top = "12px";
+      host.style.left = "50%";
+      host.style.transform = "translateX(-50%)";
+      host.style.zIndex = "5000";
+      host.style.pointerEvents = "none";
+      document.body.appendChild(host);
+
+      let activeToast = null;
+      let activeTimer = null;
+
+      function removeToast(toast) {
+        if (!toast) return;
+        toast.style.opacity = "0";
+        toast.style.transform = "translateY(-8px)";
+        setTimeout(() => {
+          if (toast.parentNode) toast.parentNode.removeChild(toast);
+        }, 180);
+        if (activeToast === toast) activeToast = null;
+      }
+
+      return function showToast(text, kind = "info", duration = 10000) {
+        if (!text) return;
+        if (activeTimer) {
+          clearTimeout(activeTimer);
+          activeTimer = null;
+        }
+        if (activeToast) {
+          activeToast.remove();
+          activeToast = null;
+        }
+        const colors = { ok: "#166534", err: "#b91c1c", info: "#2454d9" };
+        const toast = document.createElement("div");
+        toast.textContent = text;
+        toast.style.width = "min(390px, calc(100vw - 36px))";
+        toast.style.maxWidth = "calc(100vw - 36px)";
+        toast.style.padding = "18px 20px";
+        toast.style.borderRadius = "12px";
+        toast.style.boxShadow = "0 12px 28px rgba(15, 23, 42, 0.22)";
+        toast.style.background = colors[kind] || colors.info;
+        toast.style.color = "#fff";
+        toast.style.fontSize = "16px";
+        toast.style.fontWeight = "700";
+        toast.style.lineHeight = "1.35";
+        toast.style.opacity = "0";
+        toast.style.transform = "translateY(-8px)";
+        toast.style.transition = "opacity .18s ease, transform .18s ease";
+        host.appendChild(toast);
+        requestAnimationFrame(() => {
+          toast.style.opacity = "1";
+          toast.style.transform = "translateY(0)";
+        });
+        activeToast = toast;
+        if (duration > 0) activeTimer = setTimeout(() => removeToast(toast), duration);
+      };
+    }
+
+    const showToast = createToastManager();
+
+    function isMeaningfulValue(value) {
+      if (value === null || value === undefined) return false;
+      if (typeof value === "string" && value.trim() === "") return false;
+      return true;
+    }
+
+    function toBool(value) {
+      if (typeof value === "boolean") return value;
+      if (typeof value === "number") return value !== 0;
+      return ["1", "true", "yes", "y", "on"].includes(String(value || "").trim().toLowerCase());
+    }
+
+    function buildCaseInsensitiveMap(record) {
+      const map = {};
+      if (!record || typeof record !== "object") return map;
+      Object.keys(record).forEach((key) => {
+        map[String(key || "").toLowerCase()] = key;
+      });
+      return map;
+    }
+
+    function readRecordValue(record, loweredMap, fieldName) {
+      const rawName = String(fieldName || "").trim();
+      if (!rawName) return "";
+      if (Object.prototype.hasOwnProperty.call(record, rawName) && isMeaningfulValue(record[rawName])) {
+        return record[rawName];
+      }
+      const exactKey = loweredMap[rawName.toLowerCase()];
+      if (exactKey && isMeaningfulValue(record[exactKey])) {
+        return record[exactKey];
+      }
+      return "";
+    }
+
+    function normalizePanStatusChoice(value) {
+      const normalized = String(value || "").trim().toLowerCase();
+      if (normalized === "available") return "Yes";
+      if (normalized === "not available") return "No";
+      return String(value || "");
+    }
+
+    function normalizeCompanyStatusChoice(value) {
+      const normalized = String(value || "").trim().toLowerCase();
+      if (!normalized) return "";
+      if (normalized === "yes") return "Yes";
+      if (normalized === "no") return "No";
+      return "Yes";
+    }
+
+    function normalizeShiptoChoice(value) {
+      const normalized = String(value || "").trim().toLowerCase();
+      if (!normalized) return "";
+      if (["yes", "y", "true", "1", "on"].includes(normalized)) return "Yes";
+      if (["no", "n", "false", "0", "off"].includes(normalized)) return "No";
+      return "";
+    }
+
+    function fillPublicForm(record) {
+      const form = document.getElementById("customerPublicForm");
+      if (!form || !record || typeof record !== "object") return;
+
+      const loweredMap = buildCaseInsensitiveMap(record);
+      const elements = form.querySelectorAll("input[name], select[name], textarea[name]");
+      elements.forEach((el) => {
+        const tag = String(el.tagName || "").toLowerCase();
+        const type = String(el.getAttribute("type") || "").toLowerCase();
+        const name = String(el.getAttribute("name") || "").trim();
+        if (!name || name.toLowerCase() === "recordid") return;
+        if (type === "file") return;
+
+        const value = readRecordValue(record, loweredMap, name);
+        if (!isMeaningfulValue(value)) return;
+
+        if (type === "checkbox") {
+          el.checked = toBool(value);
+          return;
+        }
+        if (tag === "select" || tag === "input" || tag === "textarea") {
+          if (name.toLowerCase() === "panstatus") {
+            el.value = normalizePanStatusChoice(value);
+            return;
+          }
+          if (name.toLowerCase() === "companystatus") {
+            el.value = normalizeCompanyStatusChoice(value);
+            return;
+          }
+          if (name.toLowerCase() === "shipto") {
+            el.value = normalizeShiptoChoice(value);
+            return;
+          }
+          el.value = String(value);
+        }
+      });
+    }
+
+    function extractPanFromGstin(rawGstin) {
+      const cleaned = String(rawGstin || "")
+        .toUpperCase()
+        .replace(/[^A-Z0-9]/g, "");
+      if (cleaned.length < 12) return "";
+      const panCandidate = cleaned.substring(2, 12);
+      if (/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(panCandidate)) {
+        return panCandidate;
+      }
+      return "";
+    }
+
+    const PAN_ENTITY_BY_FOURTH_CHAR = {
+      P: "Individual",
+      C: "Company",
+      H: "HUF",
+      A: "AOP",
+      B: "BOI",
+      G: "Government",
+      J: "Juridical Person",
+      L: "Local Authority",
+      F: "Firm",
+      T: "Trust",
+    };
+
+    function normalizePanNumber(rawPan) {
+      return String(rawPan || "")
+        .toUpperCase()
+        .replace(/[^A-Z0-9]/g, "")
+        .slice(0, 10);
+    }
+
+    function deriveBusinessEntityFromPan(rawPan) {
+      const pan = normalizePanNumber(rawPan);
+      if (pan.length < 4) return "";
+      const code = pan.charAt(3);
+      return PAN_ENTITY_BY_FOURTH_CHAR[code] || "Others";
+    }
+
+    const CUSTOMER_DOCUMENT_EXTRACTION_UPLOADS = [
+      { inputId: "GSTCertificate", documentType: "gst", label: "GST", rowClass: "gst-related" },
+      { inputId: "PANUpload", documentType: "pan", label: "PAN", rowClass: "pan-related" },
+      { inputId: "IncorporationCertificate", documentType: "cin", label: "CIN", rowClass: "company-related" },
+    ];
+    const CUSTOMER_DOCUMENT_REVEALED_GROUPS = new Set();
+    const CUSTOMER_DOCUMENT_PROCESSING_GROUPS = new Set();
+
+    function isCustomerDocumentUploadRow(row) {
+      return !!row?.querySelector('input[type="file"]');
+    }
+
+    function customerDocumentGroupHasDetailValue(rowClass) {
+      return Array.from(document.querySelectorAll(`.${rowClass}`)).some((row) => {
+        if (isCustomerDocumentUploadRow(row)) {
+          return false;
+        }
+        return Array.from(row.querySelectorAll("input, select, textarea")).some((field) => {
+          const fieldType = String(field.type || "").toLowerCase();
+          if (fieldType === "file" || fieldType === "hidden") {
+            return false;
+          }
+          if (fieldType === "checkbox" || fieldType === "radio") {
+            return !!field.checked;
+          }
+          return String(field.value || "").trim() !== "";
+        });
+      });
+    }
+
+    function clearCustomerDocumentDetailValues(rowClass) {
+      document.querySelectorAll(`.${rowClass}`).forEach((row) => {
+        if (isCustomerDocumentUploadRow(row)) {
+          return;
+        }
+        row.querySelectorAll("input, select, textarea").forEach((field) => {
+          const fieldType = String(field.type || "").toLowerCase();
+          if (fieldType === "checkbox" || fieldType === "radio") {
+            field.checked = false;
+          } else if (fieldType !== "file") {
+            field.value = "";
+          }
+          field.dispatchEvent(new Event("input", { bubbles: true }));
+          field.dispatchEvent(new Event("change", { bubbles: true }));
+        });
+      });
+    }
+
+    function shouldRevealCustomerDocumentDetails(rowClass) {
+      if (CUSTOMER_DOCUMENT_PROCESSING_GROUPS.has(rowClass)) {
+        return false;
+      }
+      return CUSTOMER_DOCUMENT_REVEALED_GROUPS.has(rowClass);
+    }
+
+    function revealCustomerDocumentDetails(rowClass) {
+      if (!rowClass) return;
+      CUSTOMER_DOCUMENT_PROCESSING_GROUPS.delete(rowClass);
+      CUSTOMER_DOCUMENT_REVEALED_GROUPS.add(rowClass);
+      updateConditionalRequiredFields();
+    }
+
+    function revealFilledCustomerDocumentGroups() {
+      CUSTOMER_DOCUMENT_EXTRACTION_UPLOADS.forEach((config) => {
+        if (customerDocumentGroupHasDetailValue(config.rowClass)) {
+          CUSTOMER_DOCUMENT_REVEALED_GROUPS.add(config.rowClass);
+        }
+      });
+    }
+
+    function setCustomerDocumentRows(rowClass, isActive) {
+      const detailRowsVisible = isActive && shouldRevealCustomerDocumentDetails(rowClass);
+      document.querySelectorAll(`.${rowClass}`).forEach((row) => {
+        const isUploadRow = isCustomerDocumentUploadRow(row);
+        const shouldShowRow = isActive && (isUploadRow || detailRowsVisible);
+        row.classList.toggle("hidden", !shouldShowRow);
+        row.querySelectorAll("input, select, textarea").forEach((field) => {
+          field.required = false;
+          if (!isActive) {
+            const fieldType = String(field.type || "").toLowerCase();
+            if (fieldType === "checkbox" || fieldType === "radio") {
+              field.checked = false;
+            } else {
+              field.value = "";
+            }
+          }
+        });
+      });
+      if (!isActive) {
+        CUSTOMER_DOCUMENT_REVEALED_GROUPS.delete(rowClass);
+        CUSTOMER_DOCUMENT_PROCESSING_GROUPS.delete(rowClass);
+      }
+      return detailRowsVisible;
+    }
+
+    function ensureCustomerDocumentSpinner(inputEl) {
+      const row = inputEl?.closest(".row");
+      if (!row) return null;
+      row.classList.add("document-extraction-host");
+      inputEl.classList.add("document-extraction-file");
+      let spinnerEl = row.querySelector(".document-extraction-spinner");
+      if (!spinnerEl) {
+        spinnerEl = document.createElement("span");
+        spinnerEl.className = "document-extraction-spinner";
+        row.appendChild(spinnerEl);
+      }
+      return spinnerEl;
+    }
+
+    function setCustomerDocumentSpinner(inputEl, isActive) {
+      const spinnerEl = ensureCustomerDocumentSpinner(inputEl);
+      if (spinnerEl) {
+        spinnerEl.classList.toggle("active", !!isActive);
+      }
+    }
+
+    function getPublicFormControl(fieldName) {
+      const byId = document.getElementById(fieldName);
+      if (byId) return byId;
+      const control = document.getElementById("customerPublicForm")?.elements.namedItem(fieldName);
+      if (!control) return null;
+      if (typeof RadioNodeList !== "undefined" && control instanceof RadioNodeList) {
+        return control.length ? control[0] : null;
+      }
+      return control;
+    }
+
+    function setPublicFormFieldValue(fieldName, value) {
+      const field = getPublicFormControl(fieldName);
+      const nextValue = String(value || "").trim();
+      if (!field || !nextValue || String(field.type || "").toLowerCase() === "file") {
+        return false;
+      }
+      if (field.tagName === "SELECT") {
+        ensureSelectHasOption(field, nextValue);
+      }
+      field.value = nextValue;
+      field.dispatchEvent(new Event("input", { bubbles: true }));
+      field.dispatchEvent(new Event("change", { bubbles: true }));
+      return true;
+    }
+
+    function applyPublicDocumentExtraction(payload) {
+      const fields = payload && typeof payload.fields === "object" ? payload.fields : {};
+      let filledCount = 0;
+      Object.entries(fields).forEach(([fieldName, value]) => {
+        if (setPublicFormFieldValue(fieldName, value)) {
+          filledCount += 1;
+        }
+      });
+      syncPanFromRegisteredGst();
+      syncBusinessEntityFromPan();
+      updateConditionalRequiredFields();
+      return filledCount;
+    }
+
+    async function extractCustomerUploadedDocument(inputEl, config) {
+      const fileObj = inputEl?.files && inputEl.files[0];
+      if (!fileObj) return;
+
+      if (config.rowClass) {
+        CUSTOMER_DOCUMENT_REVEALED_GROUPS.delete(config.rowClass);
+        CUSTOMER_DOCUMENT_PROCESSING_GROUPS.add(config.rowClass);
+        clearCustomerDocumentDetailValues(config.rowClass);
+        updateConditionalRequiredFields();
+      }
+      setCustomerDocumentSpinner(inputEl, true);
+      setMessage(`Extracting ${config.label} document...`, "");
+      showToast(`Extracting ${config.label} document...`, "info", 0);
+      try {
+        const fd = new FormData();
+        fd.append("file", fileObj);
+        fd.append("documentType", config.documentType);
+        fd.append("fieldName", inputEl.name || config.inputId);
+
+        const res = await fetch("/api/document-extraction/extract", { method: "POST", body: fd });
+        const data = await parseApiResponse(res);
+        if (!res.ok) {
+          throw new Error(data.detail || data.message || "Document extraction failed");
+        }
+        if (data.isExpectedDocument === false) {
+          if (config.rowClass) {
+            CUSTOMER_DOCUMENT_PROCESSING_GROUPS.delete(config.rowClass);
+            revealCustomerDocumentDetails(config.rowClass);
+          }
+          setMessage(data.message || `Uploaded file does not look like a ${config.label} document.`, "err");
+          showToast(data.message || `Uploaded file does not look like a ${config.label} document.`, "err");
+          return;
+        }
+
+        const filledCount = applyPublicDocumentExtraction(data);
+        revealCustomerDocumentDetails(config.rowClass);
+        if (filledCount > 0) {
+          setMessage(`${config.label} details extracted. Please verify before submitting.`, "ok");
+          showToast(`${config.label} details extracted. Please verify before submitting.`, "ok");
+        } else {
+          setMessage(data.message || `No ${config.label} values were extracted. Please enter details manually.`, "err");
+          showToast(data.message || `No ${config.label} values were extracted. Please enter details manually.`, "err");
+        }
+      } catch (err) {
+        revealCustomerDocumentDetails(config.rowClass);
+        setMessage(err.message || "Document extraction failed. Please enter details manually.", "err");
+        showToast(err.message || "Document extraction failed. Please enter details manually.", "err");
+      } finally {
+        if (config.rowClass) {
+          CUSTOMER_DOCUMENT_PROCESSING_GROUPS.delete(config.rowClass);
+          updateConditionalRequiredFields();
+        }
+        setCustomerDocumentSpinner(inputEl, false);
+      }
+    }
+
+    function setupCustomerDocumentExtractionUploads() {
+      CUSTOMER_DOCUMENT_EXTRACTION_UPLOADS.forEach((config) => {
+        const inputEl = document.getElementById(config.inputId);
+        if (!inputEl) return;
+        ensureCustomerDocumentSpinner(inputEl);
+        inputEl.addEventListener("change", () => extractCustomerUploadedDocument(inputEl, config));
+      });
+    }
+
+    function syncBusinessEntityFromPan() {
+      const panNumberEl = document.getElementById("PANNumber");
+      const typeOfEntityEl = document.getElementById("TypeofEntity");
+      if (!panNumberEl || !typeOfEntityEl) return;
+      const normalizedPan = normalizePanNumber(panNumberEl.value);
+      if (panNumberEl.value !== normalizedPan) {
+        panNumberEl.value = normalizedPan;
+      }
+      typeOfEntityEl.value = deriveBusinessEntityFromPan(normalizedPan);
+    }
+
+    function syncPanFromRegisteredGst() {
+      const gstStatusEl = document.getElementById("GSTStatus");
+      const gstinEl = document.getElementById("GSTIN");
+      const panStatusEl = document.getElementById("PANStatus");
+      const panNumberEl = document.getElementById("PANNumber");
+      if (!gstStatusEl || !gstinEl || !panStatusEl || !panNumberEl) return;
+
+      const gstStatus = String(gstStatusEl.value || "").trim().toLowerCase();
+      if (gstStatus !== "registered") return;
+
+      panStatusEl.value = "Yes";
+      const panFromGst = extractPanFromGstin(gstinEl.value);
+      if (panFromGst) {
+        panNumberEl.value = panFromGst;
+      }
+      syncBusinessEntityFromPan();
+    }
+
+    function normalizeChoice(value) {
+      return String(value || "").trim().toLowerCase();
+    }
+
+    function isPanMandatoryStatus(value) {
+      const normalized = normalizeChoice(value);
+      return normalized === "yes";
+    }
+
+    function isRegisteredGstStatus(value) {
+      return normalizeChoice(value) === "registered";
+    }
+
+    function isCompanyPositiveStatus(value) {
+      return normalizeChoice(value) === "yes";
+    }
+
+    let loadedRecord = {};
+
+    function getLoadedRecordValue(fieldName) {
+      if (!loadedRecord || typeof loadedRecord !== "object") return "";
+      const loweredMap = buildCaseInsensitiveMap(loadedRecord);
+      return readRecordValue(loadedRecord, loweredMap, fieldName);
+    }
+
+    function hasLoadedDocument(fieldName) {
+      if (isMeaningfulValue(getLoadedRecordValue(fieldName))) return true;
+      if (isMeaningfulValue(getLoadedRecordValue(`${fieldName}_FileName`))) return true;
+      if (isMeaningfulValue(getLoadedRecordValue(`${fieldName}FileName`))) return true;
+      return false;
+    }
+
+    function updateConditionalRequiredFields() {
+      const gstStatusEl = document.getElementById("GSTStatus");
+      const panStatusEl = document.getElementById("PANStatus");
+      const companyStatusEl = document.getElementById("CompanyStatus");
+      const gstNumberEl = document.getElementById("GSTIN");
+      const gstTradeNameEl = document.getElementById("TradeNameGST");
+      const panNumberEl = document.getElementById("PANNumber");
+      const panTradeNameEl = document.getElementById("TradeNamePAN");
+      const cinEl = document.getElementById("CIN");
+      const gstRelatedRows = document.querySelectorAll(".gst-related");
+      const panRelatedRows = document.querySelectorAll(".pan-related");
+      const companyRelatedRows = document.querySelectorAll(".company-related");
+      const gstNumberStar = document.getElementById("gstNumberRequiredStar");
+      const gstTradeNameStar = document.getElementById("gstTradeNameRequiredStar");
+      const gstCertificateStar = document.getElementById("gstCertificateRequiredStar");
+      const panNumberStar = document.getElementById("panNumberRequiredStar");
+      const panTradeNameStar = document.getElementById("panTradeNameRequiredStar");
+      const panUploadStar = document.getElementById("panUploadRequiredStar");
+      const cinStar = document.getElementById("cinRequiredStar");
+      const incCertStar = document.getElementById("incCertRequiredStar");
+
+      const gstRegistered = isRegisteredGstStatus(gstStatusEl?.value);
+      const panMandatory = isPanMandatoryStatus(panStatusEl?.value);
+      const companyPositive = isCompanyPositiveStatus(companyStatusEl?.value);
+      const gstDetailsVisible = setCustomerDocumentRows("gst-related", gstRegistered);
+      const panDetailsVisible = setCustomerDocumentRows("pan-related", panMandatory);
+      const companyDetailsVisible = setCustomerDocumentRows("company-related", companyPositive);
+
+      if (gstNumberEl) gstNumberEl.required = gstRegistered && gstDetailsVisible;
+      if (gstTradeNameEl) gstTradeNameEl.required = gstRegistered && gstDetailsVisible;
+      if (panNumberEl) panNumberEl.required = panMandatory && panDetailsVisible;
+      if (panTradeNameEl) panTradeNameEl.required = panMandatory && panDetailsVisible;
+      if (cinEl) cinEl.required = companyPositive && companyDetailsVisible;
+      if (gstNumberStar) gstNumberStar.classList.toggle("hidden", !gstDetailsVisible);
+      if (gstTradeNameStar) gstTradeNameStar.classList.toggle("hidden", !gstDetailsVisible);
+      if (gstCertificateStar) gstCertificateStar.classList.toggle("hidden", !gstRegistered);
+      if (panNumberStar) panNumberStar.classList.toggle("hidden", !panDetailsVisible);
+      if (panTradeNameStar) panTradeNameStar.classList.toggle("hidden", !panDetailsVisible);
+      if (panUploadStar) panUploadStar.classList.toggle("hidden", !panMandatory);
+      if (cinStar) cinStar.classList.toggle("hidden", !companyDetailsVisible);
+      if (incCertStar) incCertStar.classList.toggle("hidden", !companyPositive);
+    }
+
+    function copyAddressBlockIfNeeded(flagValue, source, target) {
+      if (flagValue !== "Yes") return;
+      const copy = (fromName, toName) => {
+        const from = document.getElementById(fromName);
+        const to = document.getElementById(toName);
+        if (!from || !to) return;
+        to.value = from.value;
+      };
+      copy(source.lane1, target.lane1);
+      copy(source.lane2, target.lane2);
+      copy(source.lane3, target.lane3);
+      copy(source.pincode, target.pincode);
+      copy(source.state, target.state);
+      copy(source.district, target.district);
+    }
+
+    function syncShipAddressVisibility() {
+      const shipTo = String(document.getElementById("Shipto")?.value || "");
+      const showShipAddress = shipTo === "No";
+      const container = document.getElementById("shipAddressContainer");
+      if (container) {
+        container.classList.toggle("hidden", !showShipAddress);
+      }
+
+      const shipRequiredFields = ["Lane4", "Pincode1", "State1", "District1", "Lane7", "Pincode2", "State2", "District2"];
+      for (const fieldName of shipRequiredFields) {
+        const el = document.getElementById(fieldName);
+        if (!el) continue;
+        if (showShipAddress) el.setAttribute("required", "required");
+        else el.removeAttribute("required");
+      }
+
+      copyAddressBlockIfNeeded(
+        shipTo,
+        { lane1: "Lane1", lane2: "Lane2", lane3: "Lane3", pincode: "Pincode", state: "State", district: "District" },
+        { lane1: "Lane4", lane2: "Lane5", lane3: "Lane6", pincode: "Pincode1", state: "State1", district: "District1" }
+      );
+      copyAddressBlockIfNeeded(
+        shipTo,
+        { lane1: "Lane1", lane2: "Lane2", lane3: "Lane3", pincode: "Pincode", state: "State", district: "District" },
+        { lane1: "Lane7", lane2: "Lane8", lane3: "Lane9", pincode: "Pincode2", state: "State2", district: "District2" }
+      );
+    }
+
+    function normalizeIndianPincode(value) {
+      return String(value || "").replace(/\D/g, "");
+    }
+
+    function ensureSelectHasOption(selectEl, value) {
+      if (!selectEl || !value) return;
+      const normalizedValue = String(value).trim();
+      if (!normalizedValue) return;
+      const hasOption = Array.from(selectEl.options).some((option) => option.value === normalizedValue);
+      if (hasOption) return;
+      const option = document.createElement("option");
+      option.value = normalizedValue;
+      option.textContent = normalizedValue;
+      selectEl.appendChild(option);
+    }
+
+    function setAddressFieldValue(fieldId, value) {
+      const field = document.getElementById(fieldId);
+      const nextValue = String(value || "").trim();
+      if (!field || !nextValue) return;
+      if (field.tagName === "SELECT") {
+        ensureSelectHasOption(field, nextValue);
+      }
+      field.value = nextValue;
+    }
+
+    function applyPincodeLookupToAddress(mapping, details) {
+      if (!mapping || !details) return;
+      if (mapping.countryId) {
+        setAddressFieldValue(mapping.countryId, details.country);
+      }
+      setAddressFieldValue(mapping.stateId, details.state);
+      setAddressFieldValue(mapping.districtId, details.district);
+    }
+
+    function setupPincodeLookupForAddress(mapping) {
+      const pincodeInput = document.getElementById(mapping.pincodeId);
+      if (!pincodeInput) return;
+      const spinnerHost = pincodeInput.closest(".row");
+      if (spinnerHost) {
+        spinnerHost.classList.add("pincode-spinner-host");
+      }
+      pincodeInput.classList.add("pincode-with-spinner");
+      const spinnerEl = document.createElement("span");
+      spinnerEl.className = "pincode-spinner";
+      if (spinnerHost) {
+        spinnerHost.appendChild(spinnerEl);
+      }
+      const setSpinner = (loading) => {
+        spinnerEl.classList.toggle("active", !!loading);
+      };
+
+      let lookupCounter = 0;
+      let lastLookupValue = "";
+
+      const triggerLookup = async () => {
+        const normalized = normalizeIndianPincode(pincodeInput.value);
+        if (normalized.length !== 6) {
+          lastLookupValue = "";
+          setSpinner(false);
+          return;
+        }
+        if (normalized === lastLookupValue) {
+          setSpinner(false);
+          return;
+        }
+
+        const requestId = ++lookupCounter;
+        setSpinner(true);
+        try {
+          const res = await fetch(`/api/pincode/${encodeURIComponent(normalized)}`);
+          const data = await parseApiResponse(res);
+          if (requestId !== lookupCounter || !res.ok) {
+            return;
+          }
+          applyPincodeLookupToAddress(mapping, data);
+          lastLookupValue = normalized;
+          syncShipAddressVisibility();
+        } catch (_) {
+        } finally {
+          if (requestId === lookupCounter) {
+            setSpinner(false);
+          }
+        }
+      };
+
+      pincodeInput.addEventListener("input", triggerLookup);
+      pincodeInput.addEventListener("change", triggerLookup);
+      pincodeInput.addEventListener("blur", triggerLookup);
+    }
+
+    function setupPincodeLookups() {
+      const mappings = [
+        { pincodeId: "Pincode", countryId: "Country", stateId: "State", districtId: "District" },
+        { pincodeId: "Pincode1", countryId: "Country", stateId: "State1", districtId: "District1" },
+        { pincodeId: "Pincode2", countryId: "Country", stateId: "State2", districtId: "District2" },
+      ];
+      mappings.forEach(setupPincodeLookupForAddress);
+    }
+
+    function validateConditionalFileRequirements() {
+      const gstStatusEl = document.getElementById("GSTStatus");
+      const panStatusEl = document.getElementById("PANStatus");
+      const companyStatusEl = document.getElementById("CompanyStatus");
+      const gstCertificateEl = document.getElementById("GSTCertificate");
+      const panUploadEl = document.getElementById("PANUpload");
+      const incorporationCertificateEl = document.getElementById("IncorporationCertificate");
+
+      if (isRegisteredGstStatus(gstStatusEl?.value)) {
+        const hasNewGstFile = !!(gstCertificateEl && gstCertificateEl.files && gstCertificateEl.files.length > 0);
+        const hasExistingGstFile = hasLoadedDocument("GSTCertificate");
+        if (!hasNewGstFile && !hasExistingGstFile) {
+          return "Upload GST Certificate is mandatory when GST Status is Registered.";
+        }
+      }
+
+      if (isPanMandatoryStatus(panStatusEl?.value)) {
+        const hasNewPanFile = !!(panUploadEl && panUploadEl.files && panUploadEl.files.length > 0);
+        const hasExistingPanFile = hasLoadedDocument("PANUpload");
+        if (!hasNewPanFile && !hasExistingPanFile) {
+          return "Upload PAN Card is mandatory when PAN Status is Yes.";
+        }
+      }
+
+      if (isCompanyPositiveStatus(companyStatusEl?.value)) {
+        const hasNewCompanyFile = !!(
+          incorporationCertificateEl &&
+          incorporationCertificateEl.files &&
+          incorporationCertificateEl.files.length > 0
+        );
+        const hasExistingCompanyFile = hasLoadedDocument("IncorporationCertificate");
+        if (!hasNewCompanyFile && !hasExistingCompanyFile) {
+          return "Upload Incorporation Certificate is mandatory when CIN Status is Yes.";
+        }
+      }
+
+      return "";
+    }
+
+    const recordIdHidden = document.getElementById("recordId");
+    const recordIdEntry = document.getElementById("recordIdEntry");
+    const entryForm = document.getElementById("recordEntryForm");
+    const loadRecordBtn = document.getElementById("loadRecordBtn");
+    const publicFormCard = document.getElementById("publicFormCard");
+    const form = document.getElementById("customerPublicForm");
+    const submitBtn = document.getElementById("submitBtn");
+    let currentRecordId = "";
+
+    async function loadRecordById(inputRecordId) {
+      const targetRecordId = String(inputRecordId || "").trim();
+      if (!targetRecordId) {
+        setEntryMessage("Record ID is required.", "err");
+        return;
+      }
+
+      setEntryMessage("Loading record...", "");
+      if (loadRecordBtn) loadRecordBtn.disabled = true;
+      try {
+        const res = await fetch(`/api/customer/record?recordId=${encodeURIComponent(targetRecordId)}`);
+        const data = await parseApiResponse(res);
+        if (!res.ok) {
+          throw new Error(data.detail || "Invalid Record ID");
+        }
+
+        const loadedRecordId = String(data.recordId || targetRecordId || "").trim();
+        currentRecordId = loadedRecordId;
+        loadedRecord = data.vendor || {};
+        if (recordIdEntry) recordIdEntry.value = loadedRecordId;
+        if (recordIdHidden) recordIdHidden.value = loadedRecordId;
+        fillPublicForm(loadedRecord);
+        revealFilledCustomerDocumentGroups();
+        syncPanFromRegisteredGst();
+        syncBusinessEntityFromPan();
+        updateConditionalRequiredFields();
+        syncShipAddressVisibility();
+
+        if (publicFormCard) publicFormCard.classList.remove("hidden");
+        setEntryMessage("Record loaded. Please fill and submit the form.", "ok");
+        setMessage("", "");
+      } catch (err) {
+        currentRecordId = "";
+        loadedRecord = {};
+        if (recordIdHidden) recordIdHidden.value = "";
+        if (publicFormCard) publicFormCard.classList.add("hidden");
+        setEntryMessage(err.message || "Unable to load record.", "err");
+      } finally {
+        if (loadRecordBtn) loadRecordBtn.disabled = false;
+      }
+    }
+
+    if (entryForm) {
+      entryForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        await loadRecordById(recordIdEntry?.value || "");
+      });
+    }
+
+    const gstStatusInput = document.getElementById("GSTStatus");
+    const gstinInput = document.getElementById("GSTIN");
+    const panStatusInput = document.getElementById("PANStatus");
+    const panNumberInput = document.getElementById("PANNumber");
+    const companyStatusInput = document.getElementById("CompanyStatus");
+    const shiptoInput = document.getElementById("Shipto");
+    if (gstStatusInput) {
+      gstStatusInput.addEventListener("change", () => {
+        syncPanFromRegisteredGst();
+        updateConditionalRequiredFields();
+      });
+    }
+    if (gstinInput) {
+      gstinInput.addEventListener("input", () => {
+        syncPanFromRegisteredGst();
+        updateConditionalRequiredFields();
+      });
+    }
+    if (panStatusInput) {
+      panStatusInput.addEventListener("change", updateConditionalRequiredFields);
+    }
+    if (panNumberInput) {
+      panNumberInput.addEventListener("input", () => {
+        syncBusinessEntityFromPan();
+      });
+    }
+    if (companyStatusInput) {
+      companyStatusInput.addEventListener("change", updateConditionalRequiredFields);
+    }
+    if (shiptoInput) {
+      shiptoInput.addEventListener("change", syncShipAddressVisibility);
+    }
+    setupPincodeLookups();
+    setupCustomerDocumentExtractionUploads();
+
+    
+    function initDynamicSectionSelection(formEl) {
+      if (!formEl || formEl.dataset.sectionSelectionInit === "1") return;
+      formEl.dataset.sectionSelectionInit = "1";
+
+      const styleId = "dynamicSectionSelectionStyle";
+      if (!document.getElementById(styleId)) {
+        const style = document.createElement("style");
+        style.id = styleId;
+        style.textContent = `
+          .dynamic-selector-card {
+            border: 1px solid #bfdbfe;
+            background: linear-gradient(135deg, #eff6ff 0%, #f8fbff 52%, #ffffff 100%);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, .85), 0 10px 22px rgba(37, 99, 235, .08);
+            padding: 18px;
+          }
+          .dynamic-selector-header {
+            display: flex;
+            gap: 12px;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+          }
+          .dynamic-selector-title {
+            margin: 0;
+            font-size: 23px;
+            color: #1e3a8a;
+            letter-spacing: .2px;
+          }
+          .dynamic-selector-subtitle {
+            margin: 8px 0 0;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #334155;
+          }
+          .dynamic-selector-pill {
+            padding: 6px 12px;
+            border: 1px solid #93c5fd;
+            border-radius: 999px;
+            background: #dbeafe;
+            color: #1e3a8a;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+          }
+          .dynamic-selector-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+            margin-top: 6px;
+          }
+          .dynamic-selector-item {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 14px;
+            border: 1px solid #bfdbfe;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, .9);
+            cursor: pointer;
+            transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease, background-color .2s ease;
+          }
+          .dynamic-selector-item:hover {
+            border-color: #60a5fa;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(59, 130, 246, .16);
+          }
+          .dynamic-selector-item.dynamic-selected {
+            border-color: #2563eb;
+            background: #dbeafe;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, .14);
+          }
+          .dynamic-selector-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin: 0;
+            accent-color: #1d4ed8;
+            flex: 0 0 auto;
+          }
+          .dynamic-selector-item-title {
+            font-size: 15px;
+            line-height: 1.25;
+            font-weight: 700;
+            color: #1e293b;
+          }
+          .dynamic-selector-toolbar {
+            margin-top: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+          }
+          .dynamic-selector-count {
+            padding: 4px 10px;
+            border: 1px solid #bfdbfe;
+            border-radius: 999px;
+            background: #e0ecff;
+            color: #1e3a8a;
+            font-size: 13px;
+            font-weight: 700;
+          }
+          .dynamic-selector-note {
+            font-size: 12px;
+            color: #475569;
+          }
+          .dynamic-selector-actions {
+            margin-top: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap-reverse;
+          }
+          .dynamic-selector-actions #dynamicSelectorSaveNext {
+            width: auto;
+            min-width: 170px;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: .2px;
+            box-shadow: 0 6px 14px rgba(29, 78, 216, .24);
+          }
+          .dynamic-selector-message {
+            min-height: 18px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #b91c1c;
+          }
+          .dynamic-selector-hidden { display: none !important; }
+          @media (max-width: 760px) {
+            .dynamic-selector-card { padding: 14px; }
+            .dynamic-selector-title { font-size: 20px; }
+            .dynamic-selector-grid { grid-template-columns: 1fr; }
+            .dynamic-selector-item { padding: 11px 12px; }
+            .dynamic-selector-actions { align-items: stretch; }
+            .dynamic-selector-actions #dynamicSelectorSaveNext { width: 100%; }
+            .dynamic-selector-message { width: 100%; }
+          }
+        `;
+        document.head.appendChild(style);
+      }
+
+      const directChildren = Array.from(formEl.children);
+      const groups = [];
+      const auxNodes = [];
+      const headingNodes = new Set();
+      const alwaysVisibleGroupIds = new Set();
+      const isAlwaysVisibleGroup = (title) => /declaration/i.test(String(title || ""));
+
+      const isEligibleControl = (control) => {
+        const tag = String(control.tagName || "").toLowerCase();
+        if (!["input", "select", "textarea"].includes(tag)) return false;
+        const type = String(control.type || "").toLowerCase();
+        if (["hidden", "button", "submit", "reset", "image"].includes(type)) return false;
+        return true;
+      };
+
+      const subcards = directChildren.filter(
+        (node) => node.classList && node.classList.contains("subcard") && !node.classList.contains("dynamic-selector-card")
+      );
+      const hasSubcardMode = subcards.length >= 3;
+
+      if (hasSubcardMode) {
+        subcards.forEach((card, idx) => {
+          const titleEl = card.querySelector("h3");
+          const title = (titleEl ? String(titleEl.textContent || "") : "").trim() || `Section ${idx + 1}`;
+          const controls = Array.from(card.querySelectorAll("input, select, textarea")).filter(isEligibleControl);
+          if (!controls.length) return;
+
+          let heading = card.previousElementSibling;
+          while (heading && heading.tagName !== "H2") {
+            heading = heading.previousElementSibling;
+          }
+          if (heading) {
+            headingNodes.add(heading);
+          }
+
+          const groupId = `sec_${idx + 1}`;
+          const group = {
+            id: groupId,
+            title,
+            nodes: [card],
+            controls,
+            heading,
+          };
+          if (isAlwaysVisibleGroup(title)) {
+            alwaysVisibleGroupIds.add(groupId);
+          }
+          groups.push(group);
+        });
+
+        directChildren.forEach((node) => {
+          if (node.classList && node.classList.contains("dynamic-selector-card")) return;
+          if (node.tagName === "H2") return;
+          if (node.classList && node.classList.contains("subcard")) return;
+          auxNodes.push(node);
+        });
+      } else {
+        let index = 0;
+        let sectionCounter = 0;
+        while (index < directChildren.length) {
+          const current = directChildren[index];
+          if (current.classList && current.classList.contains("dynamic-selector-card")) {
+            index += 1;
+            continue;
+          }
+          if (current.tagName !== "H2") {
+            auxNodes.push(current);
+            index += 1;
+            continue;
+          }
+
+          const nodes = [current];
+          index += 1;
+          while (index < directChildren.length) {
+            const nextNode = directChildren[index];
+            if (nextNode.classList && nextNode.classList.contains("dynamic-selector-card")) {
+              index += 1;
+              continue;
+            }
+            if (nextNode.tagName === "H2") break;
+            nodes.push(nextNode);
+            index += 1;
+          }
+
+          const controls = nodes
+            .flatMap((node) => Array.from((node.querySelectorAll && node.querySelectorAll("input, select, textarea")) || []))
+            .filter(isEligibleControl);
+          if (!controls.length) {
+            continue;
+          }
+          sectionCounter += 1;
+          const groupTitle = String(current.textContent || "").trim() || `Section ${sectionCounter}`;
+          const groupId = `sec_${sectionCounter}`;
+          const group = {
+            id: groupId,
+            title: groupTitle,
+            nodes,
+            controls,
+            heading: null,
+          };
+          if (isAlwaysVisibleGroup(groupTitle)) {
+            alwaysVisibleGroupIds.add(groupId);
+          }
+          groups.push(group);
+        }
+      }
+
+      if (!groups.length) return;
+
+      const hiddenSelectedInput = document.createElement("input");
+      hiddenSelectedInput.type = "hidden";
+      hiddenSelectedInput.name = "selectedSections";
+      hiddenSelectedInput.value = "";
+      formEl.prepend(hiddenSelectedInput);
+
+      const selectorCard = document.createElement("div");
+      selectorCard.className = "subcard dynamic-selector-card";
+      selectorCard.innerHTML = `
+        <div class="dynamic-selector-header">
+          <div>
+            <h3 class="dynamic-selector-title">Select Form Sections</h3>
+            <p class="dynamic-selector-subtitle">Choose the field containers you want to fill. After clicking <strong>Save & Next</strong>, only selected sections will be shown and all visible fields become mandatory.</p>
+          </div>
+          <div class="dynamic-selector-pill">Step 1 of 2</div>
+        </div>
+        <div class="dynamic-selector-grid" role="group" aria-label="Form section selection"></div>
+        <div class="dynamic-selector-toolbar">
+          <div class="dynamic-selector-count" id="dynamicSelectorCount">0 sections selected</div>
+          <div class="dynamic-selector-note">Declaration stays compulsory for every form.</div>
+        </div>
+        <div class="dynamic-selector-actions">
+          <div class="dynamic-selector-message" id="dynamicSelectorMessage"></div>
+          <button type="button" id="dynamicSelectorSaveNext">Save & Next</button>
+        </div>
+      `;
+      formEl.prepend(selectorCard);
+
+      const listEl = selectorCard.querySelector(".dynamic-selector-grid");
+      const messageEl = selectorCard.querySelector("#dynamicSelectorMessage");
+      const saveNextBtn = selectorCard.querySelector("#dynamicSelectorSaveNext");
+      const countEl = selectorCard.querySelector("#dynamicSelectorCount");
+
+      groups
+        .filter((group) => !alwaysVisibleGroupIds.has(group.id))
+        .forEach((group) => {
+          const item = document.createElement("label");
+          item.className = "dynamic-selector-item";
+          item.innerHTML = `<input type="checkbox" value="${group.id}" /> <span class="dynamic-selector-item-title">${group.title}</span>`;
+          listEl.appendChild(item);
+        });
+
+      const checkboxEls = Array.from(listEl.querySelectorAll("input[type='checkbox']"));
+      const updateSelectionSummary = () => {
+        let selectedCount = 0;
+        checkboxEls.forEach((checkbox) => {
+          const selected = checkbox.checked;
+          checkbox.closest(".dynamic-selector-item")?.classList.toggle("dynamic-selected", selected);
+          if (selected) selectedCount += 1;
+        });
+        if (countEl) {
+          countEl.textContent = `${selectedCount} section${selectedCount === 1 ? "" : "s"} selected`;
+        }
+      };
+      checkboxEls.forEach((checkbox) => checkbox.addEventListener("change", updateSelectionSummary));
+      updateSelectionSummary();
+
+      const setControlState = (control, visible) => {
+        if (!control.dataset.dynamicPrevDisabled) {
+          control.dataset.dynamicPrevDisabled = control.disabled ? "1" : "0";
+        }
+
+        if (!visible) {
+          control.required = false;
+          control.disabled = true;
+          return;
+        }
+
+        control.disabled = control.dataset.dynamicPrevDisabled === "1";
+        if (control.disabled || control.readOnly) {
+          control.required = false;
+          return;
+        }
+        if (control.closest(".hidden")) {
+          control.required = false;
+          return;
+        }
+        control.required = true;
+      };
+
+      const applyVisibility = (selectedIds) => {
+        groups.forEach((group) => {
+          const visible = alwaysVisibleGroupIds.has(group.id) || selectedIds.has(group.id);
+          group.nodes.forEach((node) => node.classList.toggle("dynamic-selector-hidden", !visible));
+          group.controls.forEach((control) => setControlState(control, visible));
+        });
+
+        if (hasSubcardMode) {
+          headingNodes.forEach((heading) => heading.classList.add("dynamic-selector-hidden"));
+          groups.forEach((group) => {
+            if ((alwaysVisibleGroupIds.has(group.id) || selectedIds.has(group.id)) && group.heading) {
+              group.heading.classList.remove("dynamic-selector-hidden");
+            }
+          });
+        }
+
+        auxNodes.forEach((node) => node.classList.remove("dynamic-selector-hidden"));
+      };
+
+      groups.forEach((group) => {
+        group.nodes.forEach((node) => node.classList.add("dynamic-selector-hidden"));
+        group.controls.forEach((control) => setControlState(control, false));
+      });
+      headingNodes.forEach((heading) => heading.classList.add("dynamic-selector-hidden"));
+      auxNodes.forEach((node) => {
+        if (node !== hiddenSelectedInput) {
+          node.classList.add("dynamic-selector-hidden");
+        }
+      });
+
+      saveNextBtn.addEventListener("click", () => {
+        const selectedIds = new Set(
+          Array.from(listEl.querySelectorAll("input[type='checkbox']:checked")).map((input) => input.value)
+        );
+
+        if (!selectedIds.size) {
+          if (messageEl) messageEl.textContent = "Select at least one section to continue.";
+          return;
+        }
+
+        if (messageEl) messageEl.textContent = "";
+        applyVisibility(selectedIds);
+
+        const selectedTitles = groups
+          .filter((group) => selectedIds.has(group.id))
+          .map((group) => group.title);
+        hiddenSelectedInput.value = JSON.stringify(selectedTitles);
+
+        selectorCard.classList.add("dynamic-selector-hidden");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+    }
+
+    initDynamicSectionSelection(form);
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!currentRecordId) {
+        setMessage("Load a valid Record ID first.", "err");
+        return;
+      }
+      syncPanFromRegisteredGst();
+      syncBusinessEntityFromPan();
+      updateConditionalRequiredFields();
+      syncShipAddressVisibility();
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+      const fileValidationError = validateConditionalFileRequirements();
+      if (fileValidationError) {
+        setMessage(fileValidationError, "err");
+        return;
+      }
+
+      setMessage("Submitting...", "");
+      showToast("Submitting customer form and sending mail...", "info", 0);
+      if (submitBtn) submitBtn.disabled = true;
+
+      try {
+        if (recordIdHidden) recordIdHidden.value = currentRecordId;
+        const fd = new FormData(form);
+        const res = await fetch("/api/customer/public-submit", { method: "POST", body: fd });
+        const data = await parseApiResponse(res);
+        if (!res.ok) throw new Error(data.detail || "Unable to submit form");
+        setMessage("Submitted successfully.", "ok");
+        showToast("Customer form submitted successfully.", "ok");
+        if (data.nextUrl) {
+          setTimeout(() => { window.location.href = data.nextUrl; }, 800);
+        }
+      } catch (err) {
+        setMessage(err.message || "Unable to submit form", "err");
+        showToast(err.message || "Unable to submit form", "err");
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>
+

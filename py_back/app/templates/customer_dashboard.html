@@ -1,0 +1,2449 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Customer Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #eef2ff; margin: 0; padding: 20px; color: #1f2937; }
+    .wrap { max-width: 1500px; margin: 0 auto; }
+    .page-header { background: #fff; border-radius: 12px; padding: 14px 18px; box-shadow: 0 8px 20px rgba(2, 6, 23, .08); margin-bottom: 12px; display: grid; grid-template-columns: 180px 1fr auto; gap: 14px; align-items: center; }
+    .brand-left { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+    .brand-art { width: 160px; max-width: 100%; height: auto; display: block; }
+    .brand-text { text-align: center; font-size: 20px; line-height: 1.4; color: #475569; font-weight: 700; }
+    .toolbar { margin-bottom: 12px; display: flex; gap: 8px; justify-content: flex-end; }
+    .toolbar button { width: auto; padding: 10px 14px; }
+    .card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 10px 24px rgba(2, 6, 23, .08); }
+
+    .dashboard-grid { display: grid; grid-template-columns: 320px 1fr; gap: 16px; }
+    .dashboard-grid > main { min-width: 0; }
+    .sidebar { background: #1e3a8a; border-radius: 10px; padding: 16px; color: #fff; min-height: 620px; }
+    .sidebar h1 { margin: 0; color: #25d2c4; font-size: 26px; line-height: 1.2; }
+    .welcome { margin: 10px 0 14px; color: #25d2c4; font-size: 18px; font-style: italic; }
+    .menu { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+    .menu a { display: block; color: #fff; text-decoration: none; padding: 10px 8px; border-radius: 8px; font-size: 16px; }
+    .menu a:hover { background: #1d4ed8; }
+
+    h2 { margin: 0; font-size: 32px; color: #1e3a8a; text-align: center; text-decoration: underline; }
+    .heading-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      margin: 0 0 10px;
+      gap: 10px;
+    }
+    .history-btn {
+      width: auto;
+      padding: 10px 16px;
+      white-space: nowrap;
+    }
+    .table-wrap {
+      border: 2px solid #1e3a8a;
+      border-radius: 4px;
+      overflow: hidden;
+      width: 100%;
+      max-width: 100%;
+    }
+    .table-toolbar { display: grid; grid-template-columns: 1fr 310px; border-bottom: 1px solid #cbd5e1; }
+    .field { padding: 10px 12px; border-right: 1px solid #cbd5e1; }
+    .field:last-child { border-right: none; }
+    .field input, .field select { width: 100%; border: none; outline: none; font-size: 16px; color: #334155; background: transparent; }
+    .table-box {
+      width: 100%;
+      max-width: 100%;
+      height: 360px;
+      overflow-x: auto;
+      overflow-y: auto;
+    }
+    table {
+      width: max-content;
+      min-width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 16px;
+    }
+    thead { background: #2db8ac; }
+    th, td { padding: 12px 14px; text-align: left; border-bottom: 1px solid #dbe3f1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    th {
+      color: #0f3768;
+      position: relative;
+      user-select: none;
+    }
+    .col-resizer {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 10px;
+      height: 100%;
+      cursor: col-resize;
+      touch-action: none;
+    }
+    th:last-child .col-resizer { display: none; }
+    .col-resize-active { cursor: col-resize; }
+    .empty-row td {
+      text-align: center;
+      color: #64748b;
+      font-style: italic;
+      background: #f8fafc;
+    }
+    tbody tr.selectable-row { cursor: pointer; }
+    tbody tr.selected-row { background: #dbeafe; }
+    tbody tr.selected-row td { font-weight: 700; color: #0f172a; }
+    .table-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-top: 1px solid #dbe3f1;
+      border-bottom: 1px solid #dbe3f1;
+      flex-wrap: wrap;
+    }
+    .table-actions button { width: auto; padding: 10px 14px; }
+    .table-actions button:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+    }
+    .btn-danger { background: #b91c1c; }
+    .table-action-msg { font-size: 14px; color: #64748b; }
+    .table-action-msg.ok { color: #0a7a2d; }
+    .table-action-msg.err { color: #b3261e; }
+    .hod-decision-panel {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 8px;
+      border-top: 1px dashed #cbd5e1;
+      padding-top: 10px;
+      margin-top: 2px;
+    }
+    .hod-choice {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      min-height: 42px;
+    }
+    .hod-choice label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+      color: #1f2937;
+    }
+    .hod-choice input { width: auto; }
+    .hod-reject-to {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      min-height: 42px;
+      color: #1f2937;
+      font-weight: 700;
+    }
+    .hod-reject-to label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+      color: #1f2937;
+    }
+    .hod-reject-to input { width: auto; }
+    .hod-action-row {
+      width: 100%;
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .hod-remarks {
+      flex: 1 1 520px;
+      min-width: 280px;
+    }
+    .hod-remarks textarea {
+      width: 100%;
+      min-height: 42px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 8px 10px;
+      resize: vertical;
+      box-sizing: border-box;
+      font-family: inherit;
+    }
+    .hod-submit-btn { width: auto; padding: 10px 14px; }
+    .update-hod-panel {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+      border-top: 1px dashed #cbd5e1;
+      padding-top: 10px;
+      margin-top: 2px;
+    }
+    .update-hod-panel label {
+      font-size: 15px;
+      line-height: 1.3;
+      font-weight: 800;
+      color: #334155;
+    }
+    .update-hod-panel select {
+      width: 420px;
+      max-width: 100%;
+      border: 1px solid #94a3b8;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 16px;
+      background: #fff;
+      color: #1f2937;
+    }
+    .update-hod-btn {
+      width: auto;
+      padding: 10px 16px;
+      background: #1d4ed8;
+      border-radius: 8px;
+      border: none;
+      color: #fff;
+      font-weight: 700;
+    }
+    .update-hod-btn:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+    }
+    .pager { display: flex; justify-content: flex-end; align-items: center; gap: 16px; padding: 10px 14px; color: #64748b; font-size: 14px; }
+    .pager button { border: none; background: transparent; color: #94a3b8; font-size: 22px; cursor: pointer; }
+    .hidden { display: none !important; }
+    .approval-hint {
+      margin-top: 24px;
+      border: 1px solid #c7d2fe;
+      border-radius: 16px;
+      background:
+        radial-gradient(circle at 90% 10%, rgba(14, 165, 233, 0.12), transparent 34%),
+        radial-gradient(circle at 8% 85%, rgba(37, 99, 235, 0.12), transparent 40%),
+        linear-gradient(135deg, #f8fbff 0%, #eef4ff 100%);
+      padding: 20px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    }
+    .approval-hint-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .time-greeting {
+      font-size: 28px;
+      font-weight: 800;
+      color: #1e3a8a;
+      letter-spacing: .2px;
+    }
+    .time-badge {
+      border: 1px solid #bfdbfe;
+      background: #ffffff;
+      color: #1d4ed8;
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .approval-hint-sub {
+      margin: 0;
+      color: #334155;
+      font-size: 18px;
+      line-height: 1.5;
+    }
+    .approval-hint-note {
+      margin: 10px 0 0;
+      color: #475569;
+      font-size: 14px;
+    }
+
+    :root {
+      --portal-bg: #f7fbfe;
+      --surface: #ffffff;
+      --ink: #182334;
+      --muted: #667589;
+      --line: #d7e5ef;
+      --side-ink: #eff8fc;
+      --side-deep: #f7fbfe;
+      --teal: #5aa9c8;
+      --blue: #8fa0e8;
+      --shadow-soft: 0 14px 28px rgba(42, 58, 78, .09);
+      --shadow-deep: 0 22px 44px rgba(42, 58, 78, .12), 0 8px 14px rgba(42, 58, 78, .05);
+      --bevel: inset 0 1px 0 rgba(255, 255, 255, .96), inset 0 -1px 0 rgba(42, 58, 78, .05);
+    }
+
+    body {
+      background:
+        radial-gradient(circle at 12% 10%, rgba(90, 169, 200, .14), transparent 28%),
+        radial-gradient(circle at 82% 18%, rgba(153, 164, 242, .12), transparent 30%),
+        radial-gradient(circle at 76% 84%, rgba(115, 200, 149, .10), transparent 34%),
+        linear-gradient(180deg, #fbfdff 0%, #f2f7fb 100%),
+        var(--portal-bg);
+      color: var(--ink);
+    }
+    .wrap { perspective: 1800px; }
+    .page-header {
+      position: relative;
+      background: linear-gradient(145deg, #ffffff, #f4f9fc);
+      border: 1px solid rgba(207, 222, 235, .88);
+      border-radius: 12px;
+      padding: 16px 20px;
+      box-shadow: var(--shadow-soft), var(--bevel);
+      margin-bottom: 14px;
+      transform-style: preserve-3d;
+    }
+    .page-header::after {
+      content: "";
+      position: absolute;
+      inset: 7px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, .65);
+      pointer-events: none;
+    }
+    .brand-art {
+      filter: drop-shadow(0 12px 14px rgba(42, 58, 78, .11));
+      transform: translateZ(12px);
+    }
+    .brand-text {
+      color: #182334;
+      font-weight: 800;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, .85);
+      transform: translateZ(10px);
+    }
+    .toolbar { margin-bottom: 14px; }
+    .toolbar button { padding: 11px 16px; }
+    .card {
+      background: linear-gradient(145deg, #ffffff, #f4f9fc);
+      border: 1px solid rgba(207, 222, 235, .88);
+      padding: 22px;
+      box-shadow: var(--shadow-deep), var(--bevel);
+      transform-style: preserve-3d;
+    }
+    .dashboard-grid { gap: 20px; align-items: stretch; }
+    .sidebar {
+      position: relative;
+      overflow: hidden;
+      background:
+        linear-gradient(145deg, rgba(255, 255, 255, .78), transparent 24%),
+        linear-gradient(155deg, var(--side-ink), var(--side-deep) 78%);
+      border: 1px solid rgba(207, 222, 235, .88);
+      padding: 22px;
+      color: var(--ink);
+      box-shadow: 18px 24px 38px rgba(42, 58, 78, .13), inset 0 1px 0 rgba(255, 255, 255, .82);
+      transform: translateZ(18px);
+    }
+    .sidebar::after {
+      content: "";
+      position: absolute;
+      inset: 12px;
+      border: 1px solid rgba(255, 255, 255, .12);
+      border-radius: 8px;
+      pointer-events: none;
+    }
+    .sidebar h1 {
+      color: #3f7891;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, .86);
+    }
+    .welcome { margin: 12px 0 22px; color: #667589; }
+    .menu a {
+      color: var(--ink);
+      padding: 12px;
+      border: 1px solid rgba(255, 255, 255, .10);
+      background: linear-gradient(145deg, rgba(255, 255, 255, .74), rgba(255, 255, 255, .32));
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .88), 0 10px 18px rgba(42, 58, 78, .08);
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+      transform-style: preserve-3d;
+    }
+    .menu a:hover {
+      background: linear-gradient(145deg, rgba(255, 255, 255, .88), rgba(90, 169, 200, .16));
+      box-shadow: 0 16px 26px rgba(42, 58, 78, .12), inset 0 1px 0 rgba(255, 255, 255, .90);
+      transform: translateY(-3px) translateZ(10px);
+    }
+    h2 {
+      font-size: 30px;
+      color: #182334;
+      text-decoration: none;
+      letter-spacing: 0;
+    }
+    .approval-heading-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .back-dashboard-btn {
+      width: auto;
+      padding: 10px 16px;
+      white-space: nowrap;
+    }
+    .table-wrap {
+      border: 1px solid rgba(217, 228, 239, .98);
+      border-radius: 8px;
+      background: linear-gradient(145deg, #ffffff, #f4f9fc);
+      box-shadow: 0 18px 36px rgba(47, 28, 53, .11), var(--bevel);
+    }
+    .table-toolbar {
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, .76);
+    }
+    .field { border-right: 1px solid var(--line); }
+    thead { background: linear-gradient(180deg, #f5fbff, #eaf2f8); }
+    th {
+      color: #223044;
+      text-shadow: 0 1px 0 rgba(0, 0, 0, .16);
+    }
+    tbody tr { transition: background .16s ease, transform .16s ease, box-shadow .16s ease; }
+    tbody tr.selectable-row:hover { background: #f3fbff; box-shadow: inset 5px 0 0 var(--teal); }
+    tbody tr.selected-row { background: #eaf6fb; }
+    .table-actions {
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, .76);
+    }
+    .btn-danger {
+      background: linear-gradient(145deg, #d85a70, #a93b50);
+      box-shadow: 0 12px 22px rgba(169, 59, 80, .20), inset 0 1px 0 rgba(255, 255, 255, .28);
+    }
+    .approval-hint {
+      margin-top: 0;
+      border: 1px solid rgba(217, 228, 239, .98);
+      border-radius: 10px;
+      background: linear-gradient(145deg, #fffdfb, #f8f0f6);
+      box-shadow: 0 18px 36px rgba(47, 28, 53, .11), var(--bevel);
+      transform-style: preserve-3d;
+    }
+    .approval-hint-head { margin-bottom: 8px; }
+    .time-greeting {
+      color: #2d2336;
+      letter-spacing: 0;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, .9);
+    }
+    .time-badge {
+      border: 1px solid rgba(217, 228, 239, .98);
+      background: linear-gradient(145deg, #fffdfb, #f7eff4);
+      color: var(--blue);
+      box-shadow: 0 9px 18px rgba(22, 35, 54, .09), var(--bevel);
+    }
+    .approval-hint-sub { color: #314258; }
+    .approval-hint-note { color: var(--muted); }
+    .dashboard-hero {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: start;
+    }
+    .role-pill {
+      justify-self: end;
+      border: 1px solid rgba(217, 228, 239, .98);
+      background: linear-gradient(145deg, #fffdfb, #f7eff4);
+      color: #2d2336;
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 800;
+      white-space: nowrap;
+      box-shadow: 0 10px 20px rgba(22, 35, 54, .09), var(--bevel);
+    }
+    .dashboard-loading {
+      margin-top: 16px;
+      border: 1px dashed #9fb2c8;
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.72);
+      font-weight: 700;
+    }
+    .bi-dashboard {
+      margin-top: 16px;
+      display: grid;
+      gap: 14px;
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .kpi-tile {
+      position: relative;
+      overflow: visible;
+      min-height: 128px;
+      border: 1px solid rgba(215, 224, 236, .95);
+      border-radius: 8px;
+      background: linear-gradient(145deg, rgba(255, 255, 255, 1), rgba(244, 248, 251, .98)), #ffffff;
+      padding: 18px 18px 15px;
+      box-shadow: 0 16px 30px rgba(22, 35, 54, .10), 0 4px 9px rgba(22, 35, 54, .06), var(--bevel);
+      transform-style: preserve-3d;
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+      cursor: pointer;
+    }
+    .kpi-tile::before {
+      content: "";
+      position: absolute;
+      inset: 12px auto 12px 0;
+      width: 7px;
+      border-radius: 0 999px 999px 0;
+      background: var(--accent, #5aa9c8);
+    }
+    .kpi-tile::after,
+    .insight-item::after {
+      content: attr(data-pop);
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 10px);
+      z-index: 30;
+      width: max-content;
+      max-width: min(260px, calc(100vw - 32px));
+      padding: 9px 11px;
+      border: 1px solid rgba(255, 255, 255, .14);
+      border-radius: 8px;
+      background: rgba(13, 43, 69, .96);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.25;
+      text-align: center;
+      box-shadow: 0 16px 30px rgba(13, 43, 69, .24);
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, 6px) scale(.96);
+      transition: opacity .16s ease, transform .16s ease;
+      white-space: normal;
+    }
+    .kpi-tile:hover,
+    .kpi-tile:focus-visible,
+    .insight-item:hover {
+      transform: translateY(-6px) rotateX(2deg) translateZ(14px);
+      box-shadow: 0 24px 42px rgba(22, 35, 54, .15), 0 8px 14px rgba(22, 35, 54, .08), var(--bevel);
+      border-color: rgba(255, 118, 95, .38);
+    }
+    .kpi-tile:hover::after,
+    .insight-item:hover::after {
+      opacity: 1;
+      transform: translate(-50%, 0) scale(1);
+    }
+    .kpi-label {
+      min-height: 38px;
+      color: #314258;
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.25;
+      text-transform: uppercase;
+    }
+    .kpi-value {
+      margin-top: 10px;
+      color: #172033;
+      font-size: 40px;
+      font-weight: 900;
+      line-height: 1;
+      text-shadow: 0 2px 0 rgba(255, 255, 255, .86), 0 10px 16px rgba(22, 35, 54, .12);
+    }
+    .kpi-sub {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+    .dashboard-insight {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .insight-item {
+      position: relative;
+      border: 1px solid rgba(217, 228, 239, .98);
+      border-radius: 8px;
+      background: linear-gradient(145deg, rgba(255, 255, 255, .98), rgba(243, 248, 251, .96));
+      padding: 14px;
+      min-height: 78px;
+      box-shadow: 0 14px 26px rgba(22, 35, 54, .09), var(--bevel);
+      transform-style: preserve-3d;
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    }
+    .insight-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+    .insight-value {
+      margin-top: 7px;
+      color: #0f172a;
+      font-size: 15px;
+      font-weight: 900;
+      line-height: 1.35;
+    }
+
+    button {
+      background: linear-gradient(145deg, #9b5f89, #6e466f);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, .18);
+      border-radius: 8px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 12px 22px rgba(110, 70, 111, .22), inset 0 1px 0 rgba(255, 255, 255, .30);
+      transition: transform .16s ease, box-shadow .16s ease, filter .16s ease;
+    }
+    button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 26px rgba(110, 70, 111, .28), inset 0 1px 0 rgba(255, 255, 255, .34);
+      filter: saturate(1.06);
+    }
+    button:disabled {
+      background: linear-gradient(145deg, #a8b4c3, #8d9caf);
+      cursor: not-allowed;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .22);
+    }
+
+    @media (max-width: 980px) {
+      .page-header { grid-template-columns: 1fr; text-align: center; }
+      .brand-left { align-items: center; }
+      .dashboard-grid { grid-template-columns: 1fr; }
+      .sidebar { min-height: auto; }
+      h2 { font-size: 24px; }
+      .sidebar h1 { font-size: 32px; }
+      .welcome { font-size: 24px; }
+      .menu a { font-size: 20px; }
+      .table-toolbar { grid-template-columns: 1fr; }
+      .field { border-right: none; border-bottom: 1px solid #cbd5e1; }
+      .field:last-child { border-bottom: none; }
+      table { font-size: 20px; }
+      .pager { font-size: 18px; }
+      .time-greeting { font-size: 24px; }
+      .approval-hint-sub { font-size: 16px; }
+      .hod-action-row { align-items: stretch; }
+      .hod-remarks { min-width: 100%; }
+      .hod-submit-btn { width: 100%; }
+      .update-hod-panel label { font-size: 15px; }
+      .update-hod-panel select { width: 100%; }
+      .update-hod-btn { width: 100%; }
+      .dashboard-hero { grid-template-columns: 1fr; }
+      .role-pill { justify-self: start; }
+      .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .dashboard-insight { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 620px) {
+      body { padding: 12px; }
+      .kpi-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+  <link rel="stylesheet" href="/web/portal-liquid.css?v=20260610-light" />
+  <style>
+    .dashboard-card {
+      overflow: visible !important;
+    }
+
+    .dashboard-card .dashboard-grid > .sidebar {
+      position: sticky !important;
+      top: 20px;
+      align-self: start;
+      height: fit-content;
+      max-height: calc(100vh - 40px);
+      min-height: 0 !important;
+      overflow-x: hidden !important;
+      overflow-y: auto !important;
+      scrollbar-gutter: stable;
+    }
+
+    @media (max-width: 620px) {
+      .dashboard-card .dashboard-grid > .sidebar {
+        top: 12px;
+        max-height: calc(100vh - 24px);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="page-header">
+      <div class="brand-left">
+        <img src="/web/header-art-image" alt="Header Art" class="brand-art" />
+      </div>
+      <div class="brand-text">Sharp & Tannan Chartered Accountants</div>
+      <div></div>
+    </div>
+
+    <div class="toolbar">
+      <button type="button" onclick="logoutAndRedirect()">Logout</button>
+    </div>
+
+    <div class="card dashboard-card">
+      <div class="dashboard-grid">
+        <aside class="sidebar">
+          <h1>Customer Request Approval Portal</h1>
+          <div id="welcomeText" class="welcome">Welcome Customer Admin!</div>
+          <ul id="sidebarMenu" class="menu"></ul>
+        </aside>
+
+        <main>
+          <div id="approvalHint" class="approval-hint">
+            <div class="dashboard-hero">
+              <div>
+                <div class="approval-hint-head">
+                  <div id="timeGreeting" class="time-greeting">Good Morning</div>
+                  <div id="timeBadge" class="time-badge">--:--</div>
+                </div>
+                <p class="approval-hint-sub">Customer workflow dashboard</p>
+                <p id="dashboardScopeText" class="approval-hint-note">Loading role based metrics...</p>
+              </div>
+              <div id="dashboardRolePill" class="role-pill">Role</div>
+            </div>
+            <div id="dashboardLoading" class="dashboard-loading">Loading dashboard data...</div>
+            <div id="roleDashboard" class="bi-dashboard hidden">
+              <div id="kpiGrid" class="kpi-grid"></div>
+              <div id="dashboardInsight" class="dashboard-insight"></div>
+            </div>
+          </div>
+          <div id="approvalContent" class="hidden">
+            <div class="heading-row">
+              <h2 id="recordsHeading">Total Customer Request Records</h2>
+              <div class="approval-heading-actions">
+                <button id="backDashboardBtn" type="button" class="back-dashboard-btn" onclick="location.href='/web/customer-dashboard'">Back</button>
+                <button type="button" class="history-btn" onclick="location.href='/web/vendor-history?portal=customer'">History</button>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <div class="table-toolbar">
+                <div class="field"><input id="searchInput" type="text" placeholder="Search by..." /></div>
+                <div class="field">
+                  <select id="filterField">
+                    <option value="company">Company Dealing With</option>
+                    <option value="category">Customer Category</option>
+                    <option value="approverStatus">Approver Status</option>
+                    <option value="name">Customer Name</option>
+                    <option value="rubaminContactPerson">Sharp & Tannan Contact Person</option>
+                    <option value="rubaminContactPersonEmail">Sharp & Tannan Contact Person Email</option>
+                    <option value="type">Customer Type</option>
+                    <option value="record">Record ID</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="table-box">
+                <table id="recordsTable">
+                  <colgroup>
+                    <col style="width: 280px;">
+                    <col style="width: 320px;">
+                    <col style="width: 240px;">
+                    <col style="width: 240px;">
+                    <col style="width: 220px;">
+                    <col style="width: 260px;">
+                    <col style="width: 320px;">
+                    <col style="width: 220px;">
+                  </colgroup>
+                  <thead>
+                    <tr>
+                      <th>Record ID<span class="col-resizer" aria-hidden="true"></span></th>
+                      <th>Company Dealing With<span class="col-resizer" aria-hidden="true"></span></th>
+                      <th>Customer Category<span class="col-resizer" aria-hidden="true"></span></th>
+                      <th>Approver Status<span class="col-resizer" aria-hidden="true"></span></th>
+                      <th>Customer Name<span class="col-resizer" aria-hidden="true"></span></th>
+                      <th>Sharp & Tannan Contact Person<span class="col-resizer" aria-hidden="true"></span></th>
+                      <th>Sharp & Tannan Contact Person Email<span class="col-resizer" aria-hidden="true"></span></th>
+                      <th>Customer Type<span class="col-resizer" aria-hidden="true"></span></th>
+                    </tr>
+                  </thead>
+                  <tbody id="recordsBody"></tbody>
+                </table>
+              </div>
+
+              <div class="table-actions">
+                <button id="viewVendorBtn" type="button" disabled>View Customer</button>
+                <button id="cancelVendorBtn" type="button" class="btn-danger" disabled>Cancel the Customer</button>
+                <div id="hodDecisionPanel" class="hod-decision-panel hidden">
+                  <div class="hod-choice">
+                    <label><input type="radio" name="hodDecision" value="approve" />Approve</label>
+                    <label><input type="radio" name="hodDecision" value="reject" />Reject</label>
+                  </div>
+                  <div class="hod-action-row">
+                    <div id="hodRejectToContainer" class="hod-reject-to hidden">
+                      <span>Reject To</span>
+                      <label><input type="radio" name="hodRejectTo" value="Customer" />Customer</label>
+                      <label><input type="radio" name="hodRejectTo" value="Buyer" />Buyer</label>
+                    </div>
+                    <div class="hod-remarks">
+                      <textarea id="hodDecisionRemarks" placeholder="Remarks"></textarea>
+                    </div>
+                    <button id="hodDecisionSubmitBtn" type="button" class="hod-submit-btn" disabled>Submit</button>
+                  </div>
+                </div>
+                <div id="updateHodPanel" class="update-hod-panel hidden">
+                  <label for="newHodEmailSelect">Select New HOD Email ID</label>
+                  <select id="newHodEmailSelect">
+                    <option value="">Select HOD Email</option>
+                  </select>
+                  <button id="updateHodEmailBtn" type="button" class="update-hod-btn" disabled>Update Email ID</button>
+                </div>
+                <span id="tableActionMessage" class="table-action-msg">Select one row to continue.</span>
+              </div>
+
+              <div class="pager">
+                <span>Show 25</span>
+                <span id="countLabel">1 - 6 / 6</span>
+                <button type="button" aria-label="first">|&lt;</button>
+                <button type="button" aria-label="previous">&lt;</button>
+                <button type="button" aria-label="next">&gt;</button>
+                <button type="button" aria-label="last">&gt;|</button>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function requireSessionLogin() {
+      if (sessionStorage.getItem("token")) {
+        return;
+      }
+      fetch("/api/auth/logout", { method: "POST", keepalive: true }).catch(() => {});
+      window.location.replace("/web/login");
+    }
+
+    requireSessionLogin();
+    const defaultMenuItems = [
+      { href: "/web/invite-customer", label: "+ Invite Customer" },
+      { href: "/web/customer-form", label: "&#128196; Fill Customer Form" },
+      { href: "/web/export-customer-form", label: "&#128196; Fill Export Customer Form" },
+      { href: "/web/customer-shipto", label: "&#128663; Add Ship to Address in Customer" },
+      { href: "#", label: "&#9989; Approval Page" }
+    ];
+
+    const roleMenuItems = {
+      admin: defaultMenuItems,
+      user: [
+        { href: "/web/invite-customer", label: "+ Invite Customer" },
+        { href: "/web/customer-form", label: "&#128196; Fill Customer Form" },
+        { href: "/web/export-customer-form", label: "&#128196; Fill Export Customer Form" },
+        { href: "/web/customer-shipto", label: "&#128663; Add Ship to Address in Customer" },
+        { href: "#update-hod-email", label: "&#10227; Update HOD Email" },
+        { href: "#", label: "&#9989; Approval Page" }
+      ],
+      validator: [
+        { href: "#", label: "&#9989; Validator Approval" }
+      ],
+      validator_user: [
+        { href: "/web/invite-customer", label: "+ Invite Customer" },
+        { href: "/web/customer-form", label: "&#128196; Fill Customer Form" },
+        { href: "/web/export-customer-form", label: "&#128196; Fill Export Customer Form" },
+        { href: "/web/customer-shipto", label: "&#128663; Add Ship to Address in Customer" },
+        { href: "#", label: "&#9989; Validator Approval" },
+        { href: "#update-hod-email", label: "&#10227; Update HOD Email" },
+        { href: "#", label: "&#9989; Approval Page" }
+      ],
+      validator_hod: [
+        { href: "#", label: "&#9989; Validator Approval" },
+        { href: "#", label: "&#9989; HOD Approval" }
+      ],
+      hod: [
+        { href: "#", label: "&#9989; HOD Approval" }
+      ]
+    };
+
+    const rows = [];
+    const dashboardRows = [];
+    let selectedRecordId = "";
+    let selectedRecordIds = [];
+    let activeApprovalMode = "";
+    let activeDashboardDrilldownTitle = "";
+    const dashboardDrilldownRows = [];
+    const CUSTOMER_VIEW_STATE_RECORD_KEY = "customerLastViewedRecordId";
+    const CUSTOMER_VIEW_STATE_MODE_KEY = "customerLastApprovalMode";
+
+    function normalizeRole(roleValue) {
+      const role = String(roleValue || "").trim().toLowerCase();
+      if (role === "administrator") return "admin";
+      if (role === "head of department") return "hod";
+      if (role === "validator & user" || role === "validator and user" || role === "validator+user") return "validator_user";
+      if (role === "validator & hod" || role === "validator and hod" || role === "validator+hod") return "validator_hod";
+      return role;
+    }
+
+    function roleCapabilities(normalizedRole) {
+      if (normalizedRole === "validator_user") return new Set(["validator", "user", "buyer"]);
+      if (normalizedRole === "validator_hod") return new Set(["validator", "hod"]);
+      if (normalizedRole === "user") return new Set(["user", "buyer"]);
+      if (normalizedRole === "buyer") return new Set(["buyer", "user"]);
+      return new Set([normalizedRole]);
+    }
+
+    function hasRoleCapability(normalizedRole, capability) {
+      return roleCapabilities(normalizedRole).has(String(capability || "").trim().toLowerCase());
+    }
+
+    function getAllowedApprovalModes(normalizedRole) {
+      if (normalizedRole === "admin") return ["buyer", "validator", "hod"];
+      const modes = [];
+      if (hasRoleCapability(normalizedRole, "validator")) modes.push("validator");
+      if (hasRoleCapability(normalizedRole, "hod")) modes.push("hod");
+      if (hasRoleCapability(normalizedRole, "user") || hasRoleCapability(normalizedRole, "buyer")) modes.push("buyer");
+      return modes.length ? modes : ["buyer"];
+    }
+
+    function getInitialApprovalMode(normalizedRole, searchValue = window.location.search) {
+      const params = new URLSearchParams(searchValue);
+      const requestedMode = String(params.get("approval") || "").trim().toLowerCase();
+      const allowedModes = getAllowedApprovalModes(normalizedRole);
+      if (requestedMode && allowedModes.includes(requestedMode)) {
+        return requestedMode;
+      }
+      return "";
+    }
+
+    function getDefaultApprovalMode(normalizedRole) {
+      const allowedModes = getAllowedApprovalModes(normalizedRole);
+      if (allowedModes.includes("validator")) return "validator";
+      if (allowedModes.includes("hod")) return "hod";
+      return allowedModes[0] || "buyer";
+    }
+
+    function isApprovalMenuItem(item) {
+      const label = String(item?.label || "").toLowerCase();
+      return label.includes("approval");
+    }
+
+    function getApprovalMenuType(item) {
+      const label = String(item?.label || "").toLowerCase();
+      if (label.includes("validator approval")) {
+        return "validator";
+      }
+      if (label.includes("hod approval")) {
+        return "hod";
+      }
+      if (label.includes("buyer approval")) {
+        return "buyer";
+      }
+      if (label.includes("approval page")) {
+        return "buyer";
+      }
+      if (isApprovalMenuItem(item)) {
+        return "generic";
+      }
+      return "";
+    }
+
+    function resetSelectionState() {
+      selectedRecordId = "";
+      selectedRecordIds = [];
+    }
+
+    function applySingleSelection(recordId) {
+      const value = String(recordId || "").trim();
+      if (!value) {
+        resetSelectionState();
+        return;
+      }
+      selectedRecordId = value;
+      selectedRecordIds = [value];
+    }
+
+    function toggleMultiSelection(recordId) {
+      const value = String(recordId || "").trim();
+      if (!value) return;
+      const existingIndex = selectedRecordIds.indexOf(value);
+      if (existingIndex >= 0) {
+        selectedRecordIds.splice(existingIndex, 1);
+      } else {
+        selectedRecordIds.push(value);
+      }
+      selectedRecordId = selectedRecordIds[0] || "";
+    }
+
+    function renderSidebarMenu(role) {
+      const menu = document.getElementById("sidebarMenu");
+      if (!menu) return;
+      const normalizedRole = normalizeRole(role);
+      let items = roleMenuItems[normalizedRole] || defaultMenuItems;
+      if (normalizedRole !== "admin") {
+        items = items.filter((item) => item.href !== "/web/admin-users");
+      }
+      const historyHref = "/web/vendor-history?portal=customer";
+      if (!items.some((item) => String(item?.href || "").trim().toLowerCase() === historyHref.toLowerCase())) {
+        items = [
+          ...items,
+          { href: historyHref, label: "&#128221; History Page" },
+        ];
+      }
+      menu.innerHTML = items
+        .map((item) => {
+          const approvalFlag = isApprovalMenuItem(item) ? "true" : "false";
+          let approvalType = getApprovalMenuType(item);
+          if (approvalFlag === "true") {
+            if (approvalType === "buyer" || approvalType === "generic") {
+              approvalType = getDefaultApprovalMode(normalizedRole);
+            }
+          }
+          return `<li><a href="${item.href}" data-approval-item="${approvalFlag}" data-approval-type="${approvalType}">${item.label}</a></li>`;
+        })
+        .join("");
+    }
+
+    function toggleApprovalTableVisibility(showTable, tableActionMessage) {
+      const hint = document.getElementById("approvalHint");
+      const content = document.getElementById("approvalContent");
+      if (hint) {
+        hint.classList.toggle("hidden", !!showTable);
+      }
+      if (content) {
+        content.classList.toggle("hidden", !showTable);
+      }
+      if (!showTable) {
+        resetSelectionState();
+        setActionMessage(tableActionMessage, "Click any Approval button from menu to view records.");
+      }
+    }
+
+    function getTimeGreeting(dateObj) {
+      const hours = dateObj.getHours();
+      if (hours < 12) return "Good Morning";
+      if (hours < 17) return "Good Afternoon";
+      return "Good Evening";
+    }
+
+    function formatLocalTime(dateObj) {
+      return dateObj.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    }
+
+    function updateDashboardGreeting(userName = "User") {
+      const greetingEl = document.getElementById("timeGreeting");
+      const timeBadgeEl = document.getElementById("timeBadge");
+      if (!greetingEl || !timeBadgeEl) return;
+
+      const now = new Date();
+      const greeting = getTimeGreeting(now);
+      greetingEl.textContent = `${greeting}, ${userName}`;
+      timeBadgeEl.textContent = formatLocalTime(now);
+    }
+
+    async function logoutAndRedirect() {
+      await fetch("/api/auth/logout", { method: "POST" });
+      sessionStorage.removeItem("token");
+      sessionStorage.removeItem("role");
+      sessionStorage.removeItem("email");
+      sessionStorage.removeItem("name");
+      window.location.href = "/web/login";
+    }
+
+    async function parseApiResponse(res) {
+      const text = await res.text();
+      if (!text) return {};
+      try {
+        return JSON.parse(text);
+      } catch (_) {
+        return { detail: text };
+      }
+    }
+
+    function createToastManager() {
+      const host = document.createElement("div");
+      host.style.position = "fixed";
+      host.style.top = "12px";
+      host.style.left = "50%";
+      host.style.transform = "translateX(-50%)";
+      host.style.zIndex = "5000";
+      host.style.pointerEvents = "none";
+      document.body.appendChild(host);
+
+      let activeToast = null;
+      let activeTimer = null;
+
+      function removeToast(toast) {
+        if (!toast) return;
+        toast.style.opacity = "0";
+        toast.style.transform = "translateY(-8px)";
+        setTimeout(() => {
+          if (toast.parentNode) toast.parentNode.removeChild(toast);
+        }, 180);
+        if (activeToast === toast) activeToast = null;
+      }
+
+      return function showToast(text, kind = "info", duration = 10000) {
+        if (!text) return;
+        if (activeTimer) {
+          clearTimeout(activeTimer);
+          activeTimer = null;
+        }
+        if (activeToast) {
+          activeToast.remove();
+          activeToast = null;
+        }
+        const colors = { ok: "#166534", err: "#b91c1c", info: "#2454d9" };
+        const toast = document.createElement("div");
+        toast.textContent = text;
+        toast.style.width = "min(390px, calc(100vw - 36px))";
+        toast.style.maxWidth = "calc(100vw - 36px)";
+        toast.style.padding = "18px 20px";
+        toast.style.borderRadius = "12px";
+        toast.style.boxShadow = "0 12px 28px rgba(15, 23, 42, 0.22)";
+        toast.style.background = colors[kind] || colors.info;
+        toast.style.color = "#fff";
+        toast.style.fontSize = "16px";
+        toast.style.fontWeight = "700";
+        toast.style.lineHeight = "1.35";
+        toast.style.opacity = "0";
+        toast.style.transform = "translateY(-8px)";
+        toast.style.transition = "opacity .18s ease, transform .18s ease";
+        host.appendChild(toast);
+        requestAnimationFrame(() => {
+          toast.style.opacity = "1";
+          toast.style.transform = "translateY(0)";
+        });
+        activeToast = toast;
+        if (duration > 0) activeTimer = setTimeout(() => removeToast(toast), duration);
+      };
+    }
+
+    const showToast = createToastManager();
+
+    function pickRecordValue(record, keys, fallback = "") {
+      const source = record && typeof record === "object" ? record : {};
+      for (const key of keys) {
+        const value = source[key];
+        if (value === null || value === undefined) continue;
+        const text = String(value).trim();
+        if (text) return text;
+      }
+      return fallback;
+    }
+
+    function normalizeDashboardRow(item) {
+      return {
+        record: String(item.record || ""),
+        company: String(item.company || ""),
+        category: String(item.category || ""),
+        approverStatus: String(item.approverStatus || ""),
+        name: String(item.name || ""),
+        rubaminContactPerson: String(item.rubaminContactPerson || ""),
+        rubaminContactPersonEmail: String(item.rubaminContactPersonEmail || ""),
+        type: String(item.type || ""),
+        customerCode: String(item.customerCode || item.vendorCode || item.sapCustomerCode || ""),
+        sapCodeGeneratedAt: String(item.sapCodeGeneratedAt || item.customerCodeGeneratedAt || ""),
+        createdAt: String(item.createdAt || ""),
+      };
+    }
+
+    function mapCustomerRecordToDashboardRow(recordPayload) {
+      const row = recordPayload && typeof recordPayload === "object" ? recordPayload : {};
+      const statusText = pickRecordValue(
+        row,
+        ["approverStatus", "ApproverStatus", "ApprovStatus", "inviteStatus", "InviteStatus", "status", "Status"],
+        ""
+      );
+      return normalizeDashboardRow({
+        record: pickRecordValue(row, ["recordId", "RecordID", "record", "Record", "id", "Id", "ID"], ""),
+        company: pickRecordValue(
+          row,
+          ["companyName", "CompanyName", "CompanyDealing", "CompanyDealingWith", "company", "CustomerGroup", "TopCustomer", "topCustomer"],
+          ""
+        ),
+        category: pickRecordValue(
+          row,
+          ["FirmType", "firmType", "vendorCategory", "VendorCategory", "CustomerGroup", "customerGroup", "category"],
+          ""
+        ),
+        approverStatus: statusText,
+        name: pickRecordValue(row, ["vendorName", "VendorName", "CustomerName", "TopCustomer", "topCustomer", "name"], ""),
+        rubaminContactPerson: pickRecordValue(
+          row,
+          ["rubaminContactPerson", "Sharp & Tannan Contact Person", "Rubamin Contact Person"],
+          ""
+        ),
+        rubaminContactPersonEmail: pickRecordValue(
+          row,
+          ["rubaminContactPersonEmail", "Sharp & Tannan Contact Person Email", "Rubamin Contact Person Email", "rubaminContactPerson", "Rubamin Contact Person"],
+          ""
+        ),
+        type: pickRecordValue(
+          row,
+          ["vendorType", "VendorType", "CustomerType", "TypeofEntity", "IndustryType", "DistributionChannel", "type"],
+          ""
+        ),
+        customerCode: pickRecordValue(
+          row,
+          ["CustomerCode", "SAPCustomerCode", "BusinessPartnerCode", "customerCode", "sapCustomerCode", "VendorCode", "vendorCode"],
+          ""
+        ),
+        sapCodeGeneratedAt: pickRecordValue(
+          row,
+          ["sapCodeGeneratedAt", "customerCodeGeneratedAt", "CustomerCodeGeneratedAt"],
+          ""
+        ),
+        createdAt: pickRecordValue(row, ["createdAt", "CreatedAt", "created_at", "updatedAt", "UpdatedAt", "updated_at"], ""),
+      });
+    }
+
+    function rowMatchesApprovalMode(row, mode) {
+      if (!row || typeof row !== "object") return false;
+      if (mode === "validator") return isPendingValidatorStatus(row.approverStatus);
+      if (mode === "hod") return isPendingHodStatus(row.approverStatus);
+      if (mode === "buyer") return isPendingUserApprovalStatus(row.approverStatus);
+      if (mode === "update-hod-email") return normalizeStatus(row.approverStatus) !== "pending for sap code creation";
+      return true;
+    }
+
+    async function restoreViewedRecordIfNeeded(token, fallbackRecordId, mode) {
+      const recordId = String(fallbackRecordId || "").trim();
+      if (!recordId) return false;
+      try {
+        const res = await fetch(`/api/customer/record?recordId=${encodeURIComponent(recordId)}`, {
+          headers: { "Authorization": `Bearer ${token}` },
+        });
+        const data = await parseApiResponse(res);
+        if (!res.ok) return false;
+        const recordData = data && typeof data === "object" ? (data.vendor || {}) : {};
+        const mapped = mapCustomerRecordToDashboardRow(recordData);
+        if (!mapped.record) return false;
+        if (!rowMatchesApprovalMode(mapped, mode)) return false;
+
+        const existingIndex = rows.findIndex(
+          (item) => String(item.record || "").trim().toLowerCase() === mapped.record.trim().toLowerCase()
+        );
+        if (existingIndex >= 0) {
+          rows.splice(existingIndex, 1, mapped);
+        } else {
+          rows.unshift(mapped);
+        }
+        return true;
+      } catch (_) {
+        return false;
+      }
+    }
+
+    async function loadDashboardRecords(token) {
+      const res = await fetch("/api/customer/dashboard-records", {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      const data = await parseApiResponse(res);
+      if (!res.ok) {
+        throw new Error(data.detail || "Unable to load dashboard records");
+      }
+      const normalized = Array.isArray(data)
+        ? data.map((item) => normalizeDashboardRow(item))
+        : [];
+      rows.splice(0, rows.length, ...normalized);
+    }
+
+    async function loadDashboardSummaryRecords(token) {
+      const res = await fetch("/api/customer/history-records", {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      const data = await parseApiResponse(res);
+      if (!res.ok) {
+        throw new Error(data.detail || "Unable to load dashboard summary records");
+      }
+      const normalized = Array.isArray(data)
+        ? data.map((item) => normalizeDashboardRow(item))
+        : [];
+      dashboardRows.splice(0, dashboardRows.length, ...normalized);
+    }
+
+    async function loadHodEmails(token) {
+      const res = await fetch("/api/customer/get-hod-emails", {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      const data = await parseApiResponse(res);
+      if (!res.ok) {
+        throw new Error(data.detail || "Unable to load HOD emails");
+      }
+      if (!Array.isArray(data)) {
+        return [];
+      }
+      return data
+        .map((item) => ({
+          id: String(item.id || ""),
+          name: String(item.name || "").trim(),
+          email: String(item.email || "").trim(),
+        }))
+        .filter((item) => item.email);
+    }
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function normalizeStatus(statusValue) {
+      return String(statusValue || "")
+        .trim()
+        .toLowerCase()
+        .replace(/\bpendign\b/g, "pending")
+        .split(/\s+/)
+        .filter(Boolean)
+        .join(" ");
+    }
+
+    function isPendingValidatorStatus(statusValue) {
+      const normalized = normalizeStatus(statusValue);
+      if (!normalized) return false;
+      if (normalized === "pending for validator approval" || normalized === "pendign for validator approval") {
+        return true;
+      }
+      return normalized.includes("pending") && (normalized.includes("validator") || normalized.includes("validation"));
+    }
+
+    function isPendingHodStatus(statusValue) {
+      const normalized = normalizeStatus(statusValue);
+      if (!normalized) return false;
+      if (normalized === "pending for hod approval" || normalized === "pendign for hod approval") {
+        return true;
+      }
+      return normalized.includes("pending") && normalized.includes("hod");
+    }
+
+    function isPendingUserApprovalStatus(statusValue) {
+      const normalized = normalizeStatus(statusValue);
+      if (!normalized) return false;
+      const knownPendingUserStatuses = new Set([
+        "pending for user approval",
+        "pendign for user approval",
+        "pending for buyer approval",
+        "pendign for buyer approval",
+        "pending for data validation",
+      ]);
+      if (knownPendingUserStatuses.has(normalized)) {
+        return true;
+      }
+      if (normalized.includes("pending") && (normalized.includes("user approv") || normalized.includes("buyer approv"))) {
+        return true;
+      }
+      return false;
+    }
+
+    function isCustomerInvitedStatus(statusValue) {
+      const normalized = normalizeStatus(statusValue);
+      return normalized === "customer invited"
+        || normalized === "invite customer"
+        || normalized === "invited"
+        || (normalized.includes("customer") && normalized.includes("invite"));
+    }
+
+    function isPendingSapStatus(statusValue) {
+      const normalized = normalizeStatus(statusValue).replace("creattion", "creation").replace("cretion", "creation");
+      return normalized === "pending for sap code creation"
+        || (normalized.includes("pending") && normalized.includes("sap") && normalized.includes("code"));
+    }
+
+    function isRejectedStatus(statusValue) {
+      return normalizeStatus(statusValue).includes("reject");
+    }
+
+    function isRejectedByValidatorStatus(statusValue) {
+      const normalized = normalizeStatus(statusValue);
+      return normalized.includes("reject") && normalized.includes("validator");
+    }
+
+    function isRejectedByHodStatus(statusValue) {
+      const normalized = normalizeStatus(statusValue);
+      return normalized.includes("reject") && normalized.includes("hod");
+    }
+
+    function isCancelledStatus(statusValue) {
+      const normalized = normalizeStatus(statusValue);
+      return normalized.includes("cancelled")
+        || normalized.includes("canceled")
+        || normalized.includes("cancle");
+    }
+
+    function isCreatedInSapRow(row) {
+      if (!row) return false;
+      const customerCode = String(row.customerCode || "").trim();
+      const sapGeneratedAt = String(row.sapCodeGeneratedAt || "").trim();
+      const status = normalizeStatus(row.approverStatus);
+      return !!customerCode
+        || !!sapGeneratedAt
+        || status.includes("created in sap")
+        || status.includes("sap code created")
+        || status.includes("customer code created")
+        || status.includes("vendor code created");
+    }
+
+    function isValidatorApprovedRow(row) {
+      if (!row) return false;
+      const status = row.approverStatus;
+      if (isCancelledStatus(status) || isRejectedByValidatorStatus(status) || isCustomerInvitedStatus(status)) {
+        return false;
+      }
+      return isPendingHodStatus(status)
+        || isPendingSapStatus(status)
+        || isRejectedByHodStatus(status)
+        || isCreatedInSapRow(row);
+    }
+
+    function isHodApprovedRow(row) {
+      if (!row) return false;
+      const status = row.approverStatus;
+      if (isCancelledStatus(status) || isRejectedStatus(status)) {
+        return false;
+      }
+      return isPendingSapStatus(status) || isCreatedInSapRow(row);
+    }
+
+    function countRows(data, predicate) {
+      return data.reduce((total, item) => total + (predicate(item) ? 1 : 0), 0);
+    }
+
+    function formatDashboardShare(value, total) {
+      if (!total) return "No records";
+      return `${Math.round((Number(value || 0) / total) * 100)}% of ${total}`;
+    }
+
+    function getDashboardRoleView(normalizedRole) {
+      if (activeApprovalMode === "validator" && hasRoleCapability(normalizedRole, "validator")) return "validator";
+      if (activeApprovalMode === "hod" && hasRoleCapability(normalizedRole, "hod")) return "hod";
+      if ((activeApprovalMode === "buyer" || activeApprovalMode === "update-hod-email") && hasRoleCapability(normalizedRole, "user")) return "user";
+      if (normalizedRole === "admin") return "admin";
+      if (normalizedRole === "validator_hod") return "validator";
+      if (hasRoleCapability(normalizedRole, "hod") && !hasRoleCapability(normalizedRole, "user")) return "hod";
+      if (hasRoleCapability(normalizedRole, "validator") && !hasRoleCapability(normalizedRole, "user")) return "validator";
+      return "user";
+    }
+
+    function getDashboardRoleLabel(roleView, normalizedRole) {
+      if (normalizedRole === "admin") return "Admin Dashboard";
+      if (roleView === "validator") return "Validator Dashboard";
+      if (roleView === "hod") return "HOD Dashboard";
+      return "User Dashboard";
+    }
+
+    function getDashboardCounts(data) {
+      const total = data.length;
+      const invited = countRows(data, (row) => isCustomerInvitedStatus(row.approverStatus));
+      const pendingUser = countRows(data, (row) => isPendingUserApprovalStatus(row.approverStatus));
+      const pendingValidator = countRows(data, (row) => isPendingValidatorStatus(row.approverStatus));
+      const pendingHod = countRows(data, (row) => isPendingHodStatus(row.approverStatus));
+      const sapCreated = countRows(data, (row) => isCreatedInSapRow(row));
+      const pendingSap = countRows(data, (row) => isPendingSapStatus(row.approverStatus) && !isCreatedInSapRow(row));
+      const rejected = countRows(data, (row) => isRejectedStatus(row.approverStatus));
+      const rejectedByValidator = countRows(data, (row) => isRejectedByValidatorStatus(row.approverStatus));
+      const rejectedByHod = countRows(data, (row) => isRejectedByHodStatus(row.approverStatus));
+      const cancelled = countRows(data, (row) => isCancelledStatus(row.approverStatus));
+      const validatorApproved = countRows(data, (row) => isValidatorApprovedRow(row));
+      const hodApproved = countRows(data, (row) => isHodApprovedRow(row));
+      return {
+        total,
+        invited,
+        pendingUser,
+        pendingValidator,
+        pendingHod,
+        pendingSap,
+        sapCreated,
+        rejected,
+        rejectedByValidator,
+        rejectedByHod,
+        cancelled,
+        validatorApproved,
+        hodApproved,
+      };
+    }
+
+    function getRoleDashboardRows(roleView, data) {
+      if (roleView === "validator") {
+        return data.filter((row) => (
+          isPendingValidatorStatus(row.approverStatus)
+          || isValidatorApprovedRow(row)
+          || isRejectedByValidatorStatus(row.approverStatus)
+        ));
+      }
+      if (roleView === "hod") {
+        return data.filter((row) => (
+          isPendingHodStatus(row.approverStatus)
+          || isHodApprovedRow(row)
+          || isRejectedByHodStatus(row.approverStatus)
+        ));
+      }
+      if (roleView === "user") {
+        return data.filter((row) => (
+          isCustomerInvitedStatus(row.approverStatus)
+          || isPendingUserApprovalStatus(row.approverStatus)
+          || isPendingValidatorStatus(row.approverStatus)
+          || isPendingHodStatus(row.approverStatus)
+          || isPendingSapStatus(row.approverStatus)
+          || isCreatedInSapRow(row)
+          || isRejectedStatus(row.approverStatus)
+          || isCancelledStatus(row.approverStatus)
+        ));
+      }
+      return [...data];
+    }
+
+    function getDashboardTableSourceRows(normalizedRole) {
+      const allSourceRows = dashboardRows.length ? dashboardRows : rows;
+      const roleView = getDashboardRoleView(normalizedRole);
+      return getRoleDashboardRows(roleView, allSourceRows);
+    }
+
+    function filterDashboardRowsByMetricKey(metricKey, data) {
+      const key = String(metricKey || "").trim();
+      const source = Array.isArray(data) ? data : [];
+      if (key === "total") return [...source];
+      const predicates = {
+        invited: (row) => isCustomerInvitedStatus(row.approverStatus),
+        pendingUser: (row) => isPendingUserApprovalStatus(row.approverStatus),
+        pendingValidator: (row) => isPendingValidatorStatus(row.approverStatus),
+        pendingHod: (row) => isPendingHodStatus(row.approverStatus),
+        pendingSap: (row) => isPendingSapStatus(row.approverStatus) && !isCreatedInSapRow(row),
+        sapCreated: (row) => isCreatedInSapRow(row),
+        rejected: (row) => isRejectedStatus(row.approverStatus),
+        rejectedByValidator: (row) => isRejectedByValidatorStatus(row.approverStatus),
+        rejectedByHod: (row) => isRejectedByHodStatus(row.approverStatus),
+        cancelled: (row) => isCancelledStatus(row.approverStatus),
+        validatorApproved: (row) => isValidatorApprovedRow(row),
+        hodApproved: (row) => isHodApprovedRow(row),
+      };
+      const predicate = predicates[key];
+      return predicate ? source.filter(predicate) : [...source];
+    }
+
+    function setRecordsHeading(text) {
+      const heading = document.getElementById("recordsHeading");
+      if (heading) heading.textContent = text || "Total Customer Request Records";
+    }
+
+    function dashboardMetric(label, value, color, total, filterKey) {
+      return {
+        label,
+        value,
+        color,
+        sub: formatDashboardShare(value, total),
+        filterKey: filterKey || "",
+      };
+    }
+
+    function buildDashboardConfig(roleView, data) {
+      const colors = {
+        total: "#5e6c7f",
+        invited: "#5aa9c8",
+        user: "#6f9fe8",
+        validator: "#99a4f2",
+        hod: "#e5bd62",
+        sapPending: "#eea174",
+        sapCreated: "#73c895",
+        rejected: "#e58ba0",
+        cancelled: "#93a3b5",
+      };
+      const counts = getDashboardCounts(data);
+      const pendingFlow = counts.pendingUser + counts.pendingValidator + counts.pendingHod + counts.pendingSap;
+
+      if (roleView === "validator") {
+        return {
+          roleTitle: "Validator Approval Performance",
+          counts,
+          metrics: [
+            dashboardMetric("Pending for Validator Approval", counts.pendingValidator, colors.validator, counts.total, "pendingValidator"),
+            dashboardMetric("Customer Approved", counts.validatorApproved, colors.sapCreated, counts.total, "validatorApproved"),
+            dashboardMetric("Customer Rejected", counts.rejectedByValidator, colors.rejected, counts.total, "rejectedByValidator"),
+            dashboardMetric("Created in SAP", counts.sapCreated, colors.total, counts.total, "sapCreated"),
+          ],
+          insights: [
+            { label: "Open Queue", value: `${counts.pendingValidator} pending` },
+            { label: "Approved Flow", value: `${counts.validatorApproved} customer record(s)` },
+            { label: "SAP Completion", value: `${counts.sapCreated} created` },
+          ],
+        };
+      }
+
+      if (roleView === "hod") {
+        return {
+          roleTitle: "HOD Approval Performance",
+          counts,
+          metrics: [
+            dashboardMetric("Pending for HOD Approval", counts.pendingHod, colors.hod, counts.total, "pendingHod"),
+            dashboardMetric("Customer Approved", counts.hodApproved, colors.sapCreated, counts.total, "hodApproved"),
+            dashboardMetric("Customer Rejected", counts.rejectedByHod, colors.rejected, counts.total, "rejectedByHod"),
+            dashboardMetric("Created in SAP", counts.sapCreated, colors.total, counts.total, "sapCreated"),
+          ],
+          insights: [
+            { label: "Open Queue", value: `${counts.pendingHod} pending` },
+            { label: "Approved for SAP", value: `${counts.hodApproved} customer record(s)` },
+            { label: "SAP Completion", value: `${counts.sapCreated} created` },
+          ],
+        };
+      }
+
+      if (roleView === "admin") {
+        return {
+          roleTitle: "Overall Customer Workflow",
+          counts,
+          metrics: [
+            dashboardMetric("Total Customer Records", counts.total, colors.total, counts.total, "total"),
+            dashboardMetric("Customer Invited", counts.invited, colors.invited, counts.total, "invited"),
+            dashboardMetric("Pending User Approval", counts.pendingUser, colors.user, counts.total, "pendingUser"),
+            dashboardMetric("Pending Validator Approval", counts.pendingValidator, colors.validator, counts.total, "pendingValidator"),
+            dashboardMetric("Pending HOD Approval", counts.pendingHod, colors.hod, counts.total, "pendingHod"),
+            dashboardMetric("Pending SAP Code Creation", counts.pendingSap, colors.sapPending, counts.total, "pendingSap"),
+            dashboardMetric("Created in SAP", counts.sapCreated, colors.sapCreated, counts.total, "sapCreated"),
+            dashboardMetric("Rejected Customers", counts.rejected, colors.rejected, counts.total, "rejected"),
+            dashboardMetric("Cancelled Customers", counts.cancelled, colors.cancelled, counts.total, "cancelled"),
+          ],
+          insights: [
+            { label: "Active Pending", value: `${pendingFlow} customer record(s)` },
+            { label: "SAP Created", value: `${counts.sapCreated} customer record(s)` },
+            { label: "Exception Queue", value: `${counts.rejected + counts.cancelled} customer record(s)` },
+          ],
+        };
+      }
+
+      return {
+        roleTitle: "User Customer Workflow",
+        counts,
+        metrics: [
+          dashboardMetric("Customer Invited", counts.invited, colors.invited, counts.total, "invited"),
+          dashboardMetric("Pending User Approval", counts.pendingUser, colors.user, counts.total, "pendingUser"),
+          dashboardMetric("Pending Validator Approval", counts.pendingValidator, colors.validator, counts.total, "pendingValidator"),
+          dashboardMetric("Pending HOD Approval", counts.pendingHod, colors.hod, counts.total, "pendingHod"),
+          dashboardMetric("Pending SAP Code Creation", counts.pendingSap, colors.sapPending, counts.total, "pendingSap"),
+          dashboardMetric("Created in SAP", counts.sapCreated, colors.sapCreated, counts.total, "sapCreated"),
+          dashboardMetric("Rejected Customers", counts.rejected, colors.rejected, counts.total, "rejected"),
+          dashboardMetric("Cancelled Customers", counts.cancelled, colors.cancelled, counts.total, "cancelled"),
+        ],
+        insights: [
+          { label: "Active Pending", value: `${pendingFlow} customer record(s)` },
+          { label: "SAP Created", value: `${counts.sapCreated} customer record(s)` },
+          { label: "Rejected", value: `${counts.rejected} customer record(s)` },
+        ],
+      };
+    }
+
+    function renderDashboardKpis(metrics) {
+      const kpiGrid = document.getElementById("kpiGrid");
+      if (!kpiGrid) return;
+      kpiGrid.innerHTML = metrics.map((metric) => {
+        const value = Number(metric.value || 0);
+        const popText = `${metric.label}: ${value} (${metric.sub || "No records"})`;
+        const filterKey = String(metric.filterKey || "");
+        return `
+        <div class="kpi-tile" style="--accent:${metric.color}" data-pop="${escapeHtml(popText)}" data-drilldown-key="${escapeHtml(filterKey)}" data-drilldown-label="${escapeHtml(metric.label)}" role="button" tabindex="0" aria-label="Open ${escapeHtml(metric.label)} records">
+          <div class="kpi-label">${escapeHtml(metric.label)}</div>
+          <div class="kpi-value">${value}</div>
+          <div class="kpi-sub">${escapeHtml(metric.sub || "")}</div>
+        </div>
+      `;
+      }).join("");
+    }
+
+    function renderDashboardInsights(insights) {
+      const target = document.getElementById("dashboardInsight");
+      if (!target) return;
+      target.innerHTML = insights.map((item) => `
+        <div class="insight-item" data-pop="${escapeHtml(`${item.label}: ${item.value}`)}">
+          <div class="insight-label">${escapeHtml(item.label)}</div>
+          <div class="insight-value">${escapeHtml(item.value)}</div>
+        </div>
+      `).join("");
+    }
+
+    function renderRoleDashboard(normalizedRole) {
+      const allSourceRows = dashboardRows.length ? dashboardRows : rows;
+      const roleView = getDashboardRoleView(normalizedRole);
+      const sourceRows = getRoleDashboardRows(roleView, allSourceRows);
+      const config = buildDashboardConfig(roleView, sourceRows);
+      const dashboard = document.getElementById("roleDashboard");
+      const loading = document.getElementById("dashboardLoading");
+      const rolePill = document.getElementById("dashboardRolePill");
+      const scopeText = document.getElementById("dashboardScopeText");
+
+      if (loading) loading.classList.add("hidden");
+      if (dashboard) dashboard.classList.remove("hidden");
+      if (rolePill) rolePill.textContent = getDashboardRoleLabel(roleView, normalizedRole);
+      if (scopeText) {
+        scopeText.textContent = `${config.roleTitle} - ${sourceRows.length} customer record${sourceRows.length === 1 ? "" : "s"}`;
+      }
+
+      renderDashboardKpis(config.metrics);
+      renderDashboardInsights(config.insights);
+    }
+
+    function patchDashboardRows(recordIds, updates) {
+      const idSet = new Set((Array.isArray(recordIds) ? recordIds : [recordIds]).map((item) => String(item || "")));
+      if (!idSet.size) return;
+      [rows, dashboardRows, dashboardDrilldownRows].forEach((targetRows) => {
+        targetRows.forEach((item) => {
+          if (idSet.has(String(item.record || ""))) {
+            Object.assign(item, updates);
+          }
+        });
+      });
+    }
+
+    function getApprovalModeRows() {
+      if (activeApprovalMode === "dashboard-drilldown") {
+        return [...dashboardDrilldownRows];
+      }
+      if (!activeApprovalMode) return [...rows];
+      return rows.filter((item) => rowMatchesApprovalMode(item, activeApprovalMode));
+    }
+
+    function isUpdateHodEmailMode(normalizedRole) {
+      return hasRoleCapability(normalizedRole, "user") && activeApprovalMode === "update-hod-email";
+    }
+
+    function render(data, tableBody, countLabel) {
+      const total = data.length;
+      if (!total) {
+        resetSelectionState();
+        tableBody.innerHTML = `
+          <tr class="empty-row">
+            <td colspan="8">No records found</td>
+          </tr>
+        `;
+        countLabel.textContent = "0 - 0 / 0";
+        return;
+      }
+
+      const visibleRecordIds = new Set(data.map((item) => String(item.record || "")));
+      selectedRecordIds = selectedRecordIds.filter((recordId) => visibleRecordIds.has(recordId));
+      selectedRecordId = selectedRecordIds[0] || "";
+
+      tableBody.innerHTML = data.map((item) => `
+        <tr class="selectable-row${selectedRecordIds.includes(String(item.record || "")) ? " selected-row" : ""}" data-record="${encodeURIComponent(String(item.record || ""))}">
+          <td>${escapeHtml(item.record)}</td>
+          <td>${escapeHtml(item.company)}</td>
+          <td>${escapeHtml(item.category)}</td>
+          <td>${escapeHtml(item.approverStatus || "")}</td>
+          <td>${escapeHtml(item.name)}</td>
+          <td>${escapeHtml(item.rubaminContactPerson || "")}</td>
+          <td>${escapeHtml(item.rubaminContactPersonEmail || "")}</td>
+          <td>${escapeHtml(item.type)}</td>
+        </tr>
+      `).join("");
+      countLabel.textContent = `1 - ${total} / ${total}`;
+    }
+
+    function setActionMessage(actionMessageEl, text, kind = "") {
+      if (!actionMessageEl) return;
+      actionMessageEl.textContent = text || "";
+      actionMessageEl.className = kind ? `table-action-msg ${kind}` : "table-action-msg";
+    }
+
+    function isHodMultiSelectMode(normalizedRole) {
+      return hasRoleCapability(normalizedRole, "hod") && activeApprovalMode === "hod";
+    }
+
+    function getSelectedHodDecision() {
+      const selected = document.querySelector('input[name="hodDecision"]:checked');
+      return String(selected?.value || "").trim().toLowerCase();
+    }
+
+    function getSelectedHodRejectTo() {
+      const selected = document.querySelector('input[name="hodRejectTo"]:checked');
+      return String(selected?.value || "").trim();
+    }
+
+    function syncHodDecisionSubmitState(normalizedRole) {
+      const panel = document.getElementById("hodDecisionPanel");
+      const submitBtn = document.getElementById("hodDecisionSubmitBtn");
+      const remarksEl = document.getElementById("hodDecisionRemarks");
+      const rejectToContainer = document.getElementById("hodRejectToContainer");
+      if (!panel || !submitBtn) return;
+      const panelVisible = !panel.classList.contains("hidden");
+      const decision = getSelectedHodDecision();
+      const rejectDecision = decision === "reject";
+      const rejectTo = getSelectedHodRejectTo();
+      const remarks = String(remarksEl?.value || "").trim();
+      const canHodApprove = hasRoleCapability(normalizedRole, "hod");
+      const shouldShowRejectTo = panelVisible && canHodApprove && rejectDecision;
+      if (rejectToContainer) {
+        rejectToContainer.classList.toggle("hidden", !shouldShowRejectTo);
+      }
+      if (!shouldShowRejectTo) {
+        document.querySelectorAll('input[name="hodRejectTo"]').forEach((radio) => {
+          radio.checked = false;
+        });
+      }
+      const rejectToValid = !rejectDecision || !!rejectTo;
+      submitBtn.disabled = !(
+        panelVisible
+        && canHodApprove
+        && selectedRecordIds.length > 0
+        && !!decision
+        && remarks !== ""
+        && rejectToValid
+      );
+    }
+
+    function syncUpdateHodPanelState(normalizedRole) {
+      const panel = document.getElementById("updateHodPanel");
+      const selectEl = document.getElementById("newHodEmailSelect");
+      const updateBtn = document.getElementById("updateHodEmailBtn");
+      if (!panel || !selectEl || !updateBtn) return;
+      const allowPanel = isUpdateHodEmailMode(normalizedRole) && selectedRecordIds.length === 1;
+      panel.classList.toggle("hidden", !allowPanel);
+      const panelVisible = allowPanel;
+      if (!panelVisible) {
+        selectEl.value = "";
+      }
+      const selectedEmail = String(selectEl.value || "").trim();
+      updateBtn.disabled = !(
+        panelVisible
+        && isUpdateHodEmailMode(normalizedRole)
+        && selectedRecordIds.length === 1
+        && selectedEmail
+      );
+    }
+
+    function toggleHodDecisionPanel(normalizedRole) {
+      const panel = document.getElementById("hodDecisionPanel");
+      const remarksEl = document.getElementById("hodDecisionRemarks");
+      if (!panel) return;
+      const showPanel = hasRoleCapability(normalizedRole, "hod") && activeApprovalMode === "hod";
+      panel.classList.toggle("hidden", !showPanel);
+      if (!showPanel) {
+        document.querySelectorAll('input[name="hodDecision"]').forEach((radio) => {
+          radio.checked = false;
+        });
+        document.querySelectorAll('input[name="hodRejectTo"]').forEach((radio) => {
+          radio.checked = false;
+        });
+        if (remarksEl) remarksEl.value = "";
+      }
+      syncHodDecisionSubmitState(normalizedRole);
+    }
+
+    function toggleUpdateHodPanel(normalizedRole) {
+      const panel = document.getElementById("updateHodPanel");
+      const selectEl = document.getElementById("newHodEmailSelect");
+      if (!panel) return;
+      const showPanel = isUpdateHodEmailMode(normalizedRole) && selectedRecordIds.length === 1;
+      panel.classList.toggle("hidden", !showPanel);
+      if (!showPanel && selectEl) {
+        selectEl.value = "";
+      }
+      syncUpdateHodPanelState(normalizedRole);
+    }
+
+    function updateActionButtons(viewButton, cancelButton, normalizedRole = "") {
+      const hasSelection = selectedRecordIds.length > 0;
+      const hideForUpdateHodMode = isUpdateHodEmailMode(normalizedRole);
+      if (viewButton) {
+        viewButton.classList.toggle("hidden", hideForUpdateHodMode);
+        viewButton.disabled = hideForUpdateHodMode || !hasSelection;
+      }
+      if (cancelButton) {
+        const baseHideCancel = hasRoleCapability(normalizedRole, "validator") || hasRoleCapability(normalizedRole, "hod");
+        const hideCancel = baseHideCancel || hideForUpdateHodMode;
+        cancelButton.classList.toggle("hidden", hideCancel);
+        if (hideCancel) {
+          cancelButton.disabled = true;
+        } else {
+          const allowCancel = selectedRecordIds.length === 1;
+          cancelButton.disabled = !allowCancel;
+        }
+      }
+      syncHodDecisionSubmitState(normalizedRole);
+      syncUpdateHodPanelState(normalizedRole);
+    }
+
+    function enableTableColumnResize(table) {
+      if (!table) return;
+      const headers = Array.from(table.querySelectorAll("thead th"));
+      const cols = Array.from(table.querySelectorAll("colgroup col"));
+      if (!headers.length || headers.length !== cols.length) return;
+
+      headers.forEach((header, colIndex) => {
+        const handle = header.querySelector(".col-resizer");
+        if (!handle) return;
+
+        handle.addEventListener("mousedown", (event) => {
+          event.preventDefault();
+          const startX = event.clientX;
+          const startWidth = cols[colIndex].getBoundingClientRect().width;
+          const minWidth = 140;
+          document.body.classList.add("col-resize-active");
+
+          const onMouseMove = (moveEvent) => {
+            const deltaX = moveEvent.clientX - startX;
+            const nextWidth = Math.max(minWidth, startWidth + deltaX);
+            cols[colIndex].style.width = `${nextWidth}px`;
+          };
+
+          const onMouseUp = () => {
+            document.body.classList.remove("col-resize-active");
+            document.removeEventListener("mousemove", onMouseMove);
+            document.removeEventListener("mouseup", onMouseUp);
+          };
+
+          document.addEventListener("mousemove", onMouseMove);
+          document.addEventListener("mouseup", onMouseUp);
+        });
+      });
+    }
+
+    function applyFilter(searchInput, filterField, tableBody, countLabel) {
+      const term = (searchInput.value || "").trim().toLowerCase();
+      const field = filterField.value;
+      const modeRows = getApprovalModeRows();
+      if (!term) {
+        render(modeRows, tableBody, countLabel);
+        return;
+      }
+      render(modeRows.filter((item) => String(item[field] || "").toLowerCase().includes(term)), tableBody, countLabel);
+    }
+
+    function getVisibleRows(searchInput, filterField) {
+      const term = (searchInput.value || "").trim().toLowerCase();
+      const field = filterField.value;
+      const modeRows = getApprovalModeRows();
+      if (!term) {
+        return modeRows;
+      }
+      return modeRows.filter((item) => String(item[field] || "").toLowerCase().includes(term));
+    }
+
+    function openDashboardDrilldown(metricKey, metricLabel, normalizedRole, controls) {
+      const sourceRows = getDashboardTableSourceRows(normalizedRole);
+      const filteredRows = filterDashboardRowsByMetricKey(metricKey, sourceRows);
+      dashboardDrilldownRows.splice(0, dashboardDrilldownRows.length, ...filteredRows);
+      activeDashboardDrilldownTitle = `${metricLabel || "Dashboard"} Records`;
+      activeApprovalMode = "dashboard-drilldown";
+      resetSelectionState();
+      setRecordsHeading(activeDashboardDrilldownTitle);
+
+      const {
+        searchInput,
+        filterField,
+        tableBody,
+        countLabel,
+        tableActionMessage,
+        viewVendorBtn,
+        cancelVendorBtn,
+      } = controls || {};
+
+      if (searchInput) searchInput.value = "";
+      if (filterField) filterField.value = "approverStatus";
+      toggleApprovalTableVisibility(true, tableActionMessage);
+      if (searchInput && filterField && tableBody && countLabel) {
+        applyFilter(searchInput, filterField, tableBody, countLabel);
+      }
+      toggleHodDecisionPanel(normalizedRole);
+      toggleUpdateHodPanel(normalizedRole);
+      updateActionButtons(viewVendorBtn, cancelVendorBtn, normalizedRole);
+      setActionMessage(
+        tableActionMessage,
+        `${filteredRows.length} record${filteredRows.length === 1 ? "" : "s"} found for ${metricLabel || "selected card"}.`
+      );
+      document.getElementById("approvalContent")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    window.addEventListener("DOMContentLoaded", async () => {
+      const initialSearch = window.location.search;
+      if (initialSearch) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+
+      const tableBody = document.getElementById("recordsBody");
+      const searchInput = document.getElementById("searchInput");
+      const filterField = document.getElementById("filterField");
+      const countLabel = document.getElementById("countLabel");
+      const recordsTable = document.getElementById("recordsTable");
+      const viewVendorBtn = document.getElementById("viewVendorBtn");
+      const cancelVendorBtn = document.getElementById("cancelVendorBtn");
+      const hodDecisionRemarks = document.getElementById("hodDecisionRemarks");
+      const hodDecisionSubmitBtn = document.getElementById("hodDecisionSubmitBtn");
+      const updateHodEmailBtn = document.getElementById("updateHodEmailBtn");
+      const newHodEmailSelect = document.getElementById("newHodEmailSelect");
+      const tableActionMessage = document.getElementById("tableActionMessage");
+      const welcomeText = document.getElementById("welcomeText");
+      const sidebarMenu = document.getElementById("sidebarMenu");
+      const roleDashboard = document.getElementById("roleDashboard");
+      const token = sessionStorage.getItem("token");
+      const role = sessionStorage.getItem("role") || "";
+      const name = sessionStorage.getItem("name") || "User";
+      const pageParams = new URLSearchParams(initialSearch);
+      const focusRecordIdFromQuery = String(
+        pageParams.get("recordId")
+        || pageParams.get("focusRecordId")
+        || ""
+      ).trim();
+      let hodEmailOptions = [];
+
+      if (!token) {
+        window.location.href = "/web/login";
+        return;
+      }
+
+      renderSidebarMenu(role);
+      updateDashboardGreeting(name);
+      setInterval(() => updateDashboardGreeting(name), 60000);
+      const normalizedRole = normalizeRole(role);
+      const initialApprovalMode = getInitialApprovalMode(normalizedRole, initialSearch);
+      activeApprovalMode = initialApprovalMode;
+      if (welcomeText) {
+        welcomeText.textContent = `Welcome ${name}`;
+      }
+
+      if ((hasRoleCapability(normalizedRole, "validator") || hasRoleCapability(normalizedRole, "hod")) && cancelVendorBtn) {
+        cancelVendorBtn.classList.add("hidden");
+      }
+
+      if (activeApprovalMode) {
+        const headingByMode = {
+          validator: "Validator Approval Records",
+          hod: "HOD Approval Records",
+          buyer: "User Approval Records",
+          "update-hod-email": "Update HOD Email Records",
+        };
+        setRecordsHeading(headingByMode[activeApprovalMode] || "Total Customer Request Records");
+        toggleApprovalTableVisibility(true, tableActionMessage);
+        const selectMessage = isHodMultiSelectMode(normalizedRole)
+          ? "Select one or more rows to continue."
+          : "Select one row to continue.";
+        setActionMessage(tableActionMessage, selectMessage);
+      } else {
+        toggleApprovalTableVisibility(false, tableActionMessage);
+      }
+      toggleHodDecisionPanel(normalizedRole);
+      toggleUpdateHodPanel(normalizedRole);
+
+      if (!tableBody || !searchInput || !filterField || !countLabel) {
+        return;
+      }
+
+      enableTableColumnResize(recordsTable);
+      updateActionButtons(viewVendorBtn, cancelVendorBtn, normalizedRole);
+
+      if (sidebarMenu) {
+        sidebarMenu.addEventListener("click", (event) => {
+          const link = event.target.closest("a");
+          if (!link) return;
+
+          const href = String(link.getAttribute("href") || "").trim();
+          const isApproval = String(link.dataset.approvalItem || "") === "true";
+          const approvalType = String(link.dataset.approvalType || "").trim();
+          if (isApproval) {
+            event.preventDefault();
+            activeApprovalMode = approvalType;
+            dashboardDrilldownRows.splice(0, dashboardDrilldownRows.length);
+            activeDashboardDrilldownTitle = "";
+            resetSelectionState();
+            const headingByMode = {
+              validator: "Validator Approval Records",
+              hod: "HOD Approval Records",
+              buyer: "User Approval Records",
+            };
+            setRecordsHeading(headingByMode[activeApprovalMode] || "Total Customer Request Records");
+            toggleApprovalTableVisibility(true, tableActionMessage);
+            renderRoleDashboard(normalizedRole);
+            applyFilter(searchInput, filterField, tableBody, countLabel);
+            toggleHodDecisionPanel(normalizedRole);
+            toggleUpdateHodPanel(normalizedRole);
+            updateActionButtons(viewVendorBtn, cancelVendorBtn, normalizedRole);
+            const selectMessage = isHodMultiSelectMode(normalizedRole)
+              ? "Select one or more rows to continue."
+              : "Select one row to continue.";
+            setActionMessage(tableActionMessage, selectMessage);
+            return;
+          }
+
+          if (href === "#update-hod-email") {
+            event.preventDefault();
+            if (!hasRoleCapability(normalizedRole, "user")) {
+              setActionMessage(tableActionMessage, "Only User role can access Update HOD Email.", "err");
+              return;
+            }
+            activeApprovalMode = "update-hod-email";
+            dashboardDrilldownRows.splice(0, dashboardDrilldownRows.length);
+            activeDashboardDrilldownTitle = "";
+            resetSelectionState();
+            setRecordsHeading("Update HOD Email Records");
+            toggleApprovalTableVisibility(true, tableActionMessage);
+            renderRoleDashboard(normalizedRole);
+            applyFilter(searchInput, filterField, tableBody, countLabel);
+            toggleHodDecisionPanel(normalizedRole);
+            toggleUpdateHodPanel(normalizedRole);
+            updateActionButtons(viewVendorBtn, cancelVendorBtn, normalizedRole);
+            setActionMessage(tableActionMessage, "Select one row to update HOD email.");
+            return;
+          }
+
+          if (href === "#") {
+            event.preventDefault();
+            activeApprovalMode = "";
+            dashboardDrilldownRows.splice(0, dashboardDrilldownRows.length);
+            activeDashboardDrilldownTitle = "";
+            resetSelectionState();
+            setRecordsHeading("Total Customer Request Records");
+            toggleApprovalTableVisibility(false, tableActionMessage);
+            renderRoleDashboard(normalizedRole);
+            toggleHodDecisionPanel(normalizedRole);
+            toggleUpdateHodPanel(normalizedRole);
+            updateActionButtons(viewVendorBtn, cancelVendorBtn, normalizedRole);
+          }
+        });
+      }
+
+      if (roleDashboard) {
+        const openCardFromEvent = (event) => {
+          const tile = event.target.closest(".kpi-tile[data-drilldown-key]");
+          if (!tile || !roleDashboard.contains(tile)) return;
+          const metricKey = String(tile.dataset.drilldownKey || "").trim();
+          const metricLabel = String(tile.dataset.drilldownLabel || "").trim();
+          if (!metricKey) return;
+          event.preventDefault();
+          openDashboardDrilldown(metricKey, metricLabel, normalizedRole, {
+            searchInput,
+            filterField,
+            tableBody,
+            countLabel,
+            tableActionMessage,
+            viewVendorBtn,
+            cancelVendorBtn,
+          });
+        };
+        roleDashboard.addEventListener("click", openCardFromEvent);
+        roleDashboard.addEventListener("keydown", (event) => {
+          if (event.key !== "Enter" && event.key !== " ") return;
+          openCardFromEvent(event);
+        });
+      }
+
+      try {
+        await loadDashboardRecords(token);
+        try {
+          await loadDashboardSummaryRecords(token);
+        } catch (summaryErr) {
+          console.warn(summaryErr);
+          dashboardRows.splice(0, dashboardRows.length, ...rows);
+        }
+        renderRoleDashboard(normalizedRole);
+        const hasFocusedRecord = focusRecordIdFromQuery
+          ? rows.some((item) => String(item.record || "").trim().toLowerCase() === focusRecordIdFromQuery.toLowerCase())
+          : false;
+        if (focusRecordIdFromQuery && (!rows.length || !hasFocusedRecord)) {
+          const restored = await restoreViewedRecordIfNeeded(token, focusRecordIdFromQuery, activeApprovalMode);
+          if (restored) {
+            setActionMessage(tableActionMessage, `Restored Record ID: ${focusRecordIdFromQuery}`, "ok");
+          }
+        }
+        if (rows.length) {
+          sessionStorage.removeItem(CUSTOMER_VIEW_STATE_RECORD_KEY);
+          sessionStorage.removeItem(CUSTOMER_VIEW_STATE_MODE_KEY);
+        }
+        if (hasRoleCapability(normalizedRole, "user")) {
+          hodEmailOptions = await loadHodEmails(token);
+          if (newHodEmailSelect) {
+            const optionHtml = ['<option value="">Select HOD Email</option>']
+              .concat(
+                hodEmailOptions.map((item) => {
+                  const label = item.name ? `${item.name} (${item.email})` : item.email;
+                  return `<option value="${escapeHtml(item.email)}">${escapeHtml(label)}</option>`;
+                })
+              )
+              .join("");
+            newHodEmailSelect.innerHTML = optionHtml;
+          }
+        }
+      } catch (err) {
+        console.error(err);
+        if (!dashboardRows.length) {
+          dashboardRows.splice(0, dashboardRows.length, ...rows);
+        }
+        renderRoleDashboard(normalizedRole);
+        setActionMessage(tableActionMessage, "Unable to load dashboard records.", "err");
+      }
+
+      const refreshGrid = () => {
+        applyFilter(searchInput, filterField, tableBody, countLabel);
+        updateActionButtons(viewVendorBtn, cancelVendorBtn, normalizedRole);
+      };
+
+      tableBody.addEventListener("click", (event) => {
+        const clickedRow = event.target.closest("tr.selectable-row[data-record]");
+        if (!clickedRow) return;
+        const recordId = decodeURIComponent(String(clickedRow.dataset.record || ""));
+        if (!recordId) return;
+        if (isHodMultiSelectMode(normalizedRole)) {
+          toggleMultiSelection(recordId);
+          if (!selectedRecordIds.length) {
+            setActionMessage(tableActionMessage, "Selection cleared.");
+          } else {
+            setActionMessage(tableActionMessage, `Selected ${selectedRecordIds.length} record(s).`);
+          }
+        } else {
+          if (selectedRecordId === recordId) {
+            resetSelectionState();
+            setActionMessage(tableActionMessage, "Selection cleared.");
+          } else {
+            applySingleSelection(recordId);
+            setActionMessage(tableActionMessage, `Selected Record ID: ${recordId}`);
+          }
+        }
+        refreshGrid();
+      });
+
+      if (viewVendorBtn) {
+        viewVendorBtn.addEventListener("click", () => {
+          const targetRecordId = selectedRecordIds[0] || "";
+          if (!targetRecordId) {
+            setActionMessage(tableActionMessage, "Please select a record first.", "err");
+            return;
+          }
+          if (isHodMultiSelectMode(normalizedRole) && selectedRecordIds.length > 1) {
+            setActionMessage(tableActionMessage, `Opening first selected record: ${targetRecordId}`);
+          }
+          let backMode = activeApprovalMode || getDefaultApprovalMode(normalizedRole);
+          if (backMode === "dashboard-drilldown") {
+            const dashboardRoleMode = getDashboardRoleView(normalizedRole);
+            backMode = dashboardRoleMode === "admin" ? getDefaultApprovalMode(normalizedRole) : dashboardRoleMode;
+          }
+          sessionStorage.setItem(CUSTOMER_VIEW_STATE_RECORD_KEY, targetRecordId);
+          sessionStorage.setItem(CUSTOMER_VIEW_STATE_MODE_KEY, backMode);
+          const target = `/web/view-customer?recordId=${encodeURIComponent(targetRecordId)}&approval=${encodeURIComponent(backMode)}`;
+          window.location.href = target;
+        });
+      }
+
+      if (cancelVendorBtn) {
+        cancelVendorBtn.addEventListener("click", async () => {
+          const targetRecordId = selectedRecordIds[0] || "";
+          if (!targetRecordId) {
+            setActionMessage(tableActionMessage, "Please select a record first.", "err");
+            return;
+          }
+          if (!confirm(`Cancel customer for Record ID: ${targetRecordId}?`)) {
+            return;
+          }
+
+          setActionMessage(tableActionMessage, "Cancelling customer...");
+          showToast("Cancelling customer...", "info", 0);
+          cancelVendorBtn.disabled = true;
+          if (viewVendorBtn) viewVendorBtn.disabled = true;
+
+          try {
+            const res = await fetch("/api/customer/cancel", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+              },
+              body: JSON.stringify({ recordId: targetRecordId }),
+            });
+            const data = await parseApiResponse(res);
+            if (!res.ok) {
+              throw new Error(data.detail || "Unable to cancel customer");
+            }
+
+            patchDashboardRows([targetRecordId], { approverStatus: String(data.approverStatus || "Customer Cancelled") });
+            resetSelectionState();
+            setActionMessage(tableActionMessage, "Customer cancelled successfully.", "ok");
+            showToast("Customer cancelled successfully.", "ok");
+            renderRoleDashboard(normalizedRole);
+            refreshGrid();
+          } catch (err) {
+            setActionMessage(tableActionMessage, err.message || "Unable to cancel customer.", "err");
+            showToast(err.message || "Unable to cancel customer.", "err");
+            updateActionButtons(viewVendorBtn, cancelVendorBtn, normalizedRole);
+          }
+        });
+      }
+
+      document.querySelectorAll('input[name="hodDecision"]').forEach((radio) => {
+        radio.addEventListener("change", () => syncHodDecisionSubmitState(normalizedRole));
+      });
+      document.querySelectorAll('input[name="hodRejectTo"]').forEach((radio) => {
+        radio.addEventListener("change", () => syncHodDecisionSubmitState(normalizedRole));
+      });
+      if (hodDecisionRemarks) {
+        hodDecisionRemarks.addEventListener("input", () => syncHodDecisionSubmitState(normalizedRole));
+      }
+
+      if (hodDecisionSubmitBtn) {
+        hodDecisionSubmitBtn.addEventListener("click", async () => {
+          if (!isHodMultiSelectMode(normalizedRole)) {
+            setActionMessage(tableActionMessage, "HOD decision is only available on HOD Approval Page.", "err");
+            return;
+          }
+          if (!selectedRecordIds.length) {
+            setActionMessage(tableActionMessage, "Please select one or more records first.", "err");
+            return;
+          }
+
+          const decision = getSelectedHodDecision();
+          const rejectTo = getSelectedHodRejectTo();
+          const remarks = String(hodDecisionRemarks?.value || "").trim();
+          if (!decision) {
+            setActionMessage(tableActionMessage, "Please select Approve or Reject.", "err");
+            syncHodDecisionSubmitState(normalizedRole);
+            return;
+          }
+          if (decision === "reject" && !rejectTo) {
+            setActionMessage(tableActionMessage, "Please select Reject To: Customer or Buyer.", "err");
+            syncHodDecisionSubmitState(normalizedRole);
+            return;
+          }
+          if (!remarks) {
+            setActionMessage(tableActionMessage, "Remarks are mandatory.", "err");
+            syncHodDecisionSubmitState(normalizedRole);
+            return;
+          }
+
+          setActionMessage(tableActionMessage, "Submitting HOD decision...");
+          showToast(
+            decision === "approve"
+              ? "Processing HOD approval and SAP queue..."
+              : "Processing HOD rejection and sending mail...",
+            "info",
+            0
+          );
+          hodDecisionSubmitBtn.disabled = true;
+          try {
+            const res = await fetch("/api/customer/hod-bulk-decision", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                recordIds: [...selectedRecordIds],
+                decision,
+                remarks,
+                rejectTo: decision === "reject" ? rejectTo : undefined,
+              }),
+            });
+            const data = await parseApiResponse(res);
+            if (!res.ok) {
+              throw new Error(data.detail || "Unable to submit HOD decision");
+            }
+
+            const updatedIds = Array.isArray(data.updatedRecordIds) ? data.updatedRecordIds.map((item) => String(item || "")) : [];
+            const nextStatus = String(
+              data.approverStatus
+              || (decision === "approve" ? "Pending for SAP Code Creation" : "Rejected by HOD")
+            );
+            patchDashboardRows(updatedIds, { approverStatus: nextStatus });
+
+            const failedRecords = Array.isArray(data.failedRecords) ? data.failedRecords : [];
+            resetSelectionState();
+            if (hodDecisionRemarks) {
+              hodDecisionRemarks.value = "";
+            }
+            document.querySelectorAll('input[name="hodDecision"]').forEach((radio) => {
+              radio.checked = false;
+            });
+            document.querySelectorAll('input[name="hodRejectTo"]').forEach((radio) => {
+              radio.checked = false;
+            });
+
+            const warningParts = [];
+            const sapError = String(data.sapTemplateError || "").trim();
+            const uploadError = String(data.vendorUploadError || "").trim();
+            const sapLogonError = String(data.sapLogonError || "").trim();
+            const sapAutoLogonError = String(data.sapAutoLogonError || "").trim();
+            const sapTransactionError = String(data.sapTransactionError || "").trim();
+            const refreshMode = String(data?.vendorUploadSync?.refreshMode || "").trim();
+            const refreshWarning = String(data?.vendorUploadSync?.refreshWarning || "").trim();
+            if (sapError) warningParts.push(`SAP template error: ${sapError}`);
+            if (uploadError) warningParts.push(`Customer upload error: ${uploadError}`);
+            if (sapLogonError) warningParts.push(`SAP Logon error: ${sapLogonError}`);
+            if (sapAutoLogonError) warningParts.push(`SAP login error: ${sapAutoLogonError}`);
+            if (sapTransactionError) warningParts.push(`SAP transaction error: ${sapTransactionError}`);
+            if (refreshMode && refreshMode !== "com_refresh") {
+              warningParts.push(`Customer upload sync mode: ${refreshMode}`);
+            }
+            if (refreshWarning) warningParts.push(refreshWarning);
+
+            if (failedRecords.length) {
+              setActionMessage(
+                tableActionMessage,
+                `Decision applied to ${updatedIds.length} record(s). ${failedRecords.length} failed.${warningParts.length ? ` Warnings: ${warningParts.join(" | ")}` : ""}`,
+                "err"
+              );
+              showToast(`Decision applied with ${failedRecords.length} failed record(s).`, "err");
+            } else if (warningParts.length) {
+              setActionMessage(
+                tableActionMessage,
+                `Decision applied to ${updatedIds.length} record(s). Warnings: ${warningParts.join(" | ")}`,
+                "err"
+              );
+              showToast(`Decision applied with warning. ${warningParts[0]}`, "err");
+            } else {
+              setActionMessage(tableActionMessage, `Decision applied to ${updatedIds.length} record(s).`, "ok");
+              showToast(`Decision applied to ${updatedIds.length} record(s).`, "ok");
+            }
+            renderRoleDashboard(normalizedRole);
+            refreshGrid();
+          } catch (err) {
+            setActionMessage(tableActionMessage, err.message || "Unable to submit HOD decision.", "err");
+            showToast(err.message || "Unable to submit HOD decision.", "err");
+            syncHodDecisionSubmitState(normalizedRole);
+          }
+        });
+      }
+
+      if (newHodEmailSelect) {
+        newHodEmailSelect.addEventListener("change", () => {
+          syncUpdateHodPanelState(normalizedRole);
+        });
+      }
+
+      if (updateHodEmailBtn) {
+        updateHodEmailBtn.addEventListener("click", async () => {
+          if (!isUpdateHodEmailMode(normalizedRole)) {
+            setActionMessage(tableActionMessage, "Update HOD Email is only available for User role.", "err");
+            return;
+          }
+
+          const targetRecordId = selectedRecordIds[0] || "";
+          const nextHodEmail = String(newHodEmailSelect?.value || "").trim();
+          if (!targetRecordId) {
+            setActionMessage(tableActionMessage, "Please select one record first.", "err");
+            syncUpdateHodPanelState(normalizedRole);
+            return;
+          }
+          if (!nextHodEmail) {
+            setActionMessage(tableActionMessage, "Please select new HOD email ID.", "err");
+            syncUpdateHodPanelState(normalizedRole);
+            return;
+          }
+
+          setActionMessage(tableActionMessage, "Updating HOD email...");
+          showToast("Updating HOD email...", "info", 0);
+          updateHodEmailBtn.disabled = true;
+          try {
+            const res = await fetch("/api/customer/update-hod-email", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                recordId: targetRecordId,
+                hodEmail: nextHodEmail,
+              }),
+            });
+            const data = await parseApiResponse(res);
+            if (!res.ok) {
+              throw new Error(data.detail || "Unable to update HOD email");
+            }
+
+            resetSelectionState();
+            if (newHodEmailSelect) {
+              newHodEmailSelect.value = "";
+            }
+            setActionMessage(tableActionMessage, `HOD email updated for Record ID: ${targetRecordId}.`, "ok");
+            showToast("HOD email updated successfully.", "ok");
+            refreshGrid();
+          } catch (err) {
+            setActionMessage(tableActionMessage, err.message || "Unable to update HOD email.", "err");
+            showToast(err.message || "Unable to update HOD email.", "err");
+            syncUpdateHodPanelState(normalizedRole);
+          }
+        });
+      }
+
+      searchInput.addEventListener("input", () => applyFilter(searchInput, filterField, tableBody, countLabel));
+      filterField.addEventListener("change", () => applyFilter(searchInput, filterField, tableBody, countLabel));
+      refreshGrid();
+    });
+  </script>
+</body>
+</html>

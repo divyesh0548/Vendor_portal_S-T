@@ -1,0 +1,251 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Vendor Login</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f6fb; margin: 0; padding: 24px; }
+    .card { max-width: 440px; margin: 40px auto; background: #fff; border-radius: 12px; padding: 24px; box-shadow: 0 8px 20px rgba(0,0,0,.08); }
+    h1 { margin: 0 0 16px; font-size: 24px; }
+    label { display: block; margin: 12px 0 6px; font-weight: 600; }
+    input, button { width: 100%; padding: 11px; border-radius: 8px; border: 1px solid #d0d7e2; box-sizing: border-box; }
+    button { background: #233a8b; color: #fff; border: none; margin-top: 16px; cursor: pointer; font-weight: 600; }
+    .secondary-btn { background: #64748b; }
+    .password-wrap { position: relative; }
+    .password-wrap input { padding-right: 56px; }
+    .password-wrap .toggle-pass { position: absolute; right: 8px; top: 50%; width: 38px; height: 34px; margin: 0; padding: 0; display: inline-flex; align-items: center; justify-content: center; transform: translateY(-50%) !important; background: transparent !important; color: #1f2937 !important; border: none !important; box-shadow: none !important; -webkit-backdrop-filter: none; backdrop-filter: none; line-height: 0; }
+    .password-wrap .toggle-pass:hover:not(:disabled) { transform: translateY(-50%) !important; background: transparent !important; box-shadow: none !important; filter: none !important; }
+    .password-wrap .toggle-pass:focus-visible { outline: 2px solid rgba(90, 169, 200, .5); outline-offset: 2px; }
+    .password-wrap .toggle-pass svg { width: 18px; height: 18px; stroke-width: 2.2; }
+    .link-btn { width: auto; background: transparent; color: #233a8b; border: none; margin-top: 10px; padding: 0; text-decoration: underline; cursor: pointer; font-size: 14px; font-weight: 600; }
+    .forgot-card { margin-top: 14px; padding-top: 10px; border-top: 1px solid #e5e7eb; }
+    .forgot-card.hidden { display: none; }
+    .forgot-actions { display: flex; gap: 8px; margin-top: 10px; }
+    .forgot-actions button { margin-top: 0; }
+    .msg { margin-top: 12px; font-size: 14px; }
+    .ok { color: #0a7a2d; }
+    .err { color: #b3261e; }
+    .hint { font-size: 13px; color: #4b5563; margin-top: 8px; }
+  </style>
+  <link rel="stylesheet" href="/web/portal-liquid.css?v=20260610-light" />
+</head>
+<body>
+  <div class="card">
+    <h1>Welcome to Sharp & Tannan Vendor Portal</h1>
+    <form id="loginForm">
+      <label for="email">Email / Username</label>
+      <input id="email" name="email" type="text" value="vendor@example.com" required />
+      <label for="password">Password</label>
+      <div class="password-wrap">
+        <input id="password" name="password" type="password" value="password123" required />
+        <button id="togglePasswordBtn" type="button" class="toggle-pass" aria-label="Show password" title="Show password"></button>
+      </div>
+      <button type="submit">Login</button>
+    </form>
+    <button id="forgotPasswordLink" type="button" class="link-btn">Forgot Password?</button>
+    <div id="forgotPasswordCard" class="forgot-card hidden">
+      <label for="forgotEmail">Registered Email</label>
+      <input id="forgotEmail" type="email" placeholder="Enter registered email" />
+      <label for="newPassword">New Password</label>
+      <div class="password-wrap">
+        <input id="newPassword" type="password" placeholder="Enter new password" />
+        <button id="toggleNewPasswordBtn" type="button" class="toggle-pass" aria-label="Show password" title="Show password"></button>
+      </div>
+      <label for="confirmPassword">Confirm New Password</label>
+      <div class="password-wrap">
+        <input id="confirmPassword" type="password" placeholder="Confirm new password" />
+        <button id="toggleConfirmPasswordBtn" type="button" class="toggle-pass" aria-label="Show password" title="Show password"></button>
+      </div>
+      <div class="forgot-actions">
+        <button id="resetPasswordBtn" type="button">Reset Password</button>
+        <button id="cancelForgotBtn" type="button" class="secondary-btn">Cancel</button>
+      </div>
+    </div>
+    <div id="message" class="msg"></div>
+    <div class="hint">After login, choose Vendor or Customer, then you will continue to the right area.</div>
+  </div>
+  <script>
+    const form = document.getElementById("loginForm");
+    const message = document.getElementById("message");
+    const passwordInput = document.getElementById("password");
+    const togglePasswordBtn = document.getElementById("togglePasswordBtn");
+    const forgotPasswordLink = document.getElementById("forgotPasswordLink");
+    const forgotPasswordCard = document.getElementById("forgotPasswordCard");
+    const forgotEmailInput = document.getElementById("forgotEmail");
+    const newPasswordInput = document.getElementById("newPassword");
+    const confirmPasswordInput = document.getElementById("confirmPassword");
+    const toggleNewPasswordBtn = document.getElementById("toggleNewPasswordBtn");
+    const toggleConfirmPasswordBtn = document.getElementById("toggleConfirmPasswordBtn");
+    const resetPasswordBtn = document.getElementById("resetPasswordBtn");
+    const cancelForgotBtn = document.getElementById("cancelForgotBtn");
+    const queryParams = new URLSearchParams(window.location.search);
+    const requestedNext = queryParams.get("next") || "";
+    const safeNext = requestedNext.startsWith("/web/") ? requestedNext : "";
+    const selectRoleUrl = safeNext
+      ? `/web/select-role?next=${encodeURIComponent(safeNext)}`
+      : "/web/select-role";
+
+    async function parseApiResponse(res) {
+      const text = await res.text();
+      if (!text) return {};
+      try {
+        return JSON.parse(text);
+      } catch (_) {
+        return { detail: text };
+      }
+    }
+
+    const passwordToggleIcons = {
+      show: `<svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M2.1 12s3.7-7 9.9-7 9.9 7 9.9 7-3.7 7-9.9 7-9.9-7-9.9-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>`,
+      hide: `<svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 4.2A10.6 10.6 0 0 1 12 4.1c6.2 0 9.9 7 9.9 7a18 18 0 0 1-2.8 3.8"></path><path d="M14.1 14.1A3 3 0 0 1 9.9 9.9"></path><path d="M6.6 6.6C3.8 8.5 2.1 12 2.1 12s3.7 7 9.9 7a10.4 10.4 0 0 0 5.4-1.6"></path><path d="M2 2l20 20"></path></svg>`,
+    };
+
+    function setPasswordToggleState(buttonEl, isHidden) {
+      const label = isHidden ? "Show password" : "Hide password";
+      buttonEl.innerHTML = isHidden ? passwordToggleIcons.show : passwordToggleIcons.hide;
+      buttonEl.setAttribute("aria-label", label);
+      buttonEl.setAttribute("title", label);
+    }
+
+    function attachPasswordToggle(buttonEl, inputEl) {
+      if (!buttonEl || !inputEl) return;
+      setPasswordToggleState(buttonEl, inputEl.type === "password");
+      buttonEl.addEventListener("click", () => {
+        const isHidden = inputEl.type === "password";
+        inputEl.type = isHidden ? "text" : "password";
+        setPasswordToggleState(buttonEl, inputEl.type === "password");
+      });
+    }
+
+    attachPasswordToggle(togglePasswordBtn, passwordInput);
+    attachPasswordToggle(toggleNewPasswordBtn, newPasswordInput);
+    attachPasswordToggle(toggleConfirmPasswordBtn, confirmPasswordInput);
+
+    forgotPasswordLink.addEventListener("click", () => {
+      forgotPasswordCard.classList.remove("hidden");
+      forgotEmailInput.value = document.getElementById("email").value.trim();
+      message.textContent = "";
+      message.className = "msg";
+    });
+
+    cancelForgotBtn.addEventListener("click", () => {
+      forgotPasswordCard.classList.add("hidden");
+      newPasswordInput.value = "";
+      confirmPasswordInput.value = "";
+    });
+
+    resetPasswordBtn.addEventListener("click", async () => {
+      const email = forgotEmailInput.value.trim();
+      const newPassword = newPasswordInput.value;
+      const confirmPassword = confirmPasswordInput.value;
+
+      if (!email || !newPassword || !confirmPassword) {
+        message.textContent = "Please fill email, new password and confirm password.";
+        message.className = "msg err";
+        return;
+      }
+      if (newPassword.length < 6) {
+        message.textContent = "Password must be at least 6 characters.";
+        message.className = "msg err";
+        return;
+      }
+      if (newPassword !== confirmPassword) {
+        message.textContent = "New password and confirm password do not match.";
+        message.className = "msg err";
+        return;
+      }
+
+      message.textContent = "Resetting password...";
+      message.className = "msg";
+      try {
+        const res = await fetch("/api/auth/forgot-password", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, newPassword }),
+        });
+        const data = await parseApiResponse(res);
+        if (!res.ok) {
+          throw new Error(data.detail || data.error || "Unable to reset password");
+        }
+
+        passwordInput.value = newPassword;
+        forgotPasswordCard.classList.add("hidden");
+        newPasswordInput.value = "";
+        confirmPasswordInput.value = "";
+        message.textContent = "Password reset successful. Please login.";
+        message.className = "msg ok";
+      } catch (err) {
+        message.textContent = err.message || "Unable to reset password";
+        message.className = "msg err";
+      }
+    });
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      message.textContent = "Logging in...";
+      message.className = "msg";
+      const payload = {
+        email: document.getElementById("email").value.trim(),
+        password: document.getElementById("password").value
+      };
+      try {
+        const res = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await parseApiResponse(res);
+        if (!res.ok) {
+          throw new Error(data.detail || data.error || "Login failed");
+        }
+        sessionStorage.setItem("token", data.token || "");
+        sessionStorage.setItem("role", data.role || "");
+        sessionStorage.setItem("email", data.email || "");
+        sessionStorage.setItem("name", data.name || "");
+        sessionStorage.setItem("botName", data.botName || "Vendor Bot");
+        sessionStorage.setItem("passwordChangeRequired", data.passwordChangeRequired ? "true" : "false");
+        message.textContent = "Login successful. Redirecting...";
+        message.className = "msg ok";
+
+        const botName = String(data.botName || "Vendor Bot").trim();
+        const loggedInRole = String(data.role || "").trim().toLowerCase();
+        let finalNextUrl = "/web/vendor-dashboard";
+
+        // Admin must be able to access both Vendor and Customer.
+        // Always show the Select Role (portal) page first.
+        if (loggedInRole === "admin") {
+          finalNextUrl = selectRoleUrl;
+        } else if (botName === "Customer Bot") {
+          finalNextUrl = "/web/customer-dashboard";
+          if (safeNext && safeNext.includes("/web/vendor") === false && safeNext.includes("portal=vendor") === false && !safeNext.includes("/web/select-role")) {
+            finalNextUrl = safeNext;
+          }
+        } else if (botName === "Both") {
+          finalNextUrl = selectRoleUrl; // Must show Select Role first.
+        } else {
+          // Vendor Bot (default)
+          finalNextUrl = "/web/vendor-dashboard";
+          if (safeNext) {
+            const looksCustomer =
+              safeNext.includes("/web/customer") ||
+              safeNext.includes("/web/view-vendor") && safeNext.includes("portal=customer");
+            if (!looksCustomer && !safeNext.includes("/web/select-role")) {
+              finalNextUrl = safeNext;
+            }
+          }
+        }
+
+        const nextUrl = data.passwordChangeRequired
+          ? `/web/change-password?next=${encodeURIComponent(finalNextUrl)}`
+          : finalNextUrl;
+        setTimeout(() => { window.location.href = nextUrl; }, 500);
+      } catch (err) {
+        message.textContent = err.message || "Login failed";
+        message.className = "msg err";
+      }
+    });
+  </script>
+</body>
+</html>
