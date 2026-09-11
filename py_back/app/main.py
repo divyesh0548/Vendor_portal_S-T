@@ -6297,15 +6297,30 @@ PDF_VENDOR_FORM_SECTIONS: list[dict[str, Any]] = [
         ],
     },
     {
-        "title": "6. Sharp & Tannan Team",
+        "title": "6. Business Information",
         "cards": [
             {
-                "title": "Sharp & Tannan Team",
+                "title": "Business Information",
                 "fields": [
-                    {"label": "Inco Terms", "keys": ["incoTerms", "IncoTerms", "Incoterms"]},
-                    {"label": "Payment Terms", "keys": ["paymentTerms", "PaymentTerms"]},
-                    {"label": "Vendor Type", "keys": ["vendorType", "VendorType"]},
-                    {"label": "Sharp & Tannan Approver HOD", "keys": ["rubaminApproverHod", "RubaminApproverHod", "hodEmail", "HodEmail"]},
+                    {"label": "Nature of Business", "keys": ["natureOfBusiness"]},
+                    {"label": "Products / Services Offered", "keys": ["productsServicesOffered"]},
+                    {"label": "Years of Experience", "keys": ["yearsOfExperience"]},
+                    {"label": "Annual Turnover (last 3 years)", "keys": ["annualTurnoverLast3Years"]},
+                ],
+            },
+        ],
+    },
+    {
+        "title": "7. Compliance & Risk Assessment",
+        "cards": [
+            {
+                "title": "Compliance & Risk Assessment",
+                "fields": [
+                    {"label": "Litigation Details (if any)", "keys": ["litigationDetails"]},
+                    {"label": "Blacklisting Declaration", "keys": ["blacklistingDeclaration"]},
+                    {"label": "Related Party Declaration", "keys": ["relatedPartyDeclaration"]},
+                    {"label": "Anti-Bribery and Anti-Corruption Declaration", "keys": ["antiBriberyAntiCorruptionDeclaration"]},
+                    {"label": "Is a Lower/Nil TDS Deduction Certificate under Section 197 available?", "keys": ["lowerNilTdsCertificateSection197"]},
                 ],
             },
         ],
@@ -6496,7 +6511,7 @@ def _build_vendor_form_pdf_html(record_id: str, record: dict[str, Any]) -> str:
         _build_vendor_form_static_field_html(label, value)
         for label, value in rubamin_team_values.items()
     )
-    section_html_parts.append("<h2>6. Sharp &amp; Tannan Team</h2>")
+    section_html_parts.append("<h2>9. Sharp &amp; Tannan Team</h2>")
     section_html_parts.append(
         '<div class="subcard">'
         "<h3>Sharp &amp; Tannan Team</h3>"

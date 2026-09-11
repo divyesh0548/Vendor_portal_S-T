@@ -516,7 +516,8 @@
         fieldName === "invoiceApplicable" ||
         fieldName === "eInvoiceApplicability" ||
         fieldName === "eWayBillApplicability" ||
-        fieldName === "itrFilingStatus"
+        fieldName === "itrFilingStatus" ||
+        fieldName === "lowerNilTdsCertificateSection197"
       ) {
         return normalizeOptions(YES_NO_OPTIONS);
       }
@@ -1185,13 +1186,56 @@
         ],
       },
       {
-        title: "6. Declaration & Agreement",
+        title: "6. Business Information",
+        cards: [
+          {
+            title: "Business Information",
+            fields: [
+              { name: "natureOfBusiness", label: "Nature of Business", keys: ["natureOfBusiness"] },
+              { name: "productsServicesOffered", label: "Products / Services Offered", keys: ["productsServicesOffered"] },
+              { name: "yearsOfExperience", label: "Years of Experience", keys: ["yearsOfExperience"] },
+              { name: "annualTurnoverLast3Years", label: "Annual Turnover (last 3 years)", keys: ["annualTurnoverLast3Years"] },
+            ],
+          },
+        ],
+      },
+      {
+        title: "7. Compliance & Risk Assessment",
+        cards: [
+          {
+            title: "Compliance & Risk Assessment",
+            fields: [
+              { name: "litigationDetails", label: "Litigation Details (if any)", keys: ["litigationDetails"] },
+              { name: "blacklistingDeclaration", label: "Blacklisting Declaration", keys: ["blacklistingDeclaration"] },
+              { name: "relatedPartyDeclaration", label: "Related Party Declaration", keys: ["relatedPartyDeclaration"] },
+              { name: "antiBriberyAntiCorruptionDeclaration", label: "Anti-Bribery and Anti-Corruption Declaration", keys: ["antiBriberyAntiCorruptionDeclaration"] },
+              { name: "lowerNilTdsCertificateSection197", label: "Is a Lower/Nil TDS Deduction Certificate under Section 197 available?", keys: ["lowerNilTdsCertificateSection197"], select: true },
+            ],
+          },
+        ],
+      },
+      {
+        title: "8. Declaration & Agreement",
         cards: [
           {
             title: "Declaration & Agreement",
             fields: [
               { name: "agreeCodeOfConduct", label: "Agree Code of Conduct", keys: ["agreeCodeOfConduct", "CodeofConduct"], select: true },
               { name: "agreeInformationAccuracy", label: "Agree Information Accuracy", keys: ["agreeInformationAccuracy"], select: true },
+            ],
+          },
+        ],
+      },
+      {
+        title: "9. Sharp & Tannan Team",
+        cards: [
+          {
+            title: "Sharp & Tannan Team",
+            fields: [
+              { name: "incoTerms", label: "Inco Terms", keys: ["incoTerms", "IncoTerms", "Incoterms"], select: true },
+              { name: "paymentTerms", label: "Payment Terms", keys: ["paymentTerms", "PaymentTerms"], select: true },
+              { name: "vendorType", label: "Vendor Type", keys: ["vendorType", "VendorType"], select: true },
+              { name: "rubaminApproverHod", label: "Sharp & Tannan Approver HOD", keys: ["rubaminApproverHod", "RubaminApproverHod", "hodEmail", "HodEmail"], select: true },
             ],
           },
         ],
